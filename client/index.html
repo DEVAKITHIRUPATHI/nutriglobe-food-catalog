@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>NutriGlobe - Global Multilingual Clinical Nutrition Facts & Calorie Engine</title>
+
+    <!-- Core Primary SEO Meta Tags -->
+    <meta name="description" content="NutriGlobe is a WHO-standard multilingual clinical nutrition engine, providing RDA calculations, food nutrition facts, BMR & TDEE calculators, and evidence-based health articles in 45+ global languages." />
+    <meta name="keywords" content="nutrition facts, RDA calculator, calorie calculator, food database, BMR calculator, TDEE calculator, clinical nutrition, health articles, multilingual nutrition, WHO daily values" />
+    <meta name="author" content="NutriGlobe Clinical Editorial Board" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- PWA & Mobile Installability -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#10b981" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NutriGlobe" />
+    <link rel="apple-touch-icon" href="/generated-icon.png" />
+
+    <!-- Open Graph / Facebook / LinkedIn Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nutriglobe.app/" />
+    <meta property="og:title" content="NutriGlobe - Global Clinical Nutrition Facts & Calorie Engine" />
+    <meta property="og:description" content="Access 100,000+ verified food nutrition records, personal BMR/TDEE & medical RDA calculators, and evidence-based editorial articles in 45+ languages." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80" />
+    <meta property="og:site_name" content="NutriGlobe" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NutriGlobe - Clinical Nutrition & RDA Engine" />
+    <meta name="twitter:description" content="WHO & USDA compliant clinical food database and interactive calorie calculators supporting 45+ global languages." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Google AdSense Account Verification & Auto-Ads Script -->
+    <meta name="google-adsense-account" content="ca-pub-4353689996620152">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4353689996620152" crossorigin="anonymous"></script>
+
+    <!-- Schema.org JSON-LD Structured Data for Google Search & Google News -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://nutriglobe.app/#organization",
+          "name": "NutriGlobe Health & Clinical Nutrition Institute",
+          "url": "https://nutriglobe.app/",
+          "logo": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=500&q=80",
+          "description": "Global clinical nutrition database and evidence-based health publisher.",
+          "knowsAbout": ["Clinical Nutrition", "Dietetics", "Macronutrients", "Micronutrients", "WHO RDA Standards"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://nutriglobe.app/#website",
+          "url": "https://nutriglobe.app/",
+          "name": "NutriGlobe",
+          "publisher": {
+            "@id": "https://nutriglobe.app/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://nutriglobe.app/foods?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "MedicalWebPage",
+          "@id": "https://nutriglobe.app/#medicalpage",
+          "url": "https://nutriglobe.app/",
+          "name": "NutriGlobe Clinical Food Database & RDA Calculator",
+          "medicalAudience": "PatientAndConsumer",
+          "aspect": ["Diagnosis", "Prevention", "Overview"]
+        }
+      ]
+    }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-emerald-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

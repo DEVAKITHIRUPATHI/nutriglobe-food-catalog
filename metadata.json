@@ -1,0 +1,6 @@
+{
+  "name": "NutriFacts",
+  "description": "Multilingual offline-first nutrition facts app with global food database",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

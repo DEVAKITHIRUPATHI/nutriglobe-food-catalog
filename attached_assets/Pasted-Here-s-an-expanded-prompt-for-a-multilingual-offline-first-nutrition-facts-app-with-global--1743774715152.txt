@@ -1,0 +1,98 @@
+Here’s an **expanded prompt** for a **multilingual, offline-first nutrition facts app** with global + Indian regional focus, covering UI, data, and architecture:
+
+---
+
+### **Prompt: Global & Indian Nutrition Facts App (Offline + Online)**  
+**App Name:** *NutriGlobe* (or custom name)  
+**Platforms:** Android (Kotlin/Jetpack Compose), iOS (SwiftUI), Web (Flutter/React).  
+
+---
+
+### **Core Features**  
+1. **Multilingual Support**  
+   - **Languages:**  
+     - **Global:** English, Spanish, French, Arabic, Mandarin, Portuguese, Russian, Japanese, German, Swahili.  
+     - **Indian:** Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Odia.  
+   - **UI:** Dropdown language switcher + auto-detect device language.  
+   - **Content:** All text (UI labels, descriptions) and nutrition data translatable.  
+
+2. **Offline-First Data**  
+   - **Local Storage:** SQLite (Mobile) / IndexedDB (Web) to cache:  
+     - 500+ fruits/vegetables/ingredients (100g metrics).  
+     - High-compression images (WebP) for offline use.  
+   - **Sync:** Background update when online (Firebase/FastAPI).  
+
+3. **Nutrition Database**  
+   - **Per 100g Standardized Data** (Example):  
+     ```json
+     {
+       "id": "mango_india",
+       "name": { "en": "Mango", "hi": "आम", "ta": "மாம்பழம்" },
+       "origin": "India",
+       "calories": 60,
+       "carbs": 15g,
+       "vitamins": { "C": "60% DV", "A": "25% DV" },
+       "image_local": "assets/mango.webp",
+       "image_online": "https://.../mango.jpg",
+       "allergens": ["vegan", "gluten-free"],
+       "fun_fact": { "en": "National fruit of India!", "hi": "भारत का राष्ट्रीय फल!" }
+     }
+     ```
+   - **Regional Highlights:**  
+     - **Global:** Quinoa, Avocado, Kale, Salmon.  
+     - **Indian:** Mango (Alphonso), Jackfruit, Amla, Turmeric.  
+
+4. **E-Commerce UI**  
+   - **Views:**  
+     - *Grid/List*: Filter by diet (Keto, Vegan), region, or nutrient (High Iron).  
+     - *AR Scan*: Scan food labels to fetch nutrition (ML Kit/TensorFlow Lite).  
+   - **Cart:** Save favorites, export shopping lists.  
+
+5. **Tech Stack**  
+   - **Backend:** Firebase (Online) / Custom API (Python + MongoDB).  
+   - **Offline Sync:** WorkManager (Android), Background Fetch (iOS).  
+   - **i18n:** Flutter Intl / Android Resources.  
+
+---
+
+### **Sample Screens**  
+1. **Home Screen**  
+   - Search bar + trending Indian/global foods.  
+   - Language switcher (top-right).  
+
+2. **Detail Page**  
+   - Image carousel, nutrition chart (pie/bar graphs).  
+   - "Compare" button (side-by-side nutrition with another item).  
+
+3. **Offline Mode**  
+   - Banner: "Offline — Showing cached data".  
+   - Sync button to retry connection.  
+
+---
+
+### **Deliverables**  
+1. **Data:**  
+   - JSON dataset (500+ items) with 20-language translations.  
+   - WebP images (500x500px, white background).  
+2. **Code:**  
+   - Flutter/Android starter template with offline SQLite.  
+   - i18n config files for all languages.  
+3. **Design:**  
+   - Figma/Adobe XD mockups (light/dark mode).  
+
+---
+
+### **Why This Works?**  
+- **Offline Access:** Critical for rural Indian users with patchy internet.  
+- **Hyperlocal:** Indian languages + global staples attract wider audiences.  
+- **E-Commerce Ready:** "Buy Now" links to local grocery partners (BigBasket, Blinkit).  
+
+**Next Steps:**  
+- Prioritize Indian languages for MVP.  
+- Use Flutter for cross-platform consistency.  
+
+Need adjustments? For example:  
+- Add Ayurvedic tags (e.g., "Heating/Cooling" for Indian users).  
+- Integrate with India’s FSSAI food database.  
+
+Let me know!

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/admin/
+Disallow: /admin
+
+Sitemap: https://nutriglobe.app/sitemap.xml
+Sitemap: https://nutriglobe.app/news-sitemap.xml
