@@ -2741,6 +2741,8 @@ const baseFoodList: FoodItemClient[] = [
 ];
 
 import { get100kFoodDatabase } from './largeScaleFoodCatalog';
+import { processFoodImageBatch } from './batch1Processor';
 
 export const baseFoodItems = baseFoodList;
-export const foodItems: FoodItemClient[] = get100kFoodDatabase(baseFoodList);
+export const rawFoodItems: FoodItemClient[] = get100kFoodDatabase(baseFoodList);
+export const foodItems: FoodItemClient[] = processFoodImageBatch(rawFoodItems, 0, 100).processedItems;

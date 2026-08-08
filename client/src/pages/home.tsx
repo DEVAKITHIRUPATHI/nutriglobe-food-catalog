@@ -1,91 +1,93 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
+import React from 'react';
 import { Link } from 'wouter';
 import { Hero } from '@/components/home/Hero';
 import { SearchFilter } from '@/components/home/SearchFilter';
 import { HomeCaloricIntakeChart } from '@/components/home/HomeCaloricIntakeChart';
+import { HydrationTracker } from '@/components/home/HydrationTracker';
 import { NutritionGuide } from '@/components/home/NutritionGuide';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { InGridAdCard } from '@/components/ads/InGridAdCard';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AppContext } from '@/contexts/AppContext';
 import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
 import { ArrowRight, AlertCircle, Search } from 'lucide-react';
 import { foodItems } from '@shared/mockData';
-
 import { getFoodItems, searchFoodItems } from '@/lib/idb';
+import { matchesCategory, sortFoodsAToZ } from '@/lib/categoryUtils';
+import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
 import { FoodGridSkeleton } from '@/components/ui/PageSkeleton';
 
 export default function Home() {
+  usePageViewCounter('/', 'Home Page');
   const { getLocalizedText } = useTranslation();
-  const { offlineStatus, isLoading: appLoading } = useContext(AppContext);
+  const { offlineStatus, isLoading: appLoading, foods: contextFoods } = useContext(AppContext);
   const [popularFoods, setPopularFoods] = useState<FoodItemClient[]>([]);
   const [filteredFoods, setFilteredFoods] = useState<FoodItemClient[]>([]);
   const [selectedFood, setSelectedFood] = useState<FoodItemClient | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 100;
+
+  const gridTopRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchFoods = async () => {
-      try {
-        setIsLoading(true);
-        let items: FoodItemClient[];
-        
-        if (offlineStatus === 'offline') {
-          // Use IndexedDB in offline mode
-          items = await getFoodItems();
-        } else {
-          // Use mock data for now, in a real app this would be an API call
-          items = [...foodItems];
-        }
-        
-        const popular = items.filter(item => item.isPopular);
-        setPopularFoods(popular);
-        setFilteredFoods(items);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching foods:', error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchFoods();
-  }, [offlineStatus]);
+    if (contextFoods && contextFoods.length > 0) {
+      const popular = contextFoods.filter(item => item.isPopular);
+      setPopularFoods(popular.length > 0 ? popular : contextFoods.slice(0, 8));
+      setFilteredFoods(sortFoodsAToZ(contextFoods));
+    }
+  }, [contextFoods]);
 
   const handleSearch = async (filters: SearchFilters) => {
     try {
+      setCurrentPage(1); // Reset to Page 1 on search / category filter
       let results: FoodItemClient[];
       
       if (offlineStatus === 'offline') {
         // Search in IndexedDB
         results = await searchFoodItems(filters.query, filters.category);
       } else {
-        // Filter mock data, in a real app this would be an API call
-        results = [...foodItems];
+        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+        results = [...sourceData];
         
         if (filters.query) {
           const query = filters.query.toLowerCase();
           results = results.filter(item => 
-            item.name.en.toLowerCase().includes(query) || 
-            item.description.en.toLowerCase().includes(query)
+            Object.values(item.name || {}).some(val => val && val.toLowerCase().includes(query)) || 
+            Object.values(item.description || {}).some(val => val && val.toLowerCase().includes(query)) ||
+            (item.origin && item.origin.toLowerCase().includes(query))
           );
         }
         
         if (filters.category !== 'all') {
-          results = results.filter(item => 
-            item.category.includes(filters.category)
-          );
+          results = results.filter(item => matchesCategory(item, filters.category));
         }
       }
       
-      setFilteredFoods(results);
+      const sortedResults = sortFoodsAToZ(results);
+      setFilteredFoods(sortedResults);
     } catch (error) {
       console.error('Error searching foods:', error);
     }
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (gridTopRef.current) {
+      gridTopRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const totalPages = Math.ceil(filteredFoods.length / PAGE_SIZE) || 1;
+  const paginatedFoods = filteredFoods.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // Function to handle viewing food details
   const handleViewDetails = (item: FoodItemClient) => {
@@ -101,8 +103,9 @@ export default function Home() {
       <SearchFilter onSearch={handleSearch} />
 
       {/* Daily Caloric Intake Chart Synced with CartContext */}
-      <div className="px-4">
+      <div className="px-4 max-w-7xl mx-auto space-y-6">
         <HomeCaloricIntakeChart />
+        <HydrationTracker />
       </div>
       
       {/* Popular Items Section */}
@@ -147,12 +150,27 @@ export default function Home() {
       
      {/* All Foods Section */}
      {/* Container for all food items */}
-      <section className="mb-8  max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-semibold mb-4">
-           {getLocalizedText('all.foods')}
-        </h2>
+      <section className="mb-8 max-w-7xl mx-auto px-4">
+        <div ref={gridTopRef} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+          <h2 className="text-2xl font-semibold">
+             {getLocalizedText('all.foods')}
+          </h2>
+          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
+            Page {currentPage} of {totalPages} ({filteredFoods.length.toLocaleString()} Total)
+          </span>
+        </div>
         
-        {/* No results message UI */}
+        {/* Top Pagination Bar */}
+        {filteredFoods.length > 0 && (
+          <PaginationBar
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredFoods.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={handlePageChange}
+          />
+        )}
+
         {/* No results message */}
         {filteredFoods.length === 0 && !isLoading ? (
           <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
@@ -164,40 +182,38 @@ export default function Home() {
               {getLocalizedText('noResults.message')}
              </p>
           </div>
-        ) : isLoading ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm h-[450px] dark:bg-gray-800">
-                <div className="h-48 bg-gray-200 animate-pulse dark:bg-gray-700"></div>
-                <div className="p-4">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse mb-2 w-3/4 dark:bg-gray-700"></div>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse mb-4 w-1/2 dark:bg-gray-700"></div>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse mb-6 dark:bg-gray-700"></div>
-                  <div className="flex space-x-4 mb-6">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-10 bg-gray-200 rounded animate-pulse flex-1 dark:bg-gray-700"></div>
-                    ))}
-                  </div>
-                  <div className="flex space-x-2">
-                    <div className="h-10 bg-gray-200 rounded animate-pulse flex-1 dark:bg-gray-700"></div>
-                    <div className="h-10 bg-gray-200 rounded animate-pulse flex-1 dark:bg-gray-700"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>) : (
-              // Grid layout for displaying food cards on all screens
-              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
-                {filteredFoods.map((item) => (
+        ) : isLoading ? (
+          <FoodGridSkeleton count={8} />
+        ) : (
+          <>
+            {/* Grid layout for displaying 100 food cards per page with middle section Ad Space cards */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+              {paginatedFoods.map((item, idx) => (
+                <React.Fragment key={item.id}>
+                  {/* Insert Ad Space card in middle section (e.g. after every 24 items in grid) */}
+                  {idx > 0 && idx % 24 === 0 && (
+                    <InGridAdCard />
+                  )}
                   <FoodCard
-                    key={item.id}
                     item={item}
                     onViewDetails={handleViewDetails}
                     showPopularBadge={true}
                   />
-                ))}
-              </div>
-            )}
-          </section>
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* Bottom Pagination Bar (Page 1, 2, 3...) */}
+            <PaginationBar
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredFoods.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={handlePageChange}
+            />
+          </>
+        )}
+      </section>
 
           {/* AdSense Placement Slot */}
           <AdBanner slot="9876543210" format="horizontal" />

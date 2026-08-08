@@ -1,4 +1,5 @@
 import { FoodItemClient, TranslatedContent } from "./schema";
+import { resolveAccurateFoodImage } from "./foodImageResolver";
 
 const createTranslated = (en: string, hi?: string, ta?: string, es?: string, fr?: string): TranslatedContent => ({
   en,
@@ -8,72 +9,8 @@ const createTranslated = (en: string, hi?: string, ta?: string, es?: string, fr?
   fr: fr || en,
 });
 
-// Category-specific high quality image pools from Unsplash / Pixabay
-const imagePools: Record<string, string[]> = {
-  fruits: [
-    "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1589217157232-4a29e8c46231?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1528821128474-27f963b062bf?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=600&q=80"
-  ],
-  vegetables: [
-    "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1576181256399-834e3b3a49bf?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1598170845058-128a2b64a275?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1515471209610-e3f15d785718?auto=format&fit=crop&w=600&q=80"
-  ],
-  grains: [
-    "https://images.unsplash.com/photo-1574323347407-f5e1c5c6e040?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1586201375761-83865001e8ac?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1562675482-3bf761c7163a?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1614961233913-a5113a4a34ed?auto=format&fit=crop&w=600&q=80"
-  ],
-  spices: [
-    "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1613485446293-97af9db9a4d2?auto=format&fit=crop&w=600&q=80"
-  ],
-  dairy: [
-    "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1628689469838-524a4a973b8e?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
-  ],
-  meat: [
-    "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1560781290-7dc94c0f8f4f?auto=format&fit=crop&w=600&q=80"
-  ],
-  seafood: [
-    "https://images.unsplash.com/photo-1579684947550-22e945225d9a?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=600&q=80"
-  ],
-  poultry: [
-    "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1501200291289-c5a76c232e5f?auto=format&fit=crop&w=600&q=80"
-  ],
-  nuts: [
-    "https://images.unsplash.com/photo-1536591375315-19895392e226?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80"
-  ],
-  beverages: [
-    "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80"
-  ]
-};
-
-const getImg = (cat: string, index: number): string => {
-  const pool = imagePools[cat] || imagePools.fruits;
-  return pool[index % pool.length];
+const getImg = (id: string, name: string, cat: string): string => {
+  return resolveAccurateFoodImage(id, name, [cat]);
 };
 
 interface FoodDef {
@@ -301,7 +238,7 @@ export const generateExpandedCatalog = (): FoodItemClient[] => {
         ),
         origin: base.origin || "Global",
         price: parseFloat(((base.price || 2.99) * q.scale).toFixed(2)),
-        image: getImg(base.cat, items.length + idx),
+        image: getImg(itemId, itemTitle, base.cat),
         category: [base.cat, ...(base.subCats || []), "grocery"],
         nutrition: {
           calories: Math.round(base.cal * (0.95 + idx * 0.01)),

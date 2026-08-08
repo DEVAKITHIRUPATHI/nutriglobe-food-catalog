@@ -130,7 +130,11 @@ export function getAccurateFoodImage(food: {
   image?: string;
   category?: string[];
 }): string {
-  // If the food has an existing non-placeholder image, test if it matches exact food keywords
+  // If the item has an explicit valid image URL provided, return it first
+  if (food.image && typeof food.image === 'string' && food.image.startsWith('http') && !food.image.includes('placeholder')) {
+    return food.image;
+  }
+
   const englishName = typeof food.name === 'string' 
     ? food.name 
     : (food.name?.en || food.id || '');
@@ -142,11 +146,6 @@ export function getAccurateFoodImage(food: {
     if (normalizedKey.includes(key)) {
       return url;
     }
-  }
-
-  // If the item has an explicit image URL provided, return it
-  if (food.image && food.image.startsWith('http') && !food.image.includes('placeholder')) {
-    return food.image;
   }
 
   // Category match fallback

@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Info, Bot, Sparkles, Send, Loader2 } from 'lucide-react';
+import { CheckCircle2, Info, Bot, Sparkles, Send, Loader2, Scale } from 'lucide-react';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
 
 import { FoodGridSkeleton } from '@/components/ui/PageSkeleton';
+import { D3BmiScaleChart } from '@/components/nutrition/D3BmiScaleChart';
 
 export default function Nutrition() {
   const { getLocalizedText } = useTranslation();
@@ -112,8 +113,11 @@ export default function Nutrition() {
         {getLocalizedText('nutrition.description')}
       </p>
       
-      <Tabs defaultValue="basics">
+      <Tabs defaultValue="bmi-scale">
         <TabsList className="mb-8 flex flex-wrap">
+          <TabsTrigger value="bmi-scale" className="flex items-center gap-1.5 font-bold">
+            <Scale className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> D3.js WHO BMI Scale
+          </TabsTrigger>
           <TabsTrigger value="basics">Nutrition Basics</TabsTrigger>
           <TabsTrigger value="macronutrients">Macronutrients</TabsTrigger>
           <TabsTrigger value="micronutrients">Vitamins & Minerals</TabsTrigger>
@@ -121,6 +125,10 @@ export default function Nutrition() {
             <Sparkles className="h-4 w-4 text-emerald-500" /> AI Nutrition Advisor
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="bmi-scale" className="space-y-6">
+          <D3BmiScaleChart />
+        </TabsContent>
 
         <TabsContent value="ai-assistant">
           <Card className="border-emerald-200 dark:border-emerald-900 shadow-sm">

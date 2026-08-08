@@ -31,6 +31,18 @@ export interface IStorage {
   addToCart(cartItem: InsertCartItem): Promise<CartItem>;
   updateCartItemQuantity(id: number, quantity: number): Promise<CartItem | undefined>;
   removeCartItem(id: number): Promise<void>;
+
+  // Editorial methods
+  getArticles(status?: string, category?: string): Promise<EditorialArticle[]>;
+  getArticleBySlug(slug: string): Promise<EditorialArticle | undefined>;
+  createArticle(article: EditorialArticle): Promise<EditorialArticle>;
+  updateArticle(id: string, updates: Partial<EditorialArticle>): Promise<EditorialArticle | undefined>;
+  deleteArticle(id: string): Promise<boolean>;
+  getTopics(): Promise<EditorialTopic[]>;
+  createTopic(topic: EditorialTopic): Promise<EditorialTopic>;
+  getEditorialSettings(): Promise<EditorialEngineSettings>;
+  updateEditorialSettings(updates: Partial<EditorialEngineSettings>): Promise<EditorialEngineSettings>;
+  getEditorialAnalytics(): Promise<EditorialAnalytics>;
 }
 
 // Database implementation
@@ -608,6 +620,68 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Fallback to MemStorage if database is not configured
-export const storage: IStorage = db ? new DatabaseStorage() : new MemStorage();
+// FallbackStorage wraps DatabaseStorage and MemStorage to ensure 100% uptime
+export class FallbackStorage implements IStorage {
+  private dbStorage: DatabaseStorage;
+  private memStorage: MemStorage;
+  private useMemOnly = false;
+
+  constructor() {
+    this.dbStorage = new DatabaseStorage();
+    this.memStorage = new MemStorage();
+  }
+
+  private async exec<T>(dbFn: () => Promise<T>, memFn: () => Promise<T>): Promise<T> {
+    if (this.useMemOnly || !db) {
+      return memFn();
+    }
+    try {
+      return await dbFn();
+    } catch (err) {
+      this.useMemOnly = true;
+      console.log('[Storage] Database query notice: using in-memory storage fallback.');
+      return memFn();
+    }
+  }
+
+  // User methods
+  getUser(id: number) { return this.exec(() => this.dbStorage.getUser(id), () => this.memStorage.getUser(id)); }
+  getUserByUsername(u: string) { return this.exec(() => this.dbStorage.getUserByUsername(u), () => this.memStorage.getUserByUsername(u)); }
+  createUser(u: InsertUser) { return this.exec(() => this.dbStorage.createUser(u), () => this.memStorage.createUser(u)); }
+
+  // Food item methods
+  getAllFoodItems() { return this.exec(() => this.dbStorage.getAllFoodItems(), () => this.memStorage.getAllFoodItems()); }
+  getPopularFoodItems() { return this.exec(() => this.dbStorage.getPopularFoodItems(), () => this.memStorage.getPopularFoodItems()); }
+  getFoodItemById(id: string) { return this.exec(() => this.dbStorage.getFoodItemById(id), () => this.memStorage.getFoodItemById(id)); }
+  searchFoodItems(q?: string, c?: string, l?: string) { return this.exec(() => this.dbStorage.searchFoodItems(q, c, l), () => this.memStorage.searchFoodItems(q, c, l)); }
+  getFoodItemsByCategory(c: string) { return this.exec(() => this.dbStorage.getFoodItemsByCategory(c), () => this.memStorage.getFoodItemsByCategory(c)); }
+  getDatabaseStats() { return this.exec(() => this.dbStorage.getDatabaseStats(), () => this.memStorage.getDatabaseStats()); }
+  createFoodItem(f: FoodItemClient) { return this.exec(() => this.dbStorage.createFoodItem(f), () => this.memStorage.createFoodItem(f)); }
+  updateFoodItem(id: string, u: Partial<FoodItemClient>) { return this.exec(() => this.dbStorage.updateFoodItem(id, u), () => this.memStorage.updateFoodItem(id, u)); }
+  deleteFoodItem(id: string) { return this.exec(() => this.dbStorage.deleteFoodItem(id), () => this.memStorage.deleteFoodItem(id)); }
+  mergeDuplicates(t: string, s: string[]) { return this.exec(() => this.dbStorage.mergeDuplicates(t, s), () => this.memStorage.mergeDuplicates(t, s)); }
+  verifyImageStatus(id: string, s: 'verified' | 'flagged' | 'rejected', c?: number) { return this.exec(() => this.dbStorage.verifyImageStatus(id, s, c), () => this.memStorage.verifyImageStatus(id, s, c)); }
+  findPotentialDuplicates() { return this.exec(() => this.dbStorage.findPotentialDuplicates(), () => this.memStorage.findPotentialDuplicates()); }
+
+  // Cart methods
+  getCartItems(u: number) { return this.exec(() => this.dbStorage.getCartItems(u), () => this.memStorage.getCartItems(u)); }
+  addToCart(c: InsertCartItem) { return this.exec(() => this.dbStorage.addToCart(c), () => this.memStorage.addToCart(c)); }
+  updateCartItemQuantity(id: number, q: number) { return this.exec(() => this.dbStorage.updateCartItemQuantity(id, q), () => this.memStorage.updateCartItemQuantity(id, q)); }
+  removeCartItem(id: number) { return this.exec(() => this.dbStorage.removeCartItem(id), () => this.memStorage.removeCartItem(id)); }
+
+  // Editorial methods
+  getArticles(s?: string, c?: string) { return this.exec(() => this.memStorage.getArticles(s, c), () => this.memStorage.getArticles(s, c)); }
+  getArticleBySlug(s: string) { return this.exec(() => this.memStorage.getArticleBySlug(s), () => this.memStorage.getArticleBySlug(s)); }
+  createArticle(a: EditorialArticle) { return this.exec(() => this.memStorage.createArticle(a), () => this.memStorage.createArticle(a)); }
+  updateArticle(id: string, u: Partial<EditorialArticle>) { return this.exec(() => this.memStorage.updateArticle(id, u), () => this.memStorage.updateArticle(id, u)); }
+  deleteArticle(id: string) { return this.exec(() => this.memStorage.deleteArticle(id), () => this.memStorage.deleteArticle(id)); }
+  getTopics() { return this.exec(() => this.memStorage.getTopics(), () => this.memStorage.getTopics()); }
+  createTopic(t: EditorialTopic) { return this.exec(() => this.memStorage.createTopic(t), () => this.memStorage.createTopic(t)); }
+  getEditorialSettings() { return this.exec(() => this.memStorage.getEditorialSettings(), () => this.memStorage.getEditorialSettings()); }
+  updateEditorialSettings(u: Partial<EditorialEngineSettings>) { return this.exec(() => this.memStorage.updateEditorialSettings(u), () => this.memStorage.updateEditorialSettings(u)); }
+  getEditorialAnalytics() { return this.exec(() => this.memStorage.getEditorialAnalytics(), () => this.memStorage.getEditorialAnalytics()); }
+}
+
+export const storage: IStorage = new FallbackStorage();
+
 

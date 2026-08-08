@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { FilterCategory, SearchFilters } from '@/types';
 import { foodItems } from '@shared/mockData';
+import { matchesCategory } from '@/lib/categoryUtils';
 
 interface SearchFilterProps {
   onSearch: (filters: SearchFilters) => void;
@@ -16,26 +18,19 @@ interface SearchFilterProps {
 
 export function SearchFilter({ onSearch }: SearchFilterProps) {
   const { getLocalizedText } = useTranslation();
+  const { foods: contextFoods } = useContext(AppContext);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<FilterCategory>('all');
   const [activeTab, setActiveTab] = useState('food-types');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAiSearching, setIsAiSearching] = useState(false);
 
-  // Compute category counts dynamically directly from database data
+  const activeCatalog = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+
+  // Compute category counts dynamically directly from active database data
   const getCategoryCount = (cat: string) => {
-    if (cat === 'all') return foodItems.length;
-    return foodItems.filter(item => {
-      const cats = item.category || [];
-      if (cat === 'high_protein') return item.nutrition?.protein >= 10 || cats.includes('high_protein');
-      if (cat === 'high_fiber') return item.nutrition?.fiber >= 4 || cats.includes('high_fiber');
-      if (cat === 'high_iron') return item.nutrition?.minerals?.['Iron'] || cats.includes('high_iron');
-      if (cat === 'high_vitamin_c') return item.nutrition?.vitamins?.['Vitamin C'] || cats.includes('high_vitamin_c');
-      if (cat === 'vegan') return cats.includes('vegan') || cats.includes('fruits') || cats.includes('vegetables');
-      if (cat === 'vegetarian') return !cats.includes('seafood') && !cats.includes('meat') && !cats.includes('poultry');
-      if (cat === 'indian') return item.origin?.toLowerCase().includes('india') || item.origin?.toLowerCase().includes('tamil');
-      return cats.includes(cat);
-    }).length;
+    if (cat === 'all') return activeCatalog.length;
+    return activeCatalog.filter(item => matchesCategory(item, cat)).length;
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -233,16 +228,16 @@ export function SearchFilter({ onSearch }: SearchFilterProps) {
         {/* 5. Health Goals */}
         <TabsContent value="health-goals" className="pt-3">
           <div className="flex flex-wrap gap-2">
-            <FilterButton active={category === 'high_protein'} count={getCategoryCount('high_protein')} onClick={() => handleFilterClick('high_protein')}>
+            <FilterButton active={category === 'muscle'} count={getCategoryCount('muscle')} onClick={() => handleFilterClick('muscle')}>
               Muscle Recovery & Repair
             </FilterButton>
-            <FilterButton active={category === 'high_vitamin_c'} count={getCategoryCount('high_vitamin_c')} onClick={() => handleFilterClick('high_vitamin_c')}>
+            <FilterButton active={category === 'immunity'} count={getCategoryCount('immunity')} onClick={() => handleFilterClick('immunity')}>
               Immunity Boost
             </FilterButton>
-            <FilterButton active={category === 'high_fiber'} count={getCategoryCount('high_fiber')} onClick={() => handleFilterClick('high_fiber')}>
+            <FilterButton active={category === 'gut'} count={getCategoryCount('gut')} onClick={() => handleFilterClick('gut')}>
               Gut Health & Digestion
             </FilterButton>
-            <FilterButton active={category === 'high_iron'} count={getCategoryCount('high_iron')} onClick={() => handleFilterClick('high_iron')}>
+            <FilterButton active={category === 'energy'} count={getCategoryCount('energy')} onClick={() => handleFilterClick('energy')}>
               Energy & Hemoglobin Support
             </FilterButton>
           </div>
@@ -251,14 +246,17 @@ export function SearchFilter({ onSearch }: SearchFilterProps) {
         {/* 6. Allergens */}
         <TabsContent value="allergens" className="pt-3">
           <div className="flex flex-wrap gap-2">
-            <FilterButton active={category === 'vegan'} count={getCategoryCount('vegan')} onClick={() => handleFilterClick('vegan')}>
+            <FilterButton active={category === 'dairy-free'} count={getCategoryCount('dairy-free')} onClick={() => handleFilterClick('dairy-free')}>
               Dairy-Free
             </FilterButton>
-            <FilterButton active={category === 'gluten-free'} count={getCategoryCount('gluten-free')} onClick={() => handleFilterClick('gluten-free')}>
+            <FilterButton active={category === 'nut-free'} count={getCategoryCount('nut-free')} onClick={() => handleFilterClick('nut-free')}>
               Nut-Free Options
             </FilterButton>
-            <FilterButton active={category === 'vegetarian'} count={getCategoryCount('vegetarian')} onClick={() => handleFilterClick('vegetarian')}>
+            <FilterButton active={category === 'soy-free'} count={getCategoryCount('soy-free')} onClick={() => handleFilterClick('soy-free')}>
               Soy-Free
+            </FilterButton>
+            <FilterButton active={category === 'gluten-free'} count={getCategoryCount('gluten-free')} onClick={() => handleFilterClick('gluten-free')}>
+              Gluten-Free
             </FilterButton>
           </div>
         </TabsContent>
@@ -266,16 +264,16 @@ export function SearchFilter({ onSearch }: SearchFilterProps) {
         {/* 7. Preparation */}
         <TabsContent value="preparation" className="pt-3">
           <div className="flex flex-wrap gap-2">
-            <FilterButton active={category === 'fruits'} count={getCategoryCount('fruits')} onClick={() => handleFilterClick('fruits')}>
+            <FilterButton active={category === 'raw'} count={getCategoryCount('raw')} onClick={() => handleFilterClick('raw')}>
               Raw & Fresh
             </FilterButton>
-            <FilterButton active={category === 'grains'} count={getCategoryCount('grains')} onClick={() => handleFilterClick('grains')}>
+            <FilterButton active={category === 'boiled'} count={getCategoryCount('boiled')} onClick={() => handleFilterClick('boiled')}>
               Boiled & Steamed
             </FilterButton>
-            <FilterButton active={category === 'spices'} count={getCategoryCount('spices')} onClick={() => handleFilterClick('spices')}>
+            <FilterButton active={category === 'dried'} count={getCategoryCount('dried')} onClick={() => handleFilterClick('dried')}>
               Sun-Dried & Ground
             </FilterButton>
-            <FilterButton active={category === 'dairy'} count={getCategoryCount('dairy')} onClick={() => handleFilterClick('dairy')}>
+            <FilterButton active={category === 'fermented'} count={getCategoryCount('fermented')} onClick={() => handleFilterClick('fermented')}>
               Fermented & Cultured
             </FilterButton>
           </div>
@@ -284,14 +282,17 @@ export function SearchFilter({ onSearch }: SearchFilterProps) {
         {/* 8. Meals */}
         <TabsContent value="meals" className="pt-3">
           <div className="flex flex-wrap gap-2">
-            <FilterButton active={category === 'fruits'} count={getCategoryCount('fruits')} onClick={() => handleFilterClick('fruits')}>
+            <FilterButton active={category === 'breakfast'} count={getCategoryCount('breakfast')} onClick={() => handleFilterClick('breakfast')}>
               Breakfast & Smoothies
             </FilterButton>
-            <FilterButton active={category === 'grains'} count={getCategoryCount('grains')} onClick={() => handleFilterClick('grains')}>
+            <FilterButton active={category === 'lunch'} count={getCategoryCount('lunch')} onClick={() => handleFilterClick('lunch')}>
               Lunch Bowls & Curries
             </FilterButton>
-            <FilterButton active={category === 'nuts'} count={getCategoryCount('nuts')} onClick={() => handleFilterClick('nuts')}>
+            <FilterButton active={category === 'snack'} count={getCategoryCount('snack')} onClick={() => handleFilterClick('snack')}>
               Healthy Snacks
+            </FilterButton>
+            <FilterButton active={category === 'dinner'} count={getCategoryCount('dinner')} onClick={() => handleFilterClick('dinner')}>
+              Dinner & Soups
             </FilterButton>
           </div>
         </TabsContent>

@@ -22,9 +22,9 @@ export function useTranslation() {
     // Define language translations as a partial record - we only need to define existing translations
     const translations: Record<string, Record<string, string>> = {
       'app.name': {
-        en: 'NutriGlobe',
-        hi: 'न्यूट्रीग्लोब',
-        ta: 'நியூட்ரிகுளோப்'
+        en: 'NutriFacts',
+        hi: 'न्यूट्रिफैक्ट्स',
+        ta: 'நியூட்ரிபேக்ட்ஸ்'
       },
       'home.title': {
         en: 'Discover Nutrition in Every Bite',

@@ -34,6 +34,20 @@
   @media (min-width: 1280px) {
     body{@apply text-xl}
   }
+
+  /* Fix card layout height jump when filter tags appear */
+  .food-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 420px;
+  }
+
+  .food-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
 }
 
 /* Print Friendly Styles for Nutrition Facts Label */

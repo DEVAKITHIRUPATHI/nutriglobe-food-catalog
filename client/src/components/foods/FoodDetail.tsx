@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CartContext } from '@/contexts/CartContext';
 import { 
-  ShoppingCart, X, Clock, AlertTriangle, ShieldCheck, HeartPulse, 
+  Heart, ShoppingCart, X, Clock, AlertTriangle, ShieldCheck, HeartPulse, 
   Sprout, Download, Share2, CheckCircle2, Info, Sparkles, Flame, Stethoscope, Scale, Printer
 } from 'lucide-react';
 import { getAccurateFoodImage, handleFoodImageError } from '@/lib/foodImageResolver';
@@ -23,6 +23,7 @@ import { LazyImage } from '@/components/ui/LazyImage';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
 import { Wand2 } from 'lucide-react';
+import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
 interface FoodDetailProps {
   item: FoodItemClient | null;
@@ -33,13 +34,22 @@ interface FoodDetailProps {
 
 export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps) {
   const { t, getLocalizedText } = useTranslation();
-  const { addToCart } = useContext(CartContext);
+  
+  usePageViewCounter(
+    isOpen && item ? `/food/${item.id}` : '',
+    item ? `${getLocalizedText(item.name)} Clinical View` : '',
+    isOpen && item ? { foodId: item.id, foodName: getLocalizedText(item.name), category: item.category?.[0] } : undefined
+  );
+
+  const { addToCart, isFavorite } = useContext(CartContext);
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
   const [overrideImageUrl, setOverrideImageUrl] = useState<string | null>(null);
 
   if (!item) return null;
+
+  const isItemFavorite = isFavorite(item.id);
 
   const handleShare = () => {
     const url = window.location.href;
@@ -175,9 +185,21 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
                   containerClassName="w-full h-full"
                   className="group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 right-3 bg-emerald-600/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-md flex items-center gap-1 z-20">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-200" />
-                  Verified Photo (98%)
+                <div className="absolute top-3 right-3 text-white text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-md flex items-center gap-1 z-20">
+                  {item.imageSourceType === 'ai_generated' ? (
+                    <span className="bg-purple-600/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Sparkles className="h-3 w-3 text-amber-300" /> AI Generated
+                    </span>
+                  ) : item.imageVerifiedStatus === 'mismatch_flagged' ? (
+                    <span className="bg-amber-600/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3 text-amber-200" /> Flagged Mismatch
+                    </span>
+                  ) : (
+                    <span className="bg-emerald-600/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-200" />
+                      Verified Photo
+                    </span>
+                  )}
                 </div>
 
                 <Button
@@ -190,9 +212,18 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
-                <span>Origin: <strong className="text-gray-800 dark:text-gray-200">{item.origin}</strong></span>
-                <span>Price: <strong className="text-emerald-600 dark:text-emerald-400">${item.price.toFixed(2)} / 100g</strong></span>
+              <div className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <span>Origin: <strong className="text-gray-800 dark:text-gray-200">{item.origin}</strong></span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Clinical & Educational Reference</span>
+                </div>
+                {item.imageSourceType && (
+                  <div className="border-t pt-1.5 mt-1.5 text-[11px] font-mono text-gray-500 space-y-0.5">
+                    <div><strong>Source:</strong> <span className="uppercase text-emerald-600 dark:text-emerald-400 font-bold">{item.imageSourceType.replace(/_/g, ' ')}</span> ({item.imageSourceId || 'verified'})</div>
+                    <div><strong>License:</strong> {item.imageLicense || 'Public Domain'}</div>
+                    <div><strong>Attribution:</strong> {item.imageAttribution || 'USDA FoodData / Open Database'}</div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -220,7 +251,7 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
 
               {/* Viral High-Volume Search Hashtags for Google SEO & Social Discovery */}
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {[`#${item.name.en.replace(/[^a-zA-Z0-9]/g, '')}`, `#${(item.category[0] || 'Nutrition').replace(/[^a-zA-Z0-9]/g, '')}Health`, `#NutriGlobe`, `#WHO_RDA`, `#OrganicNutrition`].map((tag, idx) => (
+                {[`#${((typeof item.name === 'string' ? item.name : item.name?.en) || 'Food').replace(/[^a-zA-Z0-9]/g, '')}`, `#${(item.category[0] || 'Nutrition').replace(/[^a-zA-Z0-9]/g, '')}Health`, `#NutriGlobe`, `#WHO_RDA`, `#OrganicNutrition`].map((tag, idx) => (
                   <span key={idx} className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
                     {tag}
                   </span>
@@ -239,12 +270,15 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
                 <Button 
                   onClick={() => {
                     addToCart(item);
-                    onClose();
                   }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 py-2.5 shadow-md flex items-center gap-2 text-sm font-semibold transition-all hover:scale-[1.02]"
+                  className={`rounded-xl px-6 py-2.5 shadow-md flex items-center gap-2 text-sm font-semibold transition-all hover:scale-[1.02] ${
+                    isItemFavorite 
+                      ? 'bg-rose-500 hover:bg-rose-600 text-white' 
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  }`}
                 >
-                  <ShoppingCart className="h-4 w-4" />
-                  {getLocalizedText('button.addToCart')} (${item.price.toFixed(2)})
+                  <Heart className="h-4 w-4" fill={isItemFavorite ? "currentColor" : "none"} />
+                  {isItemFavorite ? 'Saved in Favorites' : getLocalizedText('button.addToCart')}
                 </Button>
               </div>
             </div>

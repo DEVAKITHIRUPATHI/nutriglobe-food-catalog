@@ -1,0 +1,41 @@
+<svg viewBox='0 0 240 240' width='512' height='512' xmlns='http://www.w3.org/2000/svg'>
+  <!-- Crisp White Circle Background Shield -->
+  <circle cx='120' cy='120' r='115' fill='#ffffff' stroke='#e2e8f0' stroke-width='3' />
+  
+  <defs>
+    <linearGradient id='o' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#f97316'/><stop offset='100%' stop-color='#ea580c'/></linearGradient>
+    <linearGradient id='y' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#eab308'/><stop offset='100%' stop-color='#ca8a04'/></linearGradient>
+    <linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#84cc16'/><stop offset='100%' stop-color='#65a30d'/></linearGradient>
+    <linearGradient id='dg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#15803d'/><stop offset='100%' stop-color='#0b5d2e'/></linearGradient>
+    <linearGradient id='t' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#14b8a6'/><stop offset='100%' stop-color='#0d9488'/></linearGradient>
+    <linearGradient id='p' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#a855f7'/><stop offset='100%' stop-color='#7e22ce'/></linearGradient>
+  </defs>
+
+  <!-- Multi-color Rainbow Segmented Wheel -->
+  <path d='M 38 95 A 82 82 0 0 1 55 52 L 78 66 A 55 55 0 0 0 64 98 Z' fill='url(#o)'/>
+  <path d='M 58 49 A 82 82 0 0 1 92 28 L 105 52 A 55 55 0 0 0 80 67 Z' fill='#f97316'/>
+  <path d='M 96 26 A 82 82 0 0 1 138 26 L 133 52 A 55 55 0 0 0 107 52 Z' fill='url(#y)'/>
+  <path d='M 142 28 A 82 82 0 0 1 175 49 L 155 67 A 55 55 0 0 0 131 52 Z' fill='url(#g)'/>
+  <path d='M 178 52 A 82 82 0 0 1 195 95 L 168 98 A 55 55 0 0 0 156 66 Z' fill='url(#dg)'/>
+  <path d='M 196 99 A 82 82 0 0 1 198 142 L 169 132 A 55 55 0 0 0 168 101 Z' fill='url(#t)'/>
+  <path d='M 197 146 A 82 82 0 0 1 180 180 L 158 154 A 55 55 0 0 0 168 135 Z' fill='url(#p)'/>
+
+  <!-- Outer Ring Dark Green Border -->
+  <path d='M 38 95 A 82 82 0 0 0 190 172' stroke='#0b5d2e' stroke-width='6' stroke-linecap='round' fill='none'/>
+
+  <!-- Overlapping Bottom Hills (Orange & Green) -->
+  <path d='M 50 150 C 80 195, 130 195, 155 165 C 115 200, 60 180, 50 150 Z' fill='#f97316'/>
+  <path d='M 100 175 C 140 200, 190 165, 195 140 C 160 185, 115 180, 100 175 Z' fill='#84cc16'/>
+
+  <!-- Left Side Dots -->
+  <circle cx='78' cy='88' r='4.5' fill='#84cc16'/>
+  <circle cx='72' cy='108' r='5' fill='#15803d'/>
+  <circle cx='72' cy='128' r='5.5' fill='#15803d'/>
+  <circle cx='78' cy='148' r='5' fill='#84cc16'/>
+
+  <!-- Center 'n' Letter -->
+  <path d='M 95 90 L 95 155 C 95 160, 102 160, 102 155 L 102 118 C 102 102, 132 100, 132 118 L 132 155 C 132 160, 140 160, 140 155 L 140 112 C 140 92, 95 92, 95 112 Z' fill='#0b5d2e'/>
+
+  <!-- Sprouting Leaf -->
+  <path d='M 132 102 C 132 78, 158 72, 158 72 C 158 72, 152 98, 132 102 Z' fill='#84cc16'/>
+</svg>

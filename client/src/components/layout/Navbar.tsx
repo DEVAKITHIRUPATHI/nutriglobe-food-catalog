@@ -2,13 +2,13 @@ import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
-import { GitHubConnectButton } from '@/components/layout/GitHubConnectButton';
 import { AppContext } from '@/contexts/AppContext';
 import { CartContext } from '@/contexts/CartContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { NutriFactsLogo } from '@/components/layout/NutriFactsLogo';
 import { 
   Leaf, Heart, Menu, X, Wifi, WifiOff, Home, Apple, Info, 
-  ScrollText, Globe, ChevronRight, Calculator
+  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -35,109 +35,77 @@ export function Navbar() {
   }, [isMobile]);
 
   return (
-    <nav className="bg-gradient-to-r from-emerald-900 via-teal-850 to-emerald-950 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/40 backdrop-blur-md">
-      <div className="container mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between">
+    <nav className="bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/40 backdrop-blur-md">
+      <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-400/30 group-hover:scale-105 transition-transform">
-            <Leaf className="text-emerald-300 h-5 w-5 animate-pulse" />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-white drop-shadow-sm">{getLocalizedText('app.name')}</span>
-              <span className="bg-amber-400/90 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider">
-                100k+ Foods
-              </span>
-            </div>
-            <span className="text-[10px] text-emerald-300/80 font-medium tracking-wide">Global Nutrition & Food Intelligence</span>
-          </div>
+        <Link href="/" className="flex items-center gap-2 group shrink-0 py-0.5">
+          <NutriFactsLogo variant="horizontal" size="md" />
+          <span className="hidden xl:inline-block bg-amber-400/90 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider shrink-0">
+            100k+ Foods
+          </span>
         </Link>
         
-        {/* Desktop Navigation - Multi-Color Design */}
-        <div className="hidden md:flex items-center space-x-1">
-          <nav className="flex items-center space-x-1.5 bg-emerald-950/60 p-1.5 rounded-2xl border border-emerald-700/50 backdrop-blur-md">
+        {/* Desktop Navigation - Single Clean Horizontal Row */}
+        <div className="hidden lg:flex items-center shrink-0">
+          <nav className="flex items-center gap-1.5 bg-emerald-950/80 p-1.5 rounded-xl border border-emerald-700/50 backdrop-blur-md">
             {/* Home - Emerald */}
             <Link href="/">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                 location === '/' 
                   ? 'bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-900/40' 
                   : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20 hover:bg-emerald-500/30 hover:text-white'
               }`}>
-                <Home className="w-3.5 h-3.5 text-emerald-300" />
-                {getLocalizedText('nav.home')}
+                <Home className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+                <span>{getLocalizedText('nav.home')}</span>
               </span>
             </Link>
 
             {/* Foods - Sky Blue */}
             <Link href="/foods">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                 location === '/foods' 
                   ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-900/40' 
                   : 'bg-sky-500/10 text-sky-200 border-sky-500/20 hover:bg-sky-500/30 hover:text-white'
               }`}>
-                <Apple className="w-3.5 h-3.5 text-sky-300" />
-                {getLocalizedText('nav.foods')}
+                <Apple className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                <span>{getLocalizedText('nav.foods')}</span>
               </span>
             </Link>
 
-            {/* Daily Feed - Amber / Flame */}
+            {/* Single Combined Nutrition Hub - Amber / Flame */}
             <Link href="/feed">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
-                location === '/feed' 
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
+                location === '/feed' || location === '/blog' || location.startsWith('/blog/') 
                   ? 'bg-amber-600 text-white border-amber-400 shadow-md shadow-amber-900/40' 
                   : 'bg-amber-500/10 text-amber-200 border-amber-500/20 hover:bg-amber-500/30 hover:text-white'
               }`}>
-                <ScrollText className="w-3.5 h-3.5 text-amber-300" />
-                <span>Daily Feed</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
-              </span>
-            </Link>
-
-            {/* Food Knowledge - Purple */}
-            <Link href="/blog">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
-                location === '/blog' || location.startsWith('/blog/') 
-                  ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-900/40' 
-                  : 'bg-purple-500/10 text-purple-200 border-purple-500/20 hover:bg-purple-500/30 hover:text-white'
-              }`}>
-                <ScrollText className="w-3.5 h-3.5 text-purple-300" />
-                <span>Food Knowledge</span>
+                <ScrollText className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span>Nutrition Hub & Feed</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0"></span>
               </span>
             </Link>
 
             {/* Nutrition - Rose / Pink */}
             <Link href="/nutrition">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                 location === '/nutrition' 
                   ? 'bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-900/40' 
                   : 'bg-rose-500/10 text-rose-200 border-rose-500/20 hover:bg-rose-500/30 hover:text-white'
               }`}>
-                <Leaf className="w-3.5 h-3.5 text-rose-300" />
-                {getLocalizedText('nav.nutrition')}
+                <Leaf className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                <span>{getLocalizedText('nav.nutrition')}</span>
               </span>
             </Link>
 
             {/* Calculator - Indigo / Cyan */}
             <Link href="/calculator">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                 location === '/calculator' 
                   ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-900/40' 
                   : 'bg-indigo-500/10 text-indigo-200 border-indigo-500/20 hover:bg-indigo-500/30 hover:text-white'
               }`}>
-                <Calculator className="w-3.5 h-3.5 text-indigo-300" />
+                <Calculator className="w-3.5 h-3.5 text-indigo-300 shrink-0" />
                 <span>RDA & Calorie Calculator</span>
-              </span>
-            </Link>
-
-            {/* About - Teal */}
-            <Link href="/about">
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border ${
-                location === '/about' 
-                  ? 'bg-teal-600 text-white border-teal-400 shadow-md shadow-teal-900/40' 
-                  : 'bg-teal-500/10 text-teal-200 border-teal-500/20 hover:bg-teal-500/30 hover:text-white'
-              }`}>
-                <Info className="w-3.5 h-3.5 text-teal-300" />
-                {getLocalizedText('nav.about')}
               </span>
             </Link>
           </nav>
@@ -145,9 +113,6 @@ export function Navbar() {
         
         {/* Actions */}
         <div className="flex items-center space-x-3">
-          {/* GitHub OAuth Connection */}
-          <GitHubConnectButton />
-
           {/* Language Selector */}
           <LanguageSelector />
           {/* End Language Selector */}
@@ -168,11 +133,6 @@ export function Navbar() {
               </span>
             )}
           </button>
-          
-          {/* Data Sync Status Indicator */}
-          <div className="hidden lg:block">
-            <DataSyncStatusIndicator variant="compact" />
-          </div>
 
           {/* Toggle offline - Desktop */}
           <Button 
@@ -245,16 +205,9 @@ export function Navbar() {
                         </div>
                       </Link>
                       <Link href="/feed">
-                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/feed' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
+                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/feed' || location === '/blog' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
                           <ScrollText className="h-5 w-5 mr-3 text-emerald-600" />
-                          Daily Feed
-                          <ChevronRight className="h-4 w-4 ml-auto" />
-                        </div>
-                      </Link>
-                      <Link href="/blog">
-                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/blog' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
-                          <ScrollText className="h-5 w-5 mr-3 text-emerald-600" />
-                          Food Knowledge Blog
+                          Food Knowledge & Feed
                           <ChevronRight className="h-4 w-4 ml-auto" />
                         </div>
                       </Link>

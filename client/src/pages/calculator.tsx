@@ -4,8 +4,10 @@ import { NutritionCalculator } from '@/components/calculator/NutritionCalculator
 import { MacroIntakeChart } from '@/components/calculator/MacroIntakeChart';
 import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
 import { CalculatorPageSkeleton } from '@/components/ui/PageSkeleton';
+import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
 export default function CalculatorPage() {
+  usePageViewCounter('/calculator', 'RDA & Calorie Calculator');
   const { isLoading: appLoading } = useContext(AppContext);
 
   if (appLoading) {

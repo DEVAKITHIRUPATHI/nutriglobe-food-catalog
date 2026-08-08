@@ -7,11 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { 
   Calculator, Activity, Heart, ShieldAlert, Sparkles, Scale, Flame, 
   Droplets, Apple, Info, Download, Printer, CheckCircle2, Stethoscope, 
-  ChevronRight, ArrowUpRight, Dumbbell, UserCheck, RefreshCw, PieChart as PieIcon, Share2
+  ChevronRight, ArrowUpRight, Dumbbell, UserCheck, RefreshCw, PieChart as PieIcon, Share2,
+  TrendingDown, TrendingUp, Ban, GlassWater, Sun, Wind, Target, Zap, ShieldX, Coffee, HeartPulse
 } from 'lucide-react';
 import { foodItems } from '@shared/mockData';
 import { FoodCard } from '@/components/foods/FoodCard';
@@ -19,7 +20,11 @@ import { FoodDetail } from '@/components/foods/FoodDetail';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
 import { FoodItemClient } from '@shared/schema';
 import { useTranslation } from '@/hooks/useTranslation';
+import { AppContext } from '@/contexts/AppContext';
 import { NutritionShareCardModal } from './NutritionShareCardModal';
+import { exportNutritionCalculatorPDF } from '@/lib/pdfExporter';
+import { WeightFatLossPlanner } from './WeightFatLossPlanner';
+import { NutritionNotificationManager } from './NutritionNotificationManager';
 
 // Life Stages for clinical precision
 type Sex = 'male' | 'female' | 'pregnant_t1' | 'pregnant_t2' | 'pregnant_t3' | 'lactating';
@@ -29,6 +34,7 @@ type UnitSystem = 'metric' | 'imperial';
 
 export function NutritionCalculator() {
   const { getLocalizedText, language } = useTranslation();
+  const { foods: contextFoods } = useContext(AppContext);
 
   // Input states
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric');
@@ -43,19 +49,39 @@ export function NutritionCalculator() {
   const [goal, setGoal] = useState<Goal>('maintain');
   const [selectedFood, setSelectedFood] = useState<FoodItemClient | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [analysisTab, setAnalysisTab] = useState<'current' | 'overweight' | 'underweight'>('current');
+
+  // Smooth Unit System Switcher with dynamic conversion
+  const handleUnitSystemChange = (newSystem: UnitSystem) => {
+    if (newSystem === unitSystem) return;
+    if (newSystem === 'imperial') {
+      const totalInches = Math.round((heightCm || 165) / 2.54);
+      setHeightFt(Math.floor(totalInches / 12));
+      setHeightIn(totalInches % 12);
+      setWeightLbs(Math.round((weightKg || 60) * 2.20462));
+    } else {
+      const cm = Math.round((((heightFt || 5) * 12) + (heightIn || 0)) * 2.54);
+      setHeightCm(cm);
+      setWeightKg(Math.round((weightLbs || 132) * 0.453592));
+    }
+    setUnitSystem(newSystem);
+  };
 
   // Convert inputs to metric for uniform calculations
   const effectiveHeightCm = useMemo(() => {
     if (unitSystem === 'metric') return heightCm || 165;
-    return Math.round(((heightFt * 12) + heightIn) * 2.54);
+    const ft = heightFt || 5;
+    const inch = heightIn || 0;
+    return Math.round(((ft * 12) + inch) * 2.54);
   }, [unitSystem, heightCm, heightFt, heightIn]);
 
   const effectiveWeightKg = useMemo(() => {
     if (unitSystem === 'metric') return weightKg || 60;
-    return Math.round(weightLbs * 0.453592);
+    const lbs = weightLbs || 132;
+    return Math.round(lbs * 0.453592);
   }, [unitSystem, weightKg, weightLbs]);
 
-  // Medical calculations
+  // Medical & Weight Control calculations
   const calculations = useMemo(() => {
     const hM = effectiveHeightCm / 100;
     const wKg = effectiveWeightKg;
@@ -64,32 +90,69 @@ export function NutritionCalculator() {
     // 1. BMI Calculation
     const bmi = wKg / (hM * hM);
     
-    // WHO BMI Category
+    // WHO BMI Category & Color Coding
     let bmiCategory = 'Normal weight';
     let bmiColor = 'text-emerald-600 bg-emerald-50 border-emerald-200';
+    let bmiRisk = 'Low risk (Healthy metabolic range)';
     if (bmi < 18.5) {
       bmiCategory = 'Underweight';
       bmiColor = 'text-amber-600 bg-amber-50 border-amber-200';
+      bmiRisk = 'Risk of nutritional deficiency & osteoporosis';
     } else if (bmi >= 18.5 && bmi < 25) {
       bmiCategory = 'Normal weight';
       bmiColor = 'text-emerald-600 bg-emerald-50 border-emerald-200';
+      bmiRisk = 'Optimal healthy metabolic state';
     } else if (bmi >= 25 && bmi < 30) {
       bmiCategory = 'Overweight';
       bmiColor = 'text-amber-700 bg-amber-100 border-amber-300';
+      bmiRisk = 'Increased risk of pre-diabetes & hypertension';
     } else if (bmi >= 30 && bmi < 35) {
       bmiCategory = 'Obesity Class I';
       bmiColor = 'text-rose-600 bg-rose-50 border-rose-200';
+      bmiRisk = 'High metabolic risk for cardiovascular disease';
     } else if (bmi >= 35 && bmi < 40) {
       bmiCategory = 'Obesity Class II';
       bmiColor = 'text-rose-700 bg-rose-100 border-rose-300';
+      bmiRisk = 'Very high clinical risk for type-2 diabetes';
     } else {
       bmiCategory = 'Obesity Class III';
       bmiColor = 'text-purple-700 bg-purple-100 border-purple-300';
+      bmiRisk = 'Extremely high clinical cardiovascular risk';
     }
 
-    // Healthy weight range (BMI 18.5 - 24.9)
+    // Healthy weight range (BMI 18.5 - 24.9) & Mid Ideal Target (BMI 21.7)
     const minHealthyWeight = Math.round(18.5 * hM * hM);
     const maxHealthyWeight = Math.round(24.9 * hM * hM);
+    const idealHealthyWeight = Math.round(21.7 * hM * hM);
+
+    // Weight Reduction metrics (for Overweight)
+    const kgToReduceForMaxNormal = wKg > maxHealthyWeight ? parseFloat((wKg - maxHealthyWeight).toFixed(1)) : 0;
+    const lbsToReduceForMaxNormal = wKg > maxHealthyWeight ? Math.round((wKg - maxHealthyWeight) * 2.20462) : 0;
+    const kgToReduceForIdeal = wKg > idealHealthyWeight ? parseFloat((wKg - idealHealthyWeight).toFixed(1)) : 0;
+    const lbsToReduceForIdeal = wKg > idealHealthyWeight ? Math.round((wKg - idealHealthyWeight) * 2.20462) : 0;
+
+    // Weight Increase metrics (for Underweight)
+    const kgToGainForMinNormal = wKg < minHealthyWeight ? parseFloat((minHealthyWeight - wKg).toFixed(1)) : 0;
+    const lbsToGainForMinNormal = wKg < minHealthyWeight ? Math.round((minHealthyWeight - wKg) * 2.20462) : 0;
+    const kgToGainForIdeal = wKg < idealHealthyWeight ? parseFloat((idealHealthyWeight - wKg).toFixed(1)) : 0;
+    const lbsToGainForIdeal = wKg < idealHealthyWeight ? Math.round((idealHealthyWeight - wKg) * 2.20462) : 0;
+
+    // Weight Control Difference calculation
+    let weightControlAction: 'lose' | 'gain' | 'maintain' = 'maintain';
+    let weightDifferenceKg = 0;
+
+    if (wKg > maxHealthyWeight) {
+      weightControlAction = 'lose';
+      weightDifferenceKg = kgToReduceForMaxNormal;
+    } else if (wKg < minHealthyWeight) {
+      weightControlAction = 'gain';
+      weightDifferenceKg = kgToGainForMinNormal;
+    }
+
+    // Timeline Paces for Weight Adjustment
+    const weeksAtMild = weightDifferenceKg > 0 ? Math.ceil(weightDifferenceKg / 0.25) : 0;
+    const weeksAtModerate = weightDifferenceKg > 0 ? Math.ceil(weightDifferenceKg / 0.5) : 0;
+    const weeksAtAggressive = weightDifferenceKg > 0 ? Math.ceil(weightDifferenceKg / 1.0) : 0;
 
     // 2. Basal Metabolic Rate (BMR) - Mifflin-St Jeor Equation
     let bmr = 0;
@@ -134,23 +197,18 @@ export function NutritionCalculator() {
     if (targetCalories < minSafeCal) targetCalories = minSafeCal;
 
     // 5. Macronutrients (Protein, Carbs, Fats)
-    // Protein: 1.6g to 2.2g per kg for active/weight loss, 1.2g baseline
     let proteinGrams = Math.round(wKg * (goal === 'muscle' ? 2.0 : 1.6));
     if (proteinGrams < 50) proteinGrams = 50;
     const proteinCal = proteinGrams * 4;
 
-    // Fat: 25-30% of target calories
     const fatCal = targetCalories * 0.28;
     const fatGrams = Math.round(fatCal / 9);
 
-    // Carbs: Remaining calories
     const carbCal = Math.max(0, targetCalories - proteinCal - fatCal);
     const carbGrams = Math.round(carbCal / 4);
 
-    // Fiber: 14g per 1000 calories
     const fiberGrams = Math.round((targetCalories / 1000) * 14);
 
-    // Water intake: 35ml per kg body weight + extra for activity
     const activityWaterBonusL = activity === 'very_active' || activity === 'extra_active' ? 0.75 : 0.35;
     const waterLiters = parseFloat(((wKg * 0.035) + activityWaterBonusL).toFixed(1));
     const waterGlasses = Math.round((waterLiters * 1000) / 250);
@@ -161,48 +219,35 @@ export function NutritionCalculator() {
     const isTeen = aY >= 13 && aY <= 18;
     const isChild = aY < 13;
 
-    // Calcium (mg)
     let calciumRda = 1000;
     if (isChild) calciumRda = 700;
     if (isTeen) calciumRda = 1300;
     if (isOlderAdult || sex.startsWith('pregnant')) calciumRda = 1200;
 
-    // Iron (mg)
     let ironRda = isMale ? 8 : 18;
     if (isOlderAdult && !isMale) ironRda = 8;
     if (sex.startsWith('pregnant')) ironRda = 27;
     if (sex === 'lactating') ironRda = 9;
 
-    // Vitamin D3 (IU)
     let vitaminDRda = 600;
     if (isSenior) vitaminDRda = 800;
 
-    // Vitamin C (mg)
     let vitaminCRda = isMale ? 90 : 75;
     if (sex.startsWith('pregnant')) vitaminCRda = 85;
     if (sex === 'lactating') vitaminCRda = 120;
 
-    // Vitamin B12 (mcg)
     let b12Rda = 2.4;
     if (sex.startsWith('pregnant')) b12Rda = 2.6;
     if (sex === 'lactating') b12Rda = 2.8;
 
-    // Folate (mcg)
     let folateRda = 400;
     if (sex.startsWith('pregnant')) folateRda = 600;
     if (sex === 'lactating') folateRda = 500;
 
-    // Potassium (mg)
     const potassiumRda = isMale ? 3400 : 2600;
-
-    // Sodium Limit (mg)
     const sodiumLimitMg = isOlderAdult ? 1500 : 2300;
-
-    // Zinc (mg)
     let zincRda = isMale ? 11 : 8;
     if (sex.startsWith('pregnant')) zincRda = 11;
-
-    // Magnesium (mg)
     let magRda = isMale ? 420 : 320;
     if (sex.startsWith('pregnant')) magRda = 350;
 
@@ -210,8 +255,23 @@ export function NutritionCalculator() {
       bmi: parseFloat(bmi.toFixed(1)),
       bmiCategory,
       bmiColor,
+      bmiRisk,
       minHealthyWeight,
       maxHealthyWeight,
+      idealHealthyWeight,
+      kgToReduceForMaxNormal,
+      lbsToReduceForMaxNormal,
+      kgToReduceForIdeal,
+      lbsToReduceForIdeal,
+      kgToGainForMinNormal,
+      lbsToGainForMinNormal,
+      kgToGainForIdeal,
+      lbsToGainForIdeal,
+      weightControlAction,
+      weightDifferenceKg,
+      weeksAtMild,
+      weeksAtModerate,
+      weeksAtAggressive,
       bmr: Math.round(bmr),
       hBmr: Math.round(hBmr),
       tdee,
@@ -240,7 +300,7 @@ export function NutritionCalculator() {
       lifeStageNote: isChild
         ? 'Pediatric Phase: Focus on adequate calcium, vitamin D, and high-quality protein for bone and brain development.'
         : isTeen
-        ? 'Adolescent Phase: High caloric and calcium requirements for rapid growth spurts and bone mineral density density building.'
+        ? 'Adolescent Phase: High caloric and calcium requirements for rapid growth spurts and bone mineral density building.'
         : isSenior
         ? 'Senior Phase (70+): Elevated protein requirement (1.2-1.5g/kg) is critical to prevent age-related sarcopenia and maintain bone density.'
         : sex.startsWith('pregnant')
@@ -249,10 +309,28 @@ export function NutritionCalculator() {
     };
   }, [age, sex, effectiveHeightCm, effectiveWeightKg, activity, goal]);
 
-  // Recommended Foods based on calculated highest priority nutrients
+  // Recommended Foods dynamically filtered from active catalog based on BMI & Goal
   const recommendedFoods = useMemo(() => {
-    return foodItems.slice(0, 4);
-  }, []);
+    const catalog = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+    const action = calculations.weightControlAction;
+
+    if (action === 'lose' || goal.includes('loss')) {
+      // High protein, high fiber, lower calorie items
+      const filtered = catalog.filter((f) => {
+        const cats = (f.category || []).map((c) => String(c).toLowerCase());
+        return cats.includes('vegetables') || cats.includes('fruits') || cats.includes('legumes') || (f.nutrition?.protein || 0) >= 4;
+      });
+      return (filtered.length >= 4 ? filtered : catalog).slice(0, 4);
+    } else if (action === 'gain' || goal.includes('gain') || goal === 'muscle') {
+      // Nutrient dense, higher protein & energy foods
+      const filtered = catalog.filter((f) => {
+        const cats = (f.category || []).map((c) => String(c).toLowerCase());
+        return cats.includes('nuts') || cats.includes('seeds') || cats.includes('dairy') || cats.includes('grains') || (f.nutrition?.protein || 0) >= 6;
+      });
+      return (filtered.length >= 4 ? filtered : catalog).slice(0, 4);
+    }
+    return catalog.slice(0, 4);
+  }, [contextFoods, calculations.weightControlAction, goal]);
 
   // Recharts Macronutrient Pie Chart Data
   const macroChartData = useMemo(() => {
@@ -271,6 +349,45 @@ export function NutritionCalculator() {
     window.print();
   };
 
+  const handleExportPdf = () => {
+    exportNutritionCalculatorPDF({
+      age,
+      sex,
+      heightCm: effectiveHeightCm,
+      weightKg: effectiveWeightKg,
+      activity,
+      goal,
+      bmi: calculations.bmi,
+      bmiCategory: calculations.bmiCategory,
+      bmiRisk: calculations.bmiRisk,
+      minHealthyWeight: calculations.minHealthyWeight,
+      maxHealthyWeight: calculations.maxHealthyWeight,
+      idealHealthyWeight: calculations.idealHealthyWeight,
+      weightControlAction: calculations.weightControlAction,
+      weightDifferenceKg: calculations.weightDifferenceKg,
+      bmr: calculations.bmr,
+      tdee: calculations.tdee,
+      targetCalories: calculations.targetCalories,
+      proteinGrams: calculations.proteinGrams,
+      proteinCal: calculations.proteinCal,
+      carbGrams: calculations.carbGrams,
+      carbCal: calculations.carbCal,
+      fatGrams: calculations.fatGrams,
+      fatCal: calculations.fatCal,
+      fiberGrams: calculations.fiberGrams,
+      waterLiters: calculations.waterLiters,
+      waterGlasses: calculations.waterGlasses,
+      lifeStageNote: calculations.lifeStageNote,
+      rda: calculations.rda,
+      recommendedFoods: recommendedFoods.map((f) => ({
+        name: typeof f.name === 'string' ? f.name : (f.name?.en || 'Food Item'),
+        category: f.category,
+        protein: f.nutrition?.protein,
+        calories: f.nutrition?.calories,
+      })),
+    });
+  };
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12">
       {/* Header Banner */}
@@ -286,17 +403,25 @@ export function NutritionCalculator() {
               Clinical Nutrition & Daily Calorie Calculator
             </h1>
             <p className="text-emerald-100/80 text-xs md:text-sm leading-relaxed">
-              Calculates your exact BMR, TDEE, WHO BMI status, target macronutrients, and age-specific Recommended Dietary Allowances (RDA) based on global clinical standards.
+              Calculates your exact BMR, TDEE, WHO BMI status, weight control targets, target macronutrients, exercise plan, and RDA allowances based on global clinical standards.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <Button 
-              onClick={() => setIsShareModalOpen(true)}
+              onClick={handleExportPdf}
               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black rounded-xl gap-2 shadow-lg transition-transform hover:scale-105"
             >
+              <Download className="w-4 h-4" />
+              Export Formatted PDF
+            </Button>
+            <Button 
+              onClick={() => setIsShareModalOpen(true)}
+              variant="outline"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs font-bold rounded-xl gap-2 shadow-sm"
+            >
               <Share2 className="w-4 h-4" />
-              Save & Share Summary Card
+              Share Summary
             </Button>
             <Button 
               onClick={handlePrint}
@@ -304,7 +429,7 @@ export function NutritionCalculator() {
               className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs font-bold rounded-xl gap-2 shadow-sm"
             >
               <Printer className="w-4 h-4" />
-              Print / Save PDF
+              Print
             </Button>
           </div>
         </div>
@@ -321,13 +446,15 @@ export function NutritionCalculator() {
               </div>
               <div className="flex bg-slate-200 dark:bg-slate-700 p-0.5 rounded-lg text-xs font-semibold">
                 <button
-                  onClick={() => setUnitSystem('metric')}
+                  type="button"
+                  onClick={() => handleUnitSystemChange('metric')}
                   className={`px-2.5 py-1 rounded-md transition-all ${unitSystem === 'metric' ? 'bg-emerald-600 text-white font-bold shadow' : 'text-slate-600 dark:text-slate-300'}`}
                 >
                   Metric (kg/cm)
                 </button>
                 <button
-                  onClick={() => setUnitSystem('imperial')}
+                  type="button"
+                  onClick={() => handleUnitSystemChange('imperial')}
                   className={`px-2.5 py-1 rounded-md transition-all ${unitSystem === 'imperial' ? 'bg-emerald-600 text-white font-bold shadow' : 'text-slate-600 dark:text-slate-300'}`}
                 >
                   Imperial (lbs/ft)
@@ -349,16 +476,19 @@ export function NutritionCalculator() {
                   type="number"
                   min={1}
                   max={120}
-                  value={age}
-                  onChange={(e) => setAge(parseInt(e.target.value) || 0)}
-                  className="rounded-xl border-slate-300 text-sm"
+                  value={age === 0 ? '' : age}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                    setAge(isNaN(val) ? 0 : val);
+                  }}
+                  className="rounded-xl border-slate-300 text-sm font-bold"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="sex" className="text-xs font-bold">Biological Sex / Stage</Label>
                 <Select value={sex} onValueChange={(v) => setSex(v as Sex)}>
-                  <SelectTrigger id="sex" className="rounded-xl border-slate-300 text-xs">
+                  <SelectTrigger id="sex" className="rounded-xl border-slate-300 text-xs font-bold">
                     <SelectValue placeholder="Select sex" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl text-xs z-50">
@@ -375,69 +505,100 @@ export function NutritionCalculator() {
 
             {/* Height & Weight Inputs */}
             {unitSystem === 'metric' ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="heightCm" className="text-xs font-bold">Height (cm)</Label>
-                  <Input
-                    id="heightCm"
-                    type="number"
-                    min={50}
-                    max={250}
-                    value={heightCm}
-                    onChange={(e) => setHeightCm(parseInt(e.target.value) || 0)}
-                    className="rounded-xl border-slate-300 text-sm"
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="heightCm" className="text-xs font-bold">Height (cm)</Label>
+                    <Input
+                      id="heightCm"
+                      type="number"
+                      min={50}
+                      max={250}
+                      value={heightCm === 0 ? '' : heightCm}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                        setHeightCm(isNaN(val) ? 0 : val);
+                      }}
+                      className="rounded-xl border-slate-300 text-sm font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="weightKg" className="text-xs font-bold">Weight (kg)</Label>
+                    <Input
+                      id="weightKg"
+                      type="number"
+                      min={20}
+                      max={300}
+                      value={weightKg === 0 ? '' : weightKg}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                        setWeightKg(isNaN(val) ? 0 : val);
+                      }}
+                      className="rounded-xl border-slate-300 text-sm font-bold"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="weightKg" className="text-xs font-bold">Weight (kg)</Label>
-                  <Input
-                    id="weightKg"
-                    type="number"
-                    min={20}
-                    max={300}
-                    value={weightKg}
-                    onChange={(e) => setWeightKg(parseInt(e.target.value) || 0)}
-                    className="rounded-xl border-slate-300 text-sm"
-                  />
+                <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between px-1 bg-slate-50 dark:bg-slate-800/40 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                  <span>Imperial Equivalent:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                    {Math.floor(Math.round((heightCm || 165) / 2.54) / 12)} ft {Math.round((heightCm || 165) / 2.54) % 12} in • {Math.round((weightKg || 60) * 2.20462)} lbs
+                  </span>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="heightFt" className="text-xs font-bold">Height (ft)</Label>
-                  <Input
-                    id="heightFt"
-                    type="number"
-                    min={2}
-                    max={8}
-                    value={heightFt}
-                    onChange={(e) => setHeightFt(parseInt(e.target.value) || 0)}
-                    className="rounded-xl border-slate-300 text-sm"
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="heightFt" className="text-xs font-bold">Height (ft)</Label>
+                    <Input
+                      id="heightFt"
+                      type="number"
+                      min={2}
+                      max={8}
+                      value={heightFt === 0 ? '' : heightFt}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                        setHeightFt(isNaN(val) ? 0 : val);
+                      }}
+                      className="rounded-xl border-slate-300 text-sm font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="heightIn" className="text-xs font-bold">Height (in)</Label>
+                    <Input
+                      id="heightIn"
+                      type="number"
+                      min={0}
+                      max={11}
+                      value={heightIn === 0 ? '' : heightIn}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                        setHeightIn(isNaN(val) ? 0 : val);
+                      }}
+                      className="rounded-xl border-slate-300 text-sm font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="weightLbs" className="text-xs font-bold">Weight (lbs)</Label>
+                    <Input
+                      id="weightLbs"
+                      type="number"
+                      min={40}
+                      max={600}
+                      value={weightLbs === 0 ? '' : weightLbs}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                        setWeightLbs(isNaN(val) ? 0 : val);
+                      }}
+                      className="rounded-xl border-slate-300 text-sm font-bold"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="heightIn" className="text-xs font-bold">Height (in)</Label>
-                  <Input
-                    id="heightIn"
-                    type="number"
-                    min={0}
-                    max={11}
-                    value={heightIn}
-                    onChange={(e) => setHeightIn(parseInt(e.target.value) || 0)}
-                    className="rounded-xl border-slate-300 text-sm"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="weightLbs" className="text-xs font-bold">Weight (lbs)</Label>
-                  <Input
-                    id="weightLbs"
-                    type="number"
-                    min={40}
-                    max={600}
-                    value={weightLbs}
-                    onChange={(e) => setWeightLbs(parseInt(e.target.value) || 0)}
-                    className="rounded-xl border-slate-300 text-sm"
-                  />
+                <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between px-1 bg-slate-50 dark:bg-slate-800/40 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                  <span>Metric Equivalent:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                    {effectiveHeightCm} cm • {effectiveWeightKg} kg
+                  </span>
                 </div>
               </div>
             )}
@@ -446,7 +607,7 @@ export function NutritionCalculator() {
             <div className="space-y-1.5">
               <Label htmlFor="activity" className="text-xs font-bold">Physical Activity Level</Label>
               <Select value={activity} onValueChange={(v) => setActivity(v as ActivityLevel)}>
-                <SelectTrigger id="activity" className="rounded-xl border-slate-300 text-xs">
+                <SelectTrigger id="activity" className="rounded-xl border-slate-300 text-xs font-bold">
                   <SelectValue placeholder="Select activity" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl text-xs z-50">
@@ -463,7 +624,7 @@ export function NutritionCalculator() {
             <div className="space-y-1.5">
               <Label htmlFor="goal" className="text-xs font-bold">Health & Weight Goal</Label>
               <Select value={goal} onValueChange={(v) => setGoal(v as Goal)}>
-                <SelectTrigger id="goal" className="rounded-xl border-slate-300 text-xs">
+                <SelectTrigger id="goal" className="rounded-xl border-slate-300 text-xs font-bold">
                   <SelectValue placeholder="Select goal" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl text-xs z-50">
@@ -494,7 +655,7 @@ export function NutritionCalculator() {
 
         {/* Right Side: Calculated Clinical Results with Framer Motion entry */}
         <motion.div 
-          key={`${calculations.targetCalories}-${calculations.proteinGrams}`}
+          key={`${calculations.targetCalories}-${calculations.proteinGrams}-${effectiveWeightKg}`}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -579,13 +740,13 @@ export function NutritionCalculator() {
 
           {/* Healthy Weight Range & Life Stage Banner */}
           <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-4 rounded-2xl space-y-2 text-xs text-emerald-900 dark:text-emerald-200">
-            <div className="flex items-center justify-between font-bold">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 font-bold">
               <span className="flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Optimal Healthy Weight Target:</span>
+                <span>WHO Optimal Healthy Weight Range:</span>
               </span>
-              <span className="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-black">
-                {calculations.minHealthyWeight} kg - {calculations.maxHealthyWeight} kg
+              <span className="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-xs">
+                {calculations.minHealthyWeight} kg – {calculations.maxHealthyWeight} kg (Ideal ~{calculations.idealHealthyWeight} kg)
               </span>
             </div>
             <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed">
@@ -593,42 +754,50 @@ export function NutritionCalculator() {
             </p>
           </div>
 
-          {/* Social Share Card CTA Banner */}
-          <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-900 p-4 rounded-2xl border border-indigo-700/50 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-3 text-center sm:text-left">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0">
-                <Share2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-extrabold text-white">Daily Target Graphic Card</h4>
-                <p className="text-[11px] text-indigo-200/80">Save a high-res image card of your BMR, macros, and RDA goals to share or track</p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setIsShareModalOpen(true)}
-              size="sm"
-              className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs rounded-xl px-4 py-2 shrink-0 shadow"
-            >
-              <Download className="w-3.5 h-3.5 mr-1.5" />
-              Export Image Card
-            </Button>
-          </div>
+          {/* Browser Smart Notification Engine */}
+          <NutritionNotificationManager
+            userWeightKg={effectiveWeightKg}
+            userTdee={calculations.tdee}
+            userGoal={goal}
+            waterTargetLiters={calculations.waterLiters}
+            proteinTargetGrams={calculations.proteinGrams}
+          />
 
-          {/* Tabs for Detailed Breakdown: Macros, Medical RDA, Hydration */}
-          <Tabs defaultValue="macros" className="w-full">
-            <TabsList className="grid grid-cols-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-              <TabsTrigger value="macros" className="text-xs font-bold rounded-lg">
-                Macronutrients
+          {/* Expanded 6 Tabs Section */}
+          <Tabs defaultValue="weight-planner" className="w-full">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-6 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+              <TabsTrigger value="weight-planner" className="text-[11px] font-bold rounded-lg px-2 text-emerald-600 dark:text-emerald-400">
+                Weight & Fat Planner
               </TabsTrigger>
-              <TabsTrigger value="rda" className="text-xs font-bold rounded-lg">
-                Medical RDA Table
+              <TabsTrigger value="macros" className="text-[11px] font-bold rounded-lg px-2">
+                Macros
               </TabsTrigger>
-              <TabsTrigger value="hydration" className="text-xs font-bold rounded-lg">
-                Hydration & Fiber
+              <TabsTrigger value="weight-target" className="text-[11px] font-bold rounded-lg px-2">
+                BMI Control
+              </TabsTrigger>
+              <TabsTrigger value="diet-plan" className="text-[11px] font-bold rounded-lg px-2">
+                Food & Drinks
+              </TabsTrigger>
+              <TabsTrigger value="exercise-yoga" className="text-[11px] font-bold rounded-lg px-2">
+                Fitness & Yoga
+              </TabsTrigger>
+              <TabsTrigger value="rda" className="text-[11px] font-bold rounded-lg px-2">
+                RDA Table
               </TabsTrigger>
             </TabsList>
 
-            {/* Macros Content */}
+            {/* TAB: Weight & Fat Loss Planner */}
+            <TabsContent value="weight-planner" className="mt-4">
+              <WeightFatLossPlanner
+                initialWeightKg={effectiveWeightKg}
+                initialHeightCm={effectiveHeightCm}
+                initialAge={age}
+                initialSex={sex}
+                initialTdee={calculations.tdee}
+              />
+            </TabsContent>
+
+            {/* TAB 1: Macronutrients */}
             <TabsContent value="macros" className="mt-4 space-y-4">
               <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -677,7 +846,6 @@ export function NutritionCalculator() {
 
                 {/* Pie Chart & Breakdown Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                  {/* Left Column: Recharts Donut Pie Chart with Framer Motion wrapper */}
                   <motion.div 
                     initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -724,7 +892,6 @@ export function NutritionCalculator() {
                         </PieChart>
                       </ResponsiveContainer>
 
-                      {/* Center Donut Label */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                         <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Target</span>
                         <span className="text-lg font-black text-slate-800 dark:text-white leading-none">
@@ -734,7 +901,6 @@ export function NutritionCalculator() {
                       </div>
                     </div>
 
-                    {/* Chart Legend */}
                     <div className="flex items-center justify-center gap-3 mt-1 flex-wrap text-xs">
                       {macroChartData.map((item) => (
                         <div key={item.name} className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300">
@@ -745,15 +911,9 @@ export function NutritionCalculator() {
                     </div>
                   </motion.div>
 
-                  {/* Right Column: Macro Value Cards with Animated Progress Fill */}
                   <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-3">
                     {/* Protein Card */}
-                    <motion.div 
-                      initial={{ x: 20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.4, delay: 0.1 }}
-                      className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between"
-                    >
+                    <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between">
                       <div className="flex items-center justify-between text-rose-700 dark:text-rose-400">
                         <span className="text-xs font-bold uppercase">Protein</span>
                         <span className="text-[10px] font-black bg-rose-200/60 dark:bg-rose-900/60 px-1.5 py-0.5 rounded text-rose-900 dark:text-rose-200">
@@ -766,24 +926,10 @@ export function NutritionCalculator() {
                       <span className="text-[11px] text-rose-600 dark:text-rose-300 block">
                         {calculations.proteinCal} kcal
                       </span>
-                      {/* Animated Progress Bar */}
-                      <div className="w-full bg-rose-200/60 dark:bg-rose-950 h-2 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${macroChartData[0].percentage}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut" }}
-                          className="bg-rose-500 h-full rounded-full"
-                        />
-                      </div>
-                    </motion.div>
+                    </div>
 
                     {/* Carbohydrates Card */}
-                    <motion.div 
-                      initial={{ x: 20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.4, delay: 0.2 }}
-                      className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between"
-                    >
+                    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between">
                       <div className="flex items-center justify-between text-amber-700 dark:text-amber-400">
                         <span className="text-xs font-bold uppercase">Carbs</span>
                         <span className="text-[10px] font-black bg-amber-200/60 dark:bg-amber-900/60 px-1.5 py-0.5 rounded text-amber-900 dark:text-amber-200">
@@ -796,24 +942,10 @@ export function NutritionCalculator() {
                       <span className="text-[11px] text-amber-600 dark:text-amber-300 block">
                         {calculations.carbCal} kcal
                       </span>
-                      {/* Animated Progress Bar */}
-                      <div className="w-full bg-amber-200/60 dark:bg-amber-950 h-2 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${macroChartData[1].percentage}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
-                          className="bg-amber-500 h-full rounded-full"
-                        />
-                      </div>
-                    </motion.div>
+                    </div>
 
                     {/* Healthy Fats Card */}
-                    <motion.div 
-                      initial={{ x: 20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.4, delay: 0.3 }}
-                      className="bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between"
-                    >
+                    <div className="bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/40 p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between">
                       <div className="flex items-center justify-between text-sky-700 dark:text-sky-400">
                         <span className="text-xs font-bold uppercase">Fats</span>
                         <span className="text-[10px] font-black bg-sky-200/60 dark:bg-sky-900/60 px-1.5 py-0.5 rounded text-sky-900 dark:text-sky-200">
@@ -826,23 +958,517 @@ export function NutritionCalculator() {
                       <span className="text-[11px] text-sky-600 dark:text-sky-300 block">
                         {Math.round(calculations.fatCal)} kcal
                       </span>
-                      {/* Animated Progress Bar */}
-                      <div className="w-full bg-sky-200/60 dark:bg-sky-950 h-2 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${macroChartData[2].percentage}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-                          className="bg-sky-500 h-full rounded-full"
-                        />
-                      </div>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </Card>
             </TabsContent>
 
-            {/* Medical RDA Table Content */}
-            <TabsContent value="rda" className="mt-4">
+            {/* TAB 2: BMI Weight Control Target */}
+            <TabsContent value="weight-target" className="mt-4 space-y-4">
+              <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 gap-2">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+                      <Target className="w-4 h-4 text-emerald-600" />
+                      Comprehensive BMI Weight Control & Adjustment Analysis
+                    </h3>
+                    <p className="text-xs text-slate-500">WHO Clinical analysis for weight reduction (Overweight) and weight increase (Underweight)</p>
+                  </div>
+                  <Badge variant="outline" className={`text-xs w-fit ${calculations.bmiColor}`}>
+                    {calculations.bmiCategory} (BMI {calculations.bmi})
+                  </Badge>
+                </div>
+
+                {/* Sub-tab view toggle buttons */}
+                <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl overflow-x-auto text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setAnalysisTab('current')}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                      analysisTab === 'current'
+                        ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>Active Profile ({calculations.weightControlAction === 'lose' ? 'Reduce Weight' : calculations.weightControlAction === 'gain' ? 'Increase Weight' : 'Fit Normal'})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAnalysisTab('overweight')}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                      analysisTab === 'overweight'
+                        ? 'bg-amber-500 text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <TrendingDown className="w-3.5 h-3.5" />
+                    <span>Overweight Analysis (Weight Reduction)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAnalysisTab('underweight')}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                      analysisTab === 'underweight'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>Underweight Analysis (Weight Increase)</span>
+                  </button>
+                </div>
+
+                {/* Top 3 High Level Metric Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                    <span className="text-[11px] text-slate-500 font-bold uppercase">Current Input Weight</span>
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">
+                      {effectiveWeightKg} <span className="text-sm font-normal text-slate-400">kg</span> ({Math.round(effectiveWeightKg * 2.20462)} lbs)
+                    </div>
+                    <span className="text-[10px] text-slate-400">Height: {effectiveHeightCm} cm | Age: {age} yrs</span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-1">
+                    <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold uppercase">WHO Healthy Range</span>
+                    <div className="text-2xl font-black text-emerald-950 dark:text-emerald-100">
+                      {calculations.idealHealthyWeight} <span className="text-sm font-normal text-emerald-700 dark:text-emerald-400">kg</span> ({Math.round(calculations.idealHealthyWeight * 2.20462)} lbs)
+                    </div>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-300">Min: {calculations.minHealthyWeight} kg – Max: {calculations.maxHealthyWeight} kg</span>
+                  </div>
+
+                  <div className={`p-4 rounded-xl border space-y-1 ${
+                    calculations.weightControlAction === 'lose' 
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 text-amber-900 dark:text-amber-200'
+                      : calculations.weightControlAction === 'gain'
+                      ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 text-blue-900 dark:text-blue-200'
+                      : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 text-emerald-900 dark:text-emerald-200'
+                  }`}>
+                    <span className="text-[11px] font-bold uppercase opacity-80">
+                      {calculations.weightControlAction === 'lose' ? 'Target Weight to Lose' : calculations.weightControlAction === 'gain' ? 'Target Weight to Gain' : 'Healthy Fit Status'}
+                    </span>
+                    <div className="text-2xl font-black flex items-center gap-1">
+                      {calculations.weightControlAction === 'lose' && <TrendingDown className="w-5 h-5 text-amber-600" />}
+                      {calculations.weightControlAction === 'gain' && <TrendingUp className="w-5 h-5 text-blue-600" />}
+                      {calculations.weightControlAction === 'maintain' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+                      <span>
+                        {calculations.weightDifferenceKg === 0 
+                          ? 'Optimal Fit!' 
+                          : `${calculations.weightDifferenceKg} kg (${Math.round(calculations.weightDifferenceKg * 2.20462)} lbs)`}
+                      </span>
+                    </div>
+                    <span className="text-[10px] opacity-80">{calculations.bmiRisk}</span>
+                  </div>
+                </div>
+
+                {/* VIEW 1: ACTIVE PROFILE / CURRENT */}
+                {analysisTab === 'current' && (
+                  <div className="space-y-4">
+                    {calculations.weightControlAction === 'lose' ? (
+                      <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 space-y-3">
+                        <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-extrabold text-xs">
+                          <TrendingDown className="w-4 h-4 text-amber-600" />
+                          <span>OVERWEIGHT CLINICAL ANALYSIS: REDUCTION TARGET</span>
+                        </div>
+                        <p className="text-xs text-amber-950 dark:text-amber-100 leading-relaxed">
+                          Your current weight ({effectiveWeightKg} kg) places your BMI at <strong>{calculations.bmi}</strong> ({calculations.bmiCategory}). 
+                          To transition into the WHO healthy standard range (BMI 18.5 – 24.9), you need to reduce a total of 
+                          <strong className="text-amber-700 dark:text-amber-300"> {calculations.kgToReduceForMaxNormal} kg ({calculations.lbsToReduceForMaxNormal} lbs)</strong> to reach the upper normal limit ({calculations.maxHealthyWeight} kg), or 
+                          <strong className="text-amber-700 dark:text-amber-300"> {calculations.kgToReduceForIdeal} kg ({calculations.lbsToReduceForIdeal} lbs)</strong> to hit the ideal mid-point ({calculations.idealHealthyWeight} kg).
+                        </p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Mild Pace (-250 kcal/day)</span>
+                            <div className="text-lg font-black text-amber-600">~{calculations.weeksAtMild} Weeks</div>
+                            <span className="text-[10px] text-slate-400">Safe, steady loss (-0.25 kg/wk)</span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-300 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase">Recommended Pace (-500 kcal/day)</span>
+                            <div className="text-lg font-black text-amber-700 dark:text-amber-300">~{calculations.weeksAtModerate} Weeks</div>
+                            <span className="text-[10px] text-amber-600">Gold standard loss (-0.50 kg/wk)</span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Aggressive Pace (-1000 kcal/day)</span>
+                            <div className="text-lg font-black text-amber-600">~{calculations.weeksAtAggressive} Weeks</div>
+                            <span className="text-[10px] text-slate-400">Strict deficit (-1.00 kg/wk)</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : calculations.weightControlAction === 'gain' ? (
+                      <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-800 space-y-3">
+                        <div className="flex items-center gap-2 text-blue-900 dark:text-blue-200 font-extrabold text-xs">
+                          <TrendingUp className="w-4 h-4 text-blue-600" />
+                          <span>UNDERWEIGHT CLINICAL ANALYSIS: INCREASE TARGET</span>
+                        </div>
+                        <p className="text-xs text-blue-950 dark:text-blue-100 leading-relaxed">
+                          Your current weight ({effectiveWeightKg} kg) places your BMI at <strong>{calculations.bmi}</strong> ({calculations.bmiCategory}). 
+                          To achieve normal physiological function and optimal muscle/bone density, you need to increase a total of 
+                          <strong className="text-blue-700 dark:text-blue-300"> {calculations.kgToGainForMinNormal} kg ({calculations.lbsToGainForMinNormal} lbs)</strong> to reach the minimum normal threshold ({calculations.minHealthyWeight} kg), or 
+                          <strong className="text-blue-700 dark:text-blue-300"> {calculations.kgToGainForIdeal} kg ({calculations.lbsToGainForIdeal} lbs)</strong> to achieve the ideal mid-point ({calculations.idealHealthyWeight} kg).
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-blue-200 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Mild Surplus (+250 kcal/day)</span>
+                            <div className="text-lg font-black text-blue-600">~{calculations.weeksAtMild} Weeks</div>
+                            <span className="text-[10px] text-slate-400">Lean mass gain (+0.25 kg/wk)</span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-blue-300 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase">Recommended Surplus (+500 kcal/day)</span>
+                            <div className="text-lg font-black text-blue-700 dark:text-blue-300">~{calculations.weeksAtModerate} Weeks</div>
+                            <span className="text-[10px] text-blue-600">Balanced gain (+0.50 kg/wk)</span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-blue-200 text-center space-y-0.5">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Hypertrophy Surplus (+750 kcal/day)</span>
+                            <div className="text-lg font-black text-blue-600">~{calculations.weeksAtAggressive} Weeks</div>
+                            <span className="text-[10px] text-slate-400">Muscle bulk gain (+0.75 kg/wk)</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 space-y-2 text-xs">
+                        <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 font-extrabold">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>OPTIMAL HEALTHY WEIGHT STATUS</span>
+                        </div>
+                        <p className="text-emerald-800 dark:text-emerald-200 leading-relaxed">
+                          🎉 Your BMI is <strong>{calculations.bmi}</strong>, placing you perfectly within the standard WHO Healthy Range ({calculations.minHealthyWeight} kg – {calculations.maxHealthyWeight} kg).
+                          Maintain your caloric energy balance at <strong>{calculations.tdee} kcal/day</strong> with balanced protein, fiber, and physical activity.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* VIEW 2: OVERWEIGHT COMPREHENSIVE ANALYSIS */}
+                {analysisTab === 'overweight' && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-300 dark:border-amber-800/80 space-y-3">
+                      <h4 className="text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                        <TrendingDown className="w-4 h-4 text-amber-600" />
+                        COMPREHENSIVE ANALYSIS: HOW MUCH WEIGHT TO REDUCE & ACTION PLAN
+                      </h4>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        When body mass exceeds normal BMI thresholds (&ge;25.0), visceral adiposity causes systemic low-grade inflammation, arterial stiffness, and insulin resistance. 
+                        Targeted weight loss reduces hemoglobin A1c, lowers systolic blood pressure by ~1 mmHg per kg lost, and alleviates knee joint strain.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-amber-200 dark:border-slate-700 space-y-1">
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 block">📉 Target Weight Reduction Needed</span>
+                          <p className="text-slate-600 dark:text-slate-300">
+                            • To reach upper normal BMI limit (24.9): <strong>{calculations.kgToReduceForMaxNormal > 0 ? calculations.kgToReduceForMaxNormal : '0 (Already within range)'} kg</strong> ({calculations.lbsToReduceForMaxNormal} lbs)<br />
+                            • To reach ideal mid-point BMI (21.7): <strong>{calculations.kgToReduceForIdeal > 0 ? calculations.kgToReduceForIdeal : '0'} kg</strong> ({calculations.lbsToReduceForIdeal} lbs)
+                          </p>
+                        </div>
+
+                        <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-amber-200 dark:border-slate-700 space-y-1">
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 block">🔥 Caloric Deficit Target</span>
+                          <p className="text-slate-600 dark:text-slate-300">
+                            • Daily Caloric Deficit: <strong>-{calculations.tdee > 2000 ? 500 : 350} kcal/day</strong><br />
+                            • Daily Intake Target: <strong>{Math.max(1200, calculations.tdee - 500)} kcal</strong><br />
+                            • Estimated Duration: <strong>~{calculations.weeksToReduceMod || 12} Weeks</strong> for complete transformation
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-amber-100 dark:border-slate-700">
+                          <strong className="text-amber-800 dark:text-amber-300 block mb-1">🥗 High Volume Fiber</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Consume spinach, broccoli, cucumbers, amla, and chia seeds to promote gastric fullness and delay ghrelin hunger spikes.</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-amber-100 dark:border-slate-700">
+                          <strong className="text-amber-800 dark:text-amber-300 block mb-1">🥩 Lean Muscle Retention</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Keep protein intake elevated at 1.6 - 2.0g per kg of target weight ({Math.round(calculations.idealHealthyWeight * 1.8)}g/day) to prevent muscle loss.</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-amber-100 dark:border-slate-700">
+                          <strong className="text-amber-800 dark:text-amber-300 block mb-1">🧘 Fat Oxidation Yoga</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Practice 12 rounds of Surya Namaskar and 15 mins of Kapalbhati daily to accelerate lipid metabolic turnover.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* VIEW 3: UNDERWEIGHT COMPREHENSIVE ANALYSIS */}
+                {analysisTab === 'underweight' && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-blue-600/10 border border-blue-300 dark:border-blue-800/80 space-y-3">
+                      <h4 className="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-wider flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-blue-600" />
+                        COMPREHENSIVE ANALYSIS: HOW MUCH WEIGHT TO INCREASE & ACTION PLAN
+                      </h4>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        When BMI drops below 18.5, the body experiences sarcopenia (muscle tissue breakdown), impaired immune cell production, low bone mineral density (osteopenia risk), and chronic fatigue. 
+                        A structured caloric surplus combined with progressive resistance training builds high-density lean muscle tissue rather than excess body fat.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-blue-200 dark:border-slate-700 space-y-1">
+                          <span className="font-extrabold text-blue-800 dark:text-blue-300 block">📈 Target Weight Increase Needed</span>
+                          <p className="text-slate-600 dark:text-slate-300">
+                            • To reach lower normal BMI limit (18.5): <strong>{calculations.kgToGainForMinNormal > 0 ? calculations.kgToGainForMinNormal : '0 (Already above limit)'} kg</strong> ({calculations.lbsToGainForMinNormal} lbs)<br />
+                            • To reach ideal mid-point BMI (21.7): <strong>{calculations.kgToGainForIdeal > 0 ? calculations.kgToGainForIdeal : '0'} kg</strong> ({calculations.lbsToGainForIdeal} lbs)
+                          </p>
+                        </div>
+
+                        <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-blue-200 dark:border-slate-700 space-y-1">
+                          <span className="font-extrabold text-blue-800 dark:text-blue-300 block">⚡ Caloric Surplus Target</span>
+                          <p className="text-slate-600 dark:text-slate-300">
+                            • Daily Caloric Surplus: <strong>+{500} kcal/day</strong> above TDEE<br />
+                            • Daily Intake Target: <strong>{calculations.tdee + 500} kcal</strong><br />
+                            • Estimated Duration: <strong>~{calculations.weeksToGainMod || 10} Weeks</strong> to achieve optimal healthy weight
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-blue-100 dark:border-slate-700">
+                          <strong className="text-blue-800 dark:text-blue-300 block mb-1">🥜 Nutritious Calorie Density</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Incorporate almonds, walnuts, dates, whole milk shakes, peanut butter, avocados, and pure ghee into meals.</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-blue-100 dark:border-slate-700">
+                          <strong className="text-blue-800 dark:text-blue-300 block mb-1">🏋️ Hypertrophy Resistance Training</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Perform compound strength exercises (squats, deadlifts, overhead presses) 3-4 days/week to stimulate muscle hypertrophy.</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-blue-100 dark:border-slate-700">
+                          <strong className="text-blue-800 dark:text-blue-300 block mb-1">🧘 Digestive Stimulant Yoga</strong>
+                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">Practice Bhujangasana, Paschimottanasana, and Vajrasana (post-meal) to optimize nutrient digestion and absorption.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
+            {/* TAB 3: Food & Drinks Plan */}
+            <TabsContent value="diet-plan" className="mt-4 space-y-4">
+              <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+                      <Apple className="w-4 h-4 text-emerald-600" />
+                      Personalized Food & Drinks Plan (To Increase vs Reduce)
+                    </h3>
+                    <p className="text-xs text-slate-500">Targeted foods and healthy beverages tailored to your BMI ({calculations.bmiCategory})</p>
+                  </div>
+                </div>
+
+                {/* Grid: Foods to Increase vs Foods to Reduce */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Foods to Increase */}
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-3">
+                    <h4 className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Foods to INCREASE in Daily Diet
+                    </h4>
+                    <ul className="text-xs text-emerald-900 dark:text-emerald-200 space-y-2">
+                      {calculations.weightControlAction === 'lose' ? (
+                        <>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>High-Fiber Vegetables:</strong> Spinach, broccoli, cauliflower, cucumber, gourd, tomatoes for high volume & satiety.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Lean Protein & Sprouts:</strong> Mung bean sprouts, lentils/dal, paneer/tofu, eggs, fish, chicken breast to maintain muscle.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Whole Grains:</strong> Oats, brown rice, millets (ragi, bajra), quinoa with slow-release complex carbs.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Antioxidant Berries & Citrus:</strong> Apples, amla, guava, oranges, berries for Vitamin C and immunity.</span>
+                          </li>
+                        </>
+                      ) : (
+                        <>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Calorie & Nutrient-Dense Nuts:</strong> Almonds, walnuts, cashews, chia, flaxseeds, pumpkin seeds.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Healthy Fats & Dairy:</strong> Whole milk, curd, paneer, ghee, extra virgin olive oil, avocados.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Energy Dense Fruits & Smoothies:</strong> Bananas, dates, figs, mangoes, peanut butter oatmeal shakes.</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">•</span>
+                            <span><strong>Complex Carbohydrate Meals:</strong> Sweet potatoes, brown rice, chickpeas, kidney beans (rajma).</span>
+                          </li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* Foods to Reduce / Avoid */}
+                  <div className="p-4 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 space-y-3">
+                    <h4 className="text-xs font-extrabold text-rose-800 dark:text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Ban className="w-4 h-4 text-rose-600" />
+                      Foods to REDUCE / LIMIT
+                    </h4>
+                    <ul className="text-xs text-rose-900 dark:text-rose-200 space-y-2">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-rose-600 font-bold">•</span>
+                        <span><strong>Refined Sugars & Desserts:</strong> Bakery pastries, candies, sweetened ice creams, refined syrup desserts.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-rose-600 font-bold">•</span>
+                        <span><strong>Deep-Fried Snacks & Trans Fats:</strong> Samosas, french fries, potato chips, pakoras, re-used cooking oil.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-rose-600 font-bold">•</span>
+                        <span><strong>Ultra-Processed Packaged Foods:</strong> Instant noodles, maida (refined flour) bakery products, processed meats.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-rose-600 font-bold">•</span>
+                        <span><strong>High-Sodium Foods:</strong> Excessive table salt, commercial canned soups, pickles, sodium-laden fast food.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Healthy Drinks & Hydration Section */}
+                <div className="p-4 rounded-2xl bg-sky-50/80 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-extrabold text-sky-800 dark:text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <GlassWater className="w-4 h-4 text-sky-600" />
+                      Recommended Hydration & Healthy Beverages ({calculations.waterLiters}L Target)
+                    </h4>
+                    <Badge className="bg-sky-500 text-white text-[10px]">
+                      {calculations.waterGlasses} Glasses Daily
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-sky-100 dark:border-slate-700 space-y-1">
+                      <span className="font-bold text-sky-900 dark:text-sky-200 flex items-center gap-1">
+                        <Coffee className="w-3.5 h-3.5 text-emerald-500" /> Green Tea & Herbal Infusions
+                      </span>
+                      <p className="text-slate-600 dark:text-slate-300 text-[11px]">
+                        Rich in epigallocatechin gallate (EGCG) antioxidants to stimulate fat oxidation and improve metabolic rate.
+                      </p>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-sky-100 dark:border-slate-700 space-y-1">
+                      <span className="font-bold text-sky-900 dark:text-sky-200 flex items-center gap-1">
+                        <Droplets className="w-3.5 h-3.5 text-blue-500" /> Warm Chia Seed Detox Water
+                      </span>
+                      <p className="text-slate-600 dark:text-slate-300 text-[11px]">
+                        Soaked chia seeds expand in stomach providing soluble fiber, reducing hunger cravings and regulating glucose spikes.
+                      </p>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-sky-100 dark:border-slate-700 space-y-1">
+                      <span className="font-bold text-sky-900 dark:text-sky-200 flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Spiced Buttermilk (Chaas) / Amla Shot
+                      </span>
+                      <p className="text-slate-600 dark:text-slate-300 text-[11px]">
+                        Probiotic gut microbiome booster with digestive cumin and black salt. Low calorie and rich in electrolytes.
+                      </p>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-sky-100 dark:border-slate-700 space-y-1">
+                      <span className="font-bold text-rose-700 dark:text-rose-400 flex items-center gap-1">
+                        <ShieldX className="w-3.5 h-3.5 text-rose-500" /> Beverages to Avoid
+                      </span>
+                      <p className="text-slate-600 dark:text-slate-300 text-[11px]">
+                        Carbonated soft drinks, commercial packaged fruit juices with added sugar, energy drinks, excessive alcohol.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* NutriGlobe Suggested Food Cards */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <Apple className="w-4 h-4 text-emerald-600" />
+                    Recommended NutriGlobe Foods for Your Goal
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {recommendedFoods.map((food) => (
+                      <FoodCard
+                        key={food.id}
+                        item={food}
+                        onViewDetails={(item) => setSelectedFood(item)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* TAB 4: Exercise & Yoga */}
+            <TabsContent value="exercise-yoga" className="mt-4 space-y-4">
+              <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+                      <Dumbbell className="w-4 h-4 text-emerald-600" />
+                      Physical Exercise & Yoga Asanas Program
+                    </h3>
+                    <p className="text-xs text-slate-500">Targeted activity routine to maintain fitness, boost BMR, and reach healthy BMI</p>
+                  </div>
+                  <Badge className="bg-emerald-600 text-white text-[10px]">
+                    Clinical Activity Plan
+                  </Badge>
+                </div>
+
+                {/* Exercise Modules Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Cardio & Aerobics */}
+                  <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 space-y-2">
+                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-extrabold text-xs">
+                      <Activity className="w-4 h-4 text-amber-600" />
+                      <span>Cardio & Aerobic Endurance</span>
+                    </div>
+                    <ul className="text-xs text-amber-950 dark:text-amber-200 space-y-2 pt-1">
+                      <li><strong>Brisk Walking:</strong> 10,000 steps daily (~350–400 kcal burn). Great for sustainable fat loss & heart health.</li>
+                      <li><strong>Cycling / Jogging / Swimming:</strong> 30–45 mins, 4 days/week (~350–500 kcal burn). Boosts lung stamina.</li>
+                      <li><strong>HIIT Workouts:</strong> 20 mins, 3 days/week (~250 kcal burn) for EPOC metabolic fat oxidation.</li>
+                    </ul>
+                  </div>
+
+                  {/* Strength & Resistance */}
+                  <div className="p-4 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 space-y-2">
+                    <div className="flex items-center gap-2 text-rose-800 dark:text-rose-300 font-extrabold text-xs">
+                      <Dumbbell className="w-4 h-4 text-rose-600" />
+                      <span>Strength & Muscle Resistance</span>
+                    </div>
+                    <ul className="text-xs text-rose-950 dark:text-rose-200 space-y-2 pt-1">
+                      <li><strong>Bodyweight Core:</strong> Squats, Push-ups, Lunges, Planks (3 sets of 12–15 reps).</li>
+                      <li><strong>Dumbbell Training:</strong> 3–4 days/week to build lean muscle tissue and elevate resting BMR rate.</li>
+                      <li><strong>Post-Exercise Recovery:</strong> 25–30g post-workout protein intake to rebuild muscle fiber.</li>
+                    </ul>
+                  </div>
+
+                  {/* Targeted Yoga Asanas & Pranayama */}
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs">
+                      <Sun className="w-4 h-4 text-emerald-600" />
+                      <span>Yoga Asanas & Pranayama</span>
+                    </div>
+                    <ul className="text-xs text-emerald-950 dark:text-emerald-200 space-y-2 pt-1">
+                      <li><strong>Surya Namaskar:</strong> 12 rounds daily (~150 kcal burn). Full-body flexibility and core activation.</li>
+                      <li><strong>Bhujangasana & Dhanurasana:</strong> Cobra & Bow Poses to massage liver, kidneys, and stimulate digestion.</li>
+                      <li><strong>Kapalbhati & Anulom Vilom:</strong> 10 mins daily breathwork to reduce stress cortisol and visceral fat.</li>
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* TAB 5: Medical RDA Table */}
+            <TabsContent value="rda" className="mt-4 space-y-6">
               <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
@@ -908,115 +1534,25 @@ export function NutritionCalculator() {
                   </table>
                 </div>
               </Card>
-            </TabsContent>
 
-            {/* Hydration & Fiber Content */}
-            <TabsContent value="hydration" className="mt-4">
-              <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/40 p-4 rounded-xl space-y-3 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between text-sky-800 dark:text-sky-300 font-extrabold text-sm mb-1">
-                        <span className="flex items-center gap-2">
-                          <Droplets className="w-5 h-5 text-sky-500" />
-                          <span>Daily Water Requirement</span>
-                        </span>
-                        <Badge className="bg-sky-500/20 text-sky-700 dark:text-sky-300 border-sky-400/30 text-[10px]">
-                          {calculations.waterGlasses} Glasses
-                        </Badge>
-                      </div>
-                      <div className="text-3xl font-black text-sky-950 dark:text-sky-100 my-1">
-                        {calculations.waterLiters} Liters
-                      </div>
-                      <p className="text-xs text-sky-700 dark:text-sky-300">
-                        Approximately <strong>{calculations.waterGlasses} standard glasses</strong> (250ml) per day to maintain renal filtration and cellular hydration.
-                      </p>
-                    </div>
-
-                    {/* Animated Water Target Progress Bar (scaled out of 4.0L base) */}
-                    <div className="space-y-1 pt-1">
-                      <div className="flex justify-between text-[10px] text-sky-700 dark:text-sky-400 font-bold">
-                        <span>Hydration Goal Scale</span>
-                        <span>{Math.min(100, Math.round((parseFloat(calculations.waterLiters) / 3.5) * 100))}%</span>
-                      </div>
-                      <div className="w-full bg-sky-200/60 dark:bg-sky-950 h-2.5 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(100, Math.round((parseFloat(calculations.waterLiters) / 3.5) * 100))}%` }}
-                          transition={{ duration: 0.9, ease: "easeOut" }}
-                          className="bg-sky-500 h-full rounded-full"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 p-4 rounded-xl space-y-3 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between text-emerald-800 dark:text-emerald-300 font-extrabold text-sm mb-1">
-                        <span className="flex items-center gap-2">
-                          <Apple className="w-5 h-5 text-emerald-500" />
-                          <span>Daily Fiber Target</span>
-                        </span>
-                        <Badge className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30 text-[10px]">
-                          Microbiome Care
-                        </Badge>
-                      </div>
-                      <div className="text-3xl font-black text-emerald-950 dark:text-emerald-100 my-1">
-                        {calculations.fiberGrams} Grams
-                      </div>
-                      <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                        Supports gut microbiome diversity, delays glucose absorption, and promotes healthy bowel motility.
-                      </p>
-                    </div>
-
-                    {/* Animated Fiber Target Progress Bar (scaled out of 40g base) */}
-                    <div className="space-y-1 pt-1">
-                      <div className="flex justify-between text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
-                        <span>Fiber Intake Target</span>
-                        <span>{Math.min(100, Math.round((calculations.fiberGrams / 38) * 100))}%</span>
-                      </div>
-                      <div className="w-full bg-emerald-200/60 dark:bg-emerald-950 h-2.5 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(100, Math.round((calculations.fiberGrams / 38) * 100))}%` }}
-                          transition={{ duration: 0.9, ease: "easeOut", delay: 0.15 }}
-                          className="bg-emerald-500 h-full rounded-full"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              {/* RDA Weight & Belly Fat Loss Planner Integration */}
+              <WeightFatLossPlanner
+                initialWeightKg={effectiveWeightKg}
+                initialHeightCm={effectiveHeightCm}
+                initialAge={age}
+                initialSex={sex}
+                initialTdee={calculations.tdee}
+              />
             </TabsContent>
           </Tabs>
 
-          {/* Amazon Affiliate Recommendation Widget for Body Scales & Protein */}
+          {/* Amazon Affiliate Recommendation Widget */}
           <AmazonAdBanner 
             format="grid" 
             category="scales" 
             maxItems={2} 
             title="Amazon Recommended Food Scales & Protein for Macro Goals" 
           />
-
-          {/* Suggested Foods to meet RDA requirements */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
-                <Apple className="w-4 h-4 text-emerald-600" />
-                Recommended NutriGlobe Foods for Your Biometric RDA
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recommendedFoods.map((food) => (
-                <FoodCard
-                  key={food.id}
-                  item={food}
-                  onViewDetails={(item) => setSelectedFood(item)}
-                />
-              ))}
-            </div>
-          </div>
         </motion.div>
       </div>
 
@@ -1039,8 +1575,21 @@ export function NutritionCalculator() {
           goal,
           activity
         }}
-        calculations={calculations}
-        rda={clinicalRda}
+        calculations={{
+          ...calculations,
+          bmi: String(calculations.bmi),
+          waterLiters: String(calculations.waterLiters),
+        }}
+        rda={{
+          fiber: `${calculations.fiberGrams}g`,
+          calcium: `${calculations.rda.calciumRda}mg`,
+          iron: `${calculations.rda.ironRda}mg`,
+          vitaminD: `${calculations.rda.vitaminDRda}IU`,
+          folate: `${calculations.rda.folateRda}mcg`,
+          sodium: `<${calculations.rda.sodiumLimitMg}mg`,
+          potassium: `${calculations.rda.potassiumRda}mg`,
+          vitaminC: `${calculations.rda.vitaminCRda}mg`,
+        }}
       />
     </div>
   );

@@ -222,10 +222,23 @@ export type FoodItemClient = {
     growingRegions: string[];
   };
 
+  // Image pipeline & sourcing metadata
+  imageUrl?: string;
+  imageSourceType?: 'usda' | 'open_food_facts' | 'wikimedia' | 'ai_generated';
+  imageSourceId?: string;
+  imageLicense?: string;
+  imageAttribution?: string;
+  imageVerifiedStatus?: 'verified' | 'unverified' | 'ai_placeholder' | 'mismatch_flagged';
+  imageLastCheckedAt?: string;
+  imageFallbackUrl?: string;
+
   // Image QA metadata
   imageConfidence?: number;
   verifiedStatus?: 'unverified' | 'ai_flagged' | 'admin_verified' | 'admin_rejected';
 };
+
+export type ImageSourceType = 'usda' | 'open_food_facts' | 'wikimedia' | 'ai_generated';
+export type ImageVerifiedStatus = 'verified' | 'unverified' | 'ai_placeholder' | 'mismatch_flagged';
 
 export type CartItemClient = {
   id: string;
@@ -245,3 +258,97 @@ export type Language =
   'es' | 'fr' | 'ar' | 'ru' | 'pt' | 'id' | 'de' | 'ja' | 'sw' | 
   'tr' | 'yue' | 'vi' | 'ko' | 'it' | 'fa' | 'th' | 'ha' | 'pl' | 
   'uk' | 'ms' | 'ro' | 'nl' | 'am' | 'fil' | 'my' | 'om' | 'zh';
+
+// --- Visitor & Analytics Intelligence Interfaces ---
+export interface VisitorLog {
+  id: string;
+  ip: string;
+  path: string;
+  userAgent: string;
+  visitCount: number;
+  isRepeatUser: boolean;
+  country: string;
+  region: string;
+  timestamp: string;
+}
+
+export interface PageMetric {
+  path: string;
+  pageName: string;
+  totalViews: number;
+  dailyViews: number;
+  uniqueVisitors: number;
+  avgTimeOnPage: string;
+}
+
+export interface FoodViewMetric {
+  foodId: string;
+  foodName: string;
+  category: string;
+  imageUrl?: string;
+  views: number;        // Total views
+  dailyViews: number;   // Daily views (today)
+  shares: number;
+  downloads: number;
+  lastViewedAt: string;
+}
+
+export interface NetworkAdPerformance {
+  provider: 'Google AdSense' | 'Amazon Associates' | 'Flipkart Affiliate';
+  totalImpressions: number; // Total Ad Views
+  dailyImpressions: number; // Daily Ad Views
+  totalClicks: number;      // Total Ad Clicks
+  dailyClicks: number;      // Daily Ad Clicks
+  ctr: number;
+  ecpm: number;
+  totalRevenue: number;
+  dailyRevenue: number;
+}
+
+export interface DailyHistoryGraphPoint {
+  date: string;
+  pageViews: number;
+  foodViews: number;
+  googleAdViews: number;
+  googleAdClicks: number;
+  amazonAdViews: number;
+  amazonAdClicks: number;
+  flipkartAdViews: number;
+  flipkartAdClicks: number;
+  totalAdClicks: number;
+  googleRevenue: number;
+  amazonRevenue: number;
+  flipkartRevenue: number;
+  totalRevenue: number;
+}
+
+export interface AdPerformanceLog {
+  id: string;
+  date: string;
+  adUnit: string;
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  estimatedRevenue: number;
+  ecpm: number;
+}
+
+export interface VisitorAnalyticsSummary {
+  totalVisits: number;
+  uniqueIPsCount: number;
+  repeatUsersCount: number;
+  repeatUserPercentage: number;
+  totalFoodViews: number;
+  totalShares: number;
+  totalDownloads: number;
+  totalAdImpressions: number;
+  totalAdClicks: number;
+  avgCtr: number;
+  totalAdRevenue: number;
+  recentVisitorLogs: VisitorLog[];
+  topFoodMetrics: FoodViewMetric[];
+  pageMetrics: PageMetric[];
+  networkAdPerformance: NetworkAdPerformance[];
+  dailyHistoryGraph: DailyHistoryGraphPoint[];
+  adPerformanceHistory: AdPerformanceLog[];
+}

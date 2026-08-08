@@ -8,8 +8,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 import { FeedPageSkeleton } from '@/components/ui/PageSkeleton';
+import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
 export default function FeedPage() {
+  usePageViewCounter('/feed', 'Nutrition Hub & Feed');
   const { getLocalizedText } = useTranslation();
   const { isLoading: appLoading } = useContext(AppContext);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

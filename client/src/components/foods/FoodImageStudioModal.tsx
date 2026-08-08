@@ -17,17 +17,25 @@ interface FoodImageStudioModalProps {
   onImageUpdated?: (newImageUrl: string) => void;
 }
 
+const getFoodNameString = (name: any): string => {
+  if (!name) return 'Alphonso Mango';
+  if (typeof name === 'string') return name;
+  return name.en || name.hi || name.ta || name.es || name.fr || 'Alphonso Mango';
+};
+
 export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
   isOpen,
   onClose,
   foodItem,
   onImageUpdated
 }) => {
-  const [foodName, setFoodName] = useState(foodItem?.name || 'Alphonso Mango');
+  const [foodName, setFoodName] = useState<string>(() => getFoodNameString(foodItem?.name));
   const [prompt, setPrompt] = useState('');
   const [editPrompt, setEditPrompt] = useState('');
   const [mode, setMode] = useState<'generate' | 'edit'>('generate');
-  const [currentImageUrl, setCurrentImageUrl] = useState(foodItem?.imageUrl || 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1000&q=80');
+  const [currentImageUrl, setCurrentImageUrl] = useState(
+    foodItem?.imageUrl || foodItem?.image || 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1000&q=80'
+  );
   
   // Branding overlay options
   const [brandingText, setBrandingText] = useState('NutriGlobe Clinical & Educational Database');
@@ -46,8 +54,8 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
 
   useEffect(() => {
     if (foodItem) {
-      setFoodName(foodItem.name);
-      if (foodItem.imageUrl) setCurrentImageUrl(foodItem.imageUrl);
+      setFoodName(getFoodNameString(foodItem.name));
+      if (foodItem.imageUrl || foodItem.image) setCurrentImageUrl(foodItem.imageUrl || foodItem.image);
     }
   }, [foodItem]);
 
@@ -131,7 +139,8 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
           ctx.font = `bold ${Math.round(headerHeight * 0.4)}px system-ui, sans-serif`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`EDUCATIONAL NUTRITION DATABASE • ${foodName.toUpperCase()}`, width / 2, headerHeight / 2);
+          const safeFoodName = typeof foodName === 'string' ? foodName : getFoodNameString(foodName);
+          ctx.fillText(`EDUCATIONAL NUTRITION DATABASE • ${safeFoodName.toUpperCase()}`, width / 2, headerHeight / 2);
 
           // Bottom URL
           const footerHeight = Math.max(40, height * 0.05);
@@ -217,7 +226,8 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.download = `${foodName.toLowerCase().replace(/\s+/g, '_')}_educational_image.jpg`;
+    const safeFoodName = typeof foodName === 'string' ? foodName : getFoodNameString(foodName);
+    link.download = `${safeFoodName.toLowerCase().replace(/\s+/g, '_')}_educational_image.jpg`;
     link.href = canvasDataUrl || currentImageUrl;
     link.click();
   };
@@ -301,11 +311,11 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                   />
                   <Button
                     onClick={handleGenerate}
-                    disabled={isLoading || !foodName.trim()}
+                    disabled={isLoading || !(typeof foodName === 'string' ? foodName : String(foodName)).trim()}
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow"
                   >
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-amber-300" />}
-                    Generate {foodName} Image
+                    Generate {typeof foodName === 'string' ? foodName : getFoodNameString(foodName)} Image
                   </Button>
                 </div>
               ) : (

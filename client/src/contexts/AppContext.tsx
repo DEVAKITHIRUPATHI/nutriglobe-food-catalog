@@ -1,7 +1,7 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
-import { initDB, getSettings, updateSettings, storeFoodItems } from '@/lib/idb';
-import { foodItems } from '@shared/mockData';
-import type { Language } from '@shared/schema';
+import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { initDB, getSettings, updateSettings, storeFoodItems, getFoodItems } from '@/lib/idb';
+import { foodItems as mockDataFoods } from '@shared/mockData';
+import type { Language, FoodItemClient } from '@shared/schema';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import type { OfflineStatus } from '@/types';
 
@@ -11,6 +11,11 @@ interface AppContextProps {
   offlineStatus: OfflineStatus;
   toggleOfflineMode: () => void;
   isLoading: boolean;
+  foods: FoodItemClient[];
+  refreshFoods: () => Promise<void>;
+  addFoodItem: (food: FoodItemClient) => Promise<FoodItemClient>;
+  updateFoodItem: (id: string, updates: Partial<FoodItemClient>) => Promise<FoodItemClient | null>;
+  deleteFoodItem: (id: string) => Promise<boolean>;
 }
 
 export const AppContext = createContext<AppContextProps>({
@@ -19,6 +24,11 @@ export const AppContext = createContext<AppContextProps>({
   offlineStatus: 'online',
   toggleOfflineMode: () => {},
   isLoading: true,
+  foods: [],
+  refreshFoods: async () => {},
+  addFoodItem: async (food) => food,
+  updateFoodItem: async () => null,
+  deleteFoodItem: async () => false,
 });
 
 interface AppProviderProps {
@@ -26,6 +36,7 @@ interface AppProviderProps {
 }
 
 export const AppProvider = ({ children }: AppProviderProps) => {
+  const [foods, setFoods] = useState<FoodItemClient[]>([]);
   const [language, setLanguageState] = useState<Language>(() => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -41,13 +52,40 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const { status: offlineStatus, toggleOfflineMode } = useOfflineDetection();
 
+  // Fetch foods from API or fallback
+  const refreshFoods = useCallback(async () => {
+    try {
+      const res = await fetch('/api/foods');
+      if (res.ok) {
+        const items: FoodItemClient[] = await res.json();
+        if (Array.isArray(items) && items.length > 0) {
+          setFoods(items);
+          await storeFoodItems(items);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch foods from server, attempting IDB fallback:', e);
+    }
+
+    try {
+      const idbItems = await getFoodItems();
+      if (idbItems && idbItems.length > 0) {
+        setFoods(idbItems);
+      } else {
+        setFoods([...mockDataFoods]);
+        await storeFoodItems(mockDataFoods);
+      }
+    } catch (err) {
+      setFoods([...mockDataFoods]);
+    }
+  }, []);
+
   useEffect(() => {
     const initialize = async () => {
       try {
-        // Step 1: Initialize IndexedDB with fallback protection
         await initDB();
         
-        // Step 2: Load settings (checks IDB first, falls back to LocalStorage)
         const settings = await getSettings();
         if (settings?.language) {
           setLanguageState(settings.language as Language);
@@ -55,18 +93,17 @@ export const AppProvider = ({ children }: AppProviderProps) => {
             localStorage.setItem('nutriglobe_language', settings.language);
           } catch (e) {}
         }
-        
-        // Step 3: Store food items in IndexedDB and LocalStorage fallback
-        await storeFoodItems(foodItems);
+
+        await refreshFoods();
       } catch (error) {
-        console.error('AppProvider initialization warning (relying on LocalStorage fallback):', error);
+        console.error('AppProvider initialization warning:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     initialize();
-  }, []);
+  }, [refreshFoods]);
 
   const setLanguage = async (lang: Language) => {
     setLanguageState(lang);
@@ -80,15 +117,109 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     await updateSettings({ language: lang });
   };
 
+  // Add Food Item - Instant Context Sync
+  const addFoodItem = async (newFood: FoodItemClient): Promise<FoodItemClient> => {
+    // 1. Instantly update React context state
+    setFoods((prev) => [newFood, ...prev.filter((f) => f.id !== newFood.id)]);
+
+    // 2. Persist to API
+    try {
+      const res = await fetch('/api/admin/foods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFood)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.food) {
+          setFoods((prev) => [data.food, ...prev.filter((f) => f.id !== data.food.id)]);
+          await storeFoodItems([data.food]);
+          return data.food;
+        }
+      }
+    } catch (err) {
+      console.error('API save failed, retaining in local context:', err);
+    }
+
+    await storeFoodItems([newFood]);
+    return newFood;
+  };
+
+  // Update Food Item - Instant Context Sync
+  const updateFoodItem = async (id: string, updates: Partial<FoodItemClient>): Promise<FoodItemClient | null> => {
+    let updatedObj: FoodItemClient | null = null;
+
+    // 1. Instantly update React context state
+    setFoods((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          updatedObj = { ...item, ...updates };
+          return updatedObj;
+        }
+        return item;
+      })
+    );
+
+    // 2. Persist to API
+    try {
+      const res = await fetch(`/api/admin/foods/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.food) {
+          updatedObj = data.food;
+          setFoods((prev) => prev.map((item) => (item.id === id ? data.food : item)));
+          await storeFoodItems([data.food]);
+          return data.food;
+        }
+      }
+    } catch (err) {
+      console.error('API update failed, retaining in local context:', err);
+    }
+
+    if (updatedObj) {
+      await storeFoodItems([updatedObj]);
+    }
+    return updatedObj;
+  };
+
+  // Delete Food Item - Instant Context Sync
+  const deleteFoodItem = async (id: string): Promise<boolean> => {
+    // 1. Instantly update React context state
+    setFoods((prev) => prev.filter((item) => item.id !== id));
+
+    // 2. Persist to API
+    try {
+      const res = await fetch(`/api/admin/foods/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        return true;
+      }
+    } catch (err) {
+      console.error('API delete error:', err);
+    }
+    return true;
+  };
+
   return (
     <AppContext.Provider value={{
       language,
       setLanguage,
       offlineStatus,
       toggleOfflineMode,
-      isLoading
+      isLoading,
+      foods,
+      refreshFoods,
+      addFoodItem,
+      updateFoodItem,
+      deleteFoodItem
     }}>
       {children}
     </AppContext.Provider>
   );
 };
+

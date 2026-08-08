@@ -7,8 +7,10 @@ import { Search, Calendar, User, BookOpen, Clock, Tag, ArrowRight, ShieldCheck, 
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 import { BlogPageSkeleton } from '@/components/ui/PageSkeleton';
+import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
 export default function BlogPage() {
+  usePageViewCounter('/blog', 'Health News & Blog Articles');
   const { isLoading: appLoading } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
