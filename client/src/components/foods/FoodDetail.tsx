@@ -37,8 +37,8 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
   
   usePageViewCounter(
     isOpen && item ? `/food/${item.id}` : '',
-    item ? `${getLocalizedText(item.name)} Clinical View` : '',
-    isOpen && item ? { foodId: item.id, foodName: getLocalizedText(item.name), category: item.category?.[0] } : undefined
+    item ? `${t(item.name)} Clinical View` : '',
+    isOpen && item ? { foodId: item.id, foodName: t(item.name), category: item.category?.[0] } : undefined
   );
 
   const { addToCart, isFavorite } = useContext(CartContext);

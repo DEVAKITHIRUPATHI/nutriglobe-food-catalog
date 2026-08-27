@@ -43,7 +43,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
   try {
     import('wouter').then((w) => {
-      console.log('[NutriGlobe Diagnostics] Wouter router status:', w?.Router && w?.useLocation ? 'OK' : 'FAIL');
+      console.log('[NutriGlobe Diagnostics] Wouter router status:', typeof w?.Router === 'function' ? 'OK' : 'FAIL');
     }).catch((err) => {
       console.error('[NutriGlobe Diagnostics] Wouter router resolution error:', err);
     });

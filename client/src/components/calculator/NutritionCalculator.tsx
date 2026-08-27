@@ -1171,7 +1171,7 @@ export function NutritionCalculator() {
                           <p className="text-slate-600 dark:text-slate-300">
                             • Daily Caloric Deficit: <strong>-{calculations.tdee > 2000 ? 500 : 350} kcal/day</strong><br />
                             • Daily Intake Target: <strong>{Math.max(1200, calculations.tdee - 500)} kcal</strong><br />
-                            • Estimated Duration: <strong>~{calculations.weeksToReduceMod || 12} Weeks</strong> for complete transformation
+                            • Estimated Duration: <strong>~{(calculations as any).weeksToReduceMod || 12} Weeks</strong> for complete transformation
                           </p>
                         </div>
                       </div>
@@ -1221,7 +1221,7 @@ export function NutritionCalculator() {
                           <p className="text-slate-600 dark:text-slate-300">
                             • Daily Caloric Surplus: <strong>+{500} kcal/day</strong> above TDEE<br />
                             • Daily Intake Target: <strong>{calculations.tdee + 500} kcal</strong><br />
-                            • Estimated Duration: <strong>~{calculations.weeksToGainMod || 10} Weeks</strong> to achieve optimal healthy weight
+                            • Estimated Duration: <strong>~{(calculations as any).weeksToGainMod || 10} Weeks</strong> to achieve optimal healthy weight
                           </p>
                         </div>
                       </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ResponsiveContainer, ComposedChart, Area, Bar, Line, XAxis, YAxis, 
   CartesianGrid, Tooltip as RechartsTooltip, Legend 
@@ -389,7 +389,7 @@ export function MacroIntakeChart({
               {(activeMetric === 'all' || activeMetric === 'calories') && (
                 <>
                   <Line yAxisId="calories" type="monotone" dataKey="calories" name="Total Calories (kcal)" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
-                  <Line yAxisId="calories" type="dash" dataKey="targetCalories" name="Target Goal (kcal)" stroke="#94a3b8" strokeDasharray="5 5" strokeWidth={2} dot={false} />
+                  <Line yAxisId="calories" type="monotone" dataKey="targetCalories" name="Target Goal (kcal)" stroke="#94a3b8" strokeDasharray="5 5" strokeWidth={2} dot={false} />
                 </>
               )}
             </ComposedChart>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, Fragment } from 'react';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
@@ -144,8 +144,6 @@ export default function Foods() {
       setIsAuditing(false);
     }
   };
-
-  const visibleFoods = foods.slice(0, visibleCount);
 
   return (
     // Main container for the foods page

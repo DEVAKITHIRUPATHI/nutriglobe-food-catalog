@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { FoodItemClient, TranslatedContent } from "@shared/schema";
+import { getFoodImageMetadata } from "@shared/foodImageResolver";
 
 export interface ImageAuditResult {
   target_food_name: string;
@@ -160,14 +161,24 @@ Translate into all requested language codes: ${languages.join(', ')}.`;
   });
 
   const parsed = JSON.parse(response.text || '{}');
+  const imageMeta = getFoodImageMetadata(foodName, foodName, categories);
+  const finalImageUrl = (imagePath && imagePath.startsWith('http') && !imagePath.includes('placeholder'))
+    ? imagePath
+    : imageMeta.imageUrl;
 
   return {
-    id: `gemini-${Date.now()}-${foodName.toLowerCase().replace(/\s+/g, '-')}`,
+    id: `gemini-${Date.now()}-${foodName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
     name: parsed.name || { en: foodName },
     description: parsed.description || { en: description },
     origin: parsed.origin || 'Global',
     price: parseFloat((Math.random() * 8 + 1.5).toFixed(2)),
-    image: imagePath || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80`,
+    image: finalImageUrl,
+    imageUrl: finalImageUrl,
+    imageVerifiedStatus: 'verified',
+    imageSourceType: imageMeta.sourceType as any,
+    imageAttribution: imageMeta.attribution,
+    imageLicense: imageMeta.license,
+    imageLastCheckedAt: new Date().toISOString(),
     category: categories,
     nutrition: parsed.nutrition || { calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0, vitamins: {}, minerals: {} },
     healthBenefits: parsed.healthBenefits || [{ en: 'Rich in essential nutrients.' }],

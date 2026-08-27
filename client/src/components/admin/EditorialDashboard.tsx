@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  EditorialArticle, EditorialTopic, EditorialEngineSettings, EditorialAnalytics 
-} from '../../../shared/editorialSchema';
+  type EditorialArticle, type EditorialTopic, type EditorialEngineSettings, type EditorialAnalytics 
+} from '@shared/editorialSchema';
 import { 
   Sparkles, ShieldCheck, CheckCircle2, AlertTriangle, Play, RefreshCw, 
   Settings, Calendar, Sliders, CheckSquare, Eye, Trash2, Globe, FileText, 

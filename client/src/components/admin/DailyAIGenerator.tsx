@@ -75,7 +75,8 @@ export function DailyAIGenerator() {
           carbs: 18.5,
           protein: 2.4,
           fat: 0.6,
-          fiber: 3.8
+          fiber: 3.8,
+          vitamins: { 'Vitamin C': '20%', 'Vitamin A': '15%' }
         },
         allergens: ['gluten-free', 'vegan', 'nut-free'],
         isPopular: true,

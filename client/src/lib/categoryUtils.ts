@@ -74,11 +74,11 @@ export function matchesCategory(item: FoodItemClient, category: string): boolean
     return fiber >= 3 || itemCats.includes('high_fiber') || itemCats.includes('grains') || itemCats.includes('legumes') || itemCats.includes('nuts') || itemCats.includes('seeds') || itemCats.includes('vegetables');
   }
   if (targetCat === 'high_iron' || targetCat === 'high-iron') {
-    const iron = item.nutrition?.iron ?? 0;
+    const iron = (item.nutrition as any)?.iron ?? 0;
     return iron >= 0.8 || itemCats.includes('high_iron') || itemCats.includes('spices') || itemCats.includes('legumes') || itemCats.includes('seeds') || itemCats.includes('grains');
   }
   if (targetCat === 'high_vitamin_c' || targetCat === 'high-vitamin-c') {
-    const vitC = item.nutrition?.vitaminC ?? 0;
+    const vitC = (item.nutrition as any)?.vitaminC ?? 0;
     return vitC >= 8 || itemCats.includes('high_vitamin_c') || itemCats.includes('fruits') || itemCats.includes('vegetables');
   }
 
@@ -88,7 +88,7 @@ export function matchesCategory(item: FoodItemClient, category: string): boolean
     return protein >= 6 || itemCats.includes('meat') || itemCats.includes('poultry') || itemCats.includes('seafood') || itemCats.includes('legumes') || itemCats.includes('dairy');
   }
   if (targetCat === 'immunity' || targetCat === 'immunity_boost') {
-    const vitC = item.nutrition?.vitaminC ?? 0;
+    const vitC = (item.nutrition as any)?.vitaminC ?? 0;
     return vitC >= 8 || itemCats.includes('fruits') || itemCats.includes('vegetables') || itemCats.includes('spices');
   }
   if (targetCat === 'gut' || targetCat === 'gut_health') {
@@ -97,7 +97,7 @@ export function matchesCategory(item: FoodItemClient, category: string): boolean
   }
   if (targetCat === 'energy' || targetCat === 'energy_support') {
     const carbs = item.nutrition?.carbs ?? 0;
-    const iron = item.nutrition?.iron ?? 0;
+    const iron = (item.nutrition as any)?.iron ?? 0;
     return carbs >= 15 || iron >= 1.0 || itemCats.includes('grains') || itemCats.includes('nuts') || itemCats.includes('seeds');
   }
 

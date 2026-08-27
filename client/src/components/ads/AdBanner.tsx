@@ -17,31 +17,66 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   className = '',
   label = 'Advertisement'
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const adRef = useRef<HTMLModElement>(null);
   const isLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (client && window && (window as any).adsbygoogle && !isLoadedRef.current) {
-      try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-        isLoadedRef.current = true;
-      } catch (e) {
-        console.error('AdSense load error:', e);
+    if (!client || isLoadedRef.current) return;
+
+    // Check if the container has sufficient width before requesting ad rendering
+    // Google AdSense requires at least 250px available width for responsive slot sizing
+    const tryPushAd = () => {
+      if (isLoadedRef.current) return;
+      const el = containerRef.current || adRef.current;
+      const width = el ? el.offsetWidth || el.parentElement?.offsetWidth || 0 : 0;
+
+      if (width >= 200 && window && (window as any).adsbygoogle) {
+        try {
+          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          isLoadedRef.current = true;
+        } catch (e) {
+          console.warn('AdSense deferred until container ready:', e);
+        }
       }
+    };
+
+    // Initial check
+    const timer = setTimeout(tryPushAd, 300);
+
+    // Also observe container resize so when width becomes available, push is triggered safely
+    let observer: ResizeObserver | null = null;
+    if (containerRef.current && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.width >= 200) {
+            tryPushAd();
+            if (isLoadedRef.current && observer) {
+              observer.disconnect();
+            }
+          }
+        }
+      });
+      observer.observe(containerRef.current);
     }
+
+    return () => {
+      clearTimeout(timer);
+      if (observer) observer.disconnect();
+    };
   }, [client]);
 
   // If live publisher client key is provided, render live Google AdSense unit
   if (client) {
     return (
-      <div className={`my-6 mx-auto text-center overflow-hidden ${className}`}>
+      <div ref={containerRef} className={`my-6 mx-auto w-full min-w-[250px] max-w-5xl text-center overflow-hidden ${className}`}>
         <div className="text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-1">
           {label}
         </div>
         <ins
           ref={adRef}
-          className="adsbygoogle block"
-          style={{ display: 'block' }}
+          className="adsbygoogle block w-full min-h-[90px]"
+          style={{ display: 'block', minWidth: '250px', minHeight: '90px' }}
           data-ad-client={client}
           data-ad-slot={slot}
           data-ad-format={format}

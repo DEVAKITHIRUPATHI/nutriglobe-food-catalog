@@ -16,7 +16,13 @@ export type FilterCategory =
   // Nutritional profiles
   'high_protein' | 'high_fiber' | 'low_carb' | 'low_fat' | 'high_vitamin_a' | 
   'high_vitamin_c' | 'high_vitamin_d' | 'high_calcium' | 'high_iron' | 'high_omega3' | 
-  'antioxidant_rich' | 'probiotic' | 'superfood';
+  'antioxidant_rich' | 'probiotic' | 'superfood' |
+  
+  // Preparation & Meals
+  'raw' | 'boiled' | 'dried' | 'fermented' | 'breakfast' | 'lunch' | 'snack' | 'dinner' |
+
+  // Health goals & Allergens
+  'muscle' | 'immunity' | 'gut' | 'energy' | 'dairy-free' | 'nut-free' | 'soy-free' | 'dairy_free' | 'nut_free' | 'soy_free' | 'muscle_recovery' | 'immunity_boost' | 'gut_health' | 'energy_support';
 
 export interface LanguageOption {
   code: Language;

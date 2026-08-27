@@ -196,7 +196,7 @@ export const generateExpandedCatalog = (): FoodItemClient[] => {
       ),
       origin: base.origin || "Global",
       price: base.price || 2.99,
-      image: getImg(base.cat, items.length),
+      image: getImg(baseId, base.name, base.cat),
       category: [base.cat, ...(base.subCats || [])],
       nutrition: {
         calories: base.cal,

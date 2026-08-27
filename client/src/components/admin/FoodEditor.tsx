@@ -110,7 +110,7 @@ export const FoodEditor: React.FC<FoodEditorProps> = ({ initialFoodId, onSaveSuc
         setCategoriesStr((food.category || []).join(', '));
         setPrice(food.price !== undefined ? String(food.price) : '2.99');
 
-        const n = food.nutrition || {};
+        const n = (food.nutrition || {}) as any;
         setCalories(n.calories !== undefined ? String(n.calories) : '0');
         setProtein(n.protein !== undefined ? String(n.protein) : '0');
         setCarbs(n.carbs !== undefined ? String(n.carbs) : '0');
@@ -185,6 +185,16 @@ export const FoodEditor: React.FC<FoodEditorProps> = ({ initialFoodId, onSaveSuc
         carbs: parseFloat(carbs) || 0,
         fat: parseFloat(fat) || 0,
         fiber: parseFloat(fiber) || 0,
+        vitamins: {
+          'Vitamin A': vitaminA ? `${vitaminA}%` : '10%',
+          'Vitamin C': vitaminC ? `${vitaminC}%` : '15%',
+        },
+        minerals: {
+          'Iron': iron ? `${iron}mg` : '1.5mg',
+          'Calcium': calcium ? `${calcium}mg` : '30mg',
+          'Potassium': potassium ? `${potassium}mg` : '200mg',
+          'Sodium': sodium ? `${sodium}mg` : '10mg',
+        },
         sugar: parseFloat(sugar) || 0,
         sodium: parseFloat(sodium) || 0,
         potassium: parseFloat(potassium) || 0,
@@ -194,15 +204,15 @@ export const FoodEditor: React.FC<FoodEditorProps> = ({ initialFoodId, onSaveSuc
         vitaminA: parseFloat(vitaminA) || 0,
         glycemicIndex: parseFloat(glycemicIndex) || 0,
         waterContent: parseFloat(waterContent) || 80,
-      },
+      } as any,
       imageUrl: imageUrl.trim(),
       image: imageUrl.trim(),
       imageSourceType,
       imageLicense,
       imageAttribution: imageAttribution.trim(),
       imageVerifiedStatus,
-      isVerified: true,
-      lastUpdated: new Date().toISOString(),
+      allergens: ['vegan', 'gluten-free'],
+      isPopular: false,
     };
 
     try {

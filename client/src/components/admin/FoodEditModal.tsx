@@ -165,7 +165,8 @@ export function FoodEditModal({ isOpen, onClose, foodToEdit, onSaveSuccess }: Fo
         carbs: parseFloat(carbs) || 15,
         protein: parseFloat(protein) || 1,
         fat: parseFloat(fat) || 0.2,
-        fiber: parseFloat(fiber) || 2
+        fiber: parseFloat(fiber) || 2,
+        vitamins: { 'Vitamin C': '10%', 'Vitamin A': '10%' }
       },
       allergens: ['vegan', 'gluten-free'],
       isPopular: true,

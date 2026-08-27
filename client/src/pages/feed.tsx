@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { EditorialArticle } from '../../shared/editorialSchema';
+import type { EditorialArticle } from '@shared/editorialSchema';
 import { Sparkles, Calendar, BookOpen, ExternalLink, Share2, Heart, ShieldCheck, Flame, ChevronRight, Search } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 

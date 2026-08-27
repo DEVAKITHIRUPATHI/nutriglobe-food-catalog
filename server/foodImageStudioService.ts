@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { resolveAccurateFoodImage, getFoodImageMetadata } from "@shared/foodImageResolver";
 
 export interface GenerateFoodImageParams {
   foodName: string;
@@ -87,31 +88,19 @@ export async function generateFoodStudioImage(params: GenerateFoodImageParams): 
     }
   }
 
-  // Curated Fallback with high quality Unsplash photo
-  const fallbackImages: Record<string, string> = {
-    mango: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1000&q=80",
-    apple: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=1000&q=80",
-    banana: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=1000&q=80",
-    spinach: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=1000&q=80",
-    avocado: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=1000&q=80",
-    salmon: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1000&q=80",
-    almonds: "https://images.unsplash.com/photo-1508061253366-f7da158b6d96?auto=format&fit=crop&w=1000&q=80"
-  };
-
-  const matchedKey = Object.keys(fallbackImages).find(k => foodName.toLowerCase().includes(k));
-  const selectedUrl = matchedKey 
-    ? fallbackImages[matchedKey] 
-    : "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=80";
+  // Cross-reference with verified reliable food database
+  const meta = getFoodImageMetadata(foodName, foodName);
+  const selectedUrl = meta.imageUrl || resolveAccurateFoodImage(foodName, foodName);
 
   return {
     success: true,
     imageUrl: selectedUrl,
-    modelUsed: "Curated High-Res Studio Photograph",
+    modelUsed: `Verified Food Photography (${meta.attribution || 'USDA / Wikimedia'})`,
     promptUsed: defaultPrompt,
     brandingText,
     webUrl,
     isAiGenerated: false,
-    message: "Using high-precision photography asset for " + foodName
+    message: `Using high-precision photography asset for ${foodName} (${meta.license || 'Public Domain / CC-BY-SA'})`
   };
 }
 

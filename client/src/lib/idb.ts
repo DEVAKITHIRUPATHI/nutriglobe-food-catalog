@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import type { FoodItemClient, CartItemClient } from '@shared/schema';
+import type { FoodItemClient, CartItemClient, Language } from '@shared/schema';
 
 interface NutriGlobeDB extends DBSchema {
   foodItems: {
@@ -18,9 +18,7 @@ interface NutriGlobeDB extends DBSchema {
   settings: {
     key: string;
     value: {
-      language: 'en' | 'hi' | 'ta' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'ru' | 'zh' | 
-               'ja' | 'ko' | 'ar' | 'tr' | 'nl' | 'pl' | 'sv' | 'fi' | 'no' | 'da' |
-               'he' | 'th' | 'vi' | 'id' | 'ms';
+      language: Language;
       isOffline: boolean;
       lastSync: number;
     };
@@ -130,7 +128,7 @@ export async function getFoodItemsByCategory(category: string): Promise<FoodItem
 
   const all = getLocalStorageItem<FoodItemClient[]>('foodItems', []);
   if (category === 'all') return all;
-  return all.filter(item => item.category === category);
+  return all.filter(item => Array.isArray(item.category) ? item.category.includes(category) : (item.category as any) === category);
 }
 
 export async function getFoodItemById(id: string): Promise<FoodItemClient | undefined> {
@@ -165,7 +163,7 @@ export async function searchFoodItems(query: string, category?: string): Promise
   if (!items || items.length === 0) {
     items = getLocalStorageItem<FoodItemClient[]>('foodItems', []);
     if (category && category !== 'all') {
-      items = items.filter(i => i.category === category);
+      items = items.filter(i => Array.isArray(i.category) ? i.category.includes(category) : (i.category as any) === category);
     }
   }
 
@@ -310,9 +308,7 @@ export async function getSettings() {
 }
 
 export async function updateSettings(settings: {
-  language?: 'en' | 'hi' | 'ta' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'ru' | 'zh' | 
-             'ja' | 'ko' | 'ar' | 'tr' | 'nl' | 'pl' | 'sv' | 'fi' | 'no' | 'da' |
-             'he' | 'th' | 'vi' | 'id' | 'ms';
+  language?: Language;
   isOffline?: boolean;
   lastSync?: number;
 }) {

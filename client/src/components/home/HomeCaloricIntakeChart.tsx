@@ -353,7 +353,7 @@ export function HomeCaloricIntakeChart() {
                 {activeTab === 'calories' ? (
                   <>
                     <Area yAxisId="cal" type="monotone" dataKey="calories" name="Daily Caloric Intake (kcal)" stroke="#10b981" fill="url(#homeCalGrad)" strokeWidth={3} />
-                    <Line yAxisId="cal" type="dash" dataKey="target" name="Target Goal (2,000 kcal)" stroke="#64748b" strokeDasharray="5 5" strokeWidth={2} dot={false} />
+                    <Line yAxisId="cal" type="monotone" dataKey="target" name="Target Goal (2,000 kcal)" stroke="#64748b" strokeDasharray="5 5" strokeWidth={2} dot={false} />
                   </>
                 ) : (
                   <>

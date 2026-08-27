@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, Link } from 'wouter';
-import { EditorialArticle } from '../../shared/editorialSchema';
+import type { EditorialArticle } from '@shared/editorialSchema';
 import { 
   Calendar, User, Clock, ShieldCheck, Info, ExternalLink, Share2, 
   Sparkles, CheckCircle2, AlertTriangle, ArrowLeft, Heart, BookOpen, Flame 
@@ -242,9 +242,9 @@ export default function ArticlePage() {
               </div>
 
               {/* Regional Names Box */}
-              {Object.keys(food.regionalNames).length > 0 && (
+              {food.regionalNames && Object.keys(food.regionalNames).length > 0 && (
                 <div className="flex flex-wrap gap-1.5 text-xs">
-                  {Object.entries(food.regionalNames).map(([lang, val]) => val ? (
+                  {Object.entries(food.regionalNames).map(([lang, val]) => (typeof val === 'string' && val) ? (
                     <span key={lang} className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-lg font-medium">
                       {val}
                     </span>

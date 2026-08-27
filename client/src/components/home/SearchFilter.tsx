@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
