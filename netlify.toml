@@ -2,8 +2,10 @@
   command = "npm run build"
   publish = "dist/public"
 
+# Redirect all requests to index.html for Single Page Application (SPA) client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
+  force = true
+
