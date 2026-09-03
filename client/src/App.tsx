@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import Home from "@/pages/home";
 import Foods from "@/pages/foods";
+import FoodDetailPage from "@/pages/food-detail";
 import Nutrition from "@/pages/nutrition";
 import CalculatorPage from "@/pages/calculator";
 import About from "@/pages/about";
@@ -26,6 +27,7 @@ import EditorialPolicyPage from "@/pages/editorialPolicy";
 import PrivacyPage from "@/pages/privacy";
 import TermsPage from "@/pages/terms";
 import ContactPage from "@/pages/contact";
+import DashboardPage from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 import { CookieConsentBanner } from "@/components/ads/CookieConsentBanner";
 
@@ -44,7 +46,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
   // Route-aware skeleton type matcher
   const getSkeletonVariant = (path: string): 'food' | 'calculator' | 'feed' | 'blog' | 'article' | 'generic' => {
-    if (path === '/' || path === '/foods') return 'food';
+    if (path === '/' || path === '/foods' || path.startsWith('/food/') || path.startsWith('/foods/')) return 'food';
     if (path === '/calculator') return 'calculator';
     if (path === '/feed') return 'feed';
     if (path === '/blog') return 'blog';
@@ -109,6 +111,16 @@ function Router() {
           <Foods />
         </Layout>
       </Route>
+      <Route path="/foods/:id">
+        <Layout>
+          <FoodDetailPage />
+        </Layout>
+      </Route>
+      <Route path="/food/:id">
+        <Layout>
+          <FoodDetailPage />
+        </Layout>
+      </Route>
       <Route path="/feed">
         <Layout>
           <FeedPage />
@@ -162,6 +174,11 @@ function Router() {
       <Route path="/admin">
         <Layout>
           <AdminPage />
+        </Layout>
+      </Route>
+      <Route path="/dashboard">
+        <Layout>
+          <DashboardPage />
         </Layout>
       </Route>
       <Route>

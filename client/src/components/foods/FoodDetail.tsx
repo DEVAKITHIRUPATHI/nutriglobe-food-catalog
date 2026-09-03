@@ -15,15 +15,18 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { CartContext } from '@/contexts/CartContext';
 import { 
   Heart, ShoppingCart, X, Clock, AlertTriangle, ShieldCheck, HeartPulse, 
-  Sprout, Download, Share2, CheckCircle2, Info, Sparkles, Flame, Stethoscope, Scale, Printer
+  Sprout, Download, Share2, CheckCircle2, Info, Sparkles, Flame, Stethoscope, Scale, Printer,
+  ExternalLink, Search, Copy, FileSpreadsheet
 } from 'lucide-react';
-import { getAccurateFoodImage, handleFoodImageError } from '@/lib/foodImageResolver';
+import { getAccurateFoodImage, handleFoodImageError, getGoogleImageSearchUrl, getExcelHyperlinkFormula, autoCheckFoodAccuracy } from '@/lib/foodImageResolver';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
 import { Wand2 } from 'lucide-react';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
+import { useFoodSEO } from '@/hooks/useFoodSEO';
 
 interface FoodDetailProps {
   item: FoodItemClient | null;
@@ -35,6 +38,9 @@ interface FoodDetailProps {
 export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps) {
   const { t, getLocalizedText } = useTranslation();
   
+  // Dynamic SEO meta tags and Schema.org JSON-LD updates for food detail
+  useFoodSEO(item, isOpen);
+
   usePageViewCounter(
     isOpen && item ? `/food/${item.id}` : '',
     item ? `${t(item.name)} Clinical View` : '',
@@ -46,8 +52,46 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
   const [downloaded, setDownloaded] = useState(false);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
   const [overrideImageUrl, setOverrideImageUrl] = useState<string | null>(null);
+  const [formulaCopied, setFormulaCopied] = useState(false);
+  const [isFixingImage, setIsFixingImage] = useState(false);
+  const [fixSuccess, setFixSuccess] = useState(false);
 
   if (!item) return null;
+
+  const englishName = typeof item.name === 'string' ? item.name : (item.name?.en || item.id || '');
+  const googleSearchUrl = getGoogleImageSearchUrl(englishName, item.category);
+  const excelFormula = getExcelHyperlinkFormula(englishName);
+  const accuracyCheck = autoCheckFoodAccuracy(item);
+
+  const handleFixDetailImage = async () => {
+    if (!item) return;
+    setIsFixingImage(true);
+    try {
+      const res = await fetch(`/api/foods/${item.id}/fix-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.foodItem?.image) {
+          setOverrideImageUrl(data.foodItem.image);
+          setFixSuccess(true);
+          setTimeout(() => setFixSuccess(false), 3000);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fix image:', e);
+    } finally {
+      setIsFixingImage(false);
+    }
+  };
+
+  const handleCopyExcelFormula = () => {
+    navigator.clipboard.writeText(excelFormula);
+    setFormulaCopied(true);
+    setTimeout(() => setFormulaCopied(false), 2500);
+  };
 
   const isItemFavorite = isFavorite(item.id);
 
@@ -210,6 +254,60 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
                   <Wand2 className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
                   <span>AI Image Studio & Editor (Web URL & Branding)</span>
                 </Button>
+              </div>
+
+              {/* Google Images Direct Search & Auto-Check Verification Panel */}
+              <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+                <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
+                  <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-4 w-4" />
+                    Image Accuracy & Verification
+                  </span>
+                  <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-mono text-[10px] px-2 py-0.5 rounded-full font-extrabold">
+                    {accuracyCheck.confidence}% Match
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                  {accuracyCheck.message}
+                </p>
+
+                <div className="flex flex-col gap-1.5 pt-1">
+                  <a
+                    href={googleSearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl font-bold text-xs bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 shadow-xs transition-all"
+                  >
+                    <Search className="h-3.5 w-3.5 text-emerald-500" />
+                    <span>View on Google Images ("{englishName} food")</span>
+                    <ExternalLink className="h-3 w-3 ml-0.5 opacity-70" />
+                  </a>
+
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <Button
+                      onClick={handleFixDetailImage}
+                      disabled={isFixingImage}
+                      size="sm"
+                      className="h-7 text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center justify-center gap-1 shadow-xs"
+                      title="Automatically fetch and apply the verified authentic photo for this food"
+                    >
+                      <ShieldCheck className="h-3 w-3 text-emerald-200" />
+                      <span>{isFixingImage ? 'Updating...' : (fixSuccess ? 'Photo Updated!' : 'Auto-Fix Real Photo')}</span>
+                    </Button>
+
+                    <Button
+                      onClick={handleCopyExcelFormula}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-[11px] font-semibold text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center gap-1 rounded-lg"
+                      title="Copies spreadsheet formula: =HYPERLINK(...)"
+                    >
+                      <FileSpreadsheet className="h-3 w-3 text-emerald-600" />
+                      <span>{formulaCopied ? 'Copied!' : 'Excel Formula'}</span>
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
@@ -515,6 +613,9 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
               )}
             </TabsContent>
           </Tabs>
+
+          {/* Google AdSense Responsive Banner for all 1,376 Food Items */}
+          <AdBanner slot="2003004005" format="auto" className="my-4" />
 
           {/* Amazon Associate Native Shopping Deals */}
           <AmazonAdBanner 

@@ -66,3 +66,14 @@ export function handleFoodImageError(
   }
 }
 
+export {
+  getGoogleImageSearchUrl,
+  getExcelHyperlinkFormula,
+  autoCheckFoodAccuracy,
+  auditAndFixFoodItemImage,
+  resolveAccurateFoodImage,
+  getFoodImageMetadata
+} from '@shared/foodImageResolver';
+
+export { ImageValidator, type ImageValidationResult } from './imageValidator';
+

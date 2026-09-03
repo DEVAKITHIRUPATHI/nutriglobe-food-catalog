@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { NutriFactsLogo } from '@/components/layout/NutriFactsLogo';
 import { 
   Leaf, Heart, Menu, X, Wifi, WifiOff, Home, Apple, Info, 
-  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck
+  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck, LayoutDashboard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -106,6 +106,18 @@ export function Navbar() {
               }`}>
                 <Calculator className="w-3.5 h-3.5 text-indigo-300 shrink-0" />
                 <span>RDA & Calorie Calculator</span>
+              </span>
+            </Link>
+
+            {/* User Dashboard - Emerald / Teal */}
+            <Link href="/dashboard">
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
+                location === '/dashboard' 
+                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-900/40' 
+                  : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20 hover:bg-emerald-500/30 hover:text-white'
+              }`}>
+                <LayoutDashboard className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+                <span>User Dashboard</span>
               </span>
             </Link>
           </nav>
@@ -229,6 +241,13 @@ export function Navbar() {
                         <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/calculator' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
                           <Calculator className="h-5 w-5 mr-3 text-indigo-600" />
                           RDA & Calorie Calculator
+                          <ChevronRight className="h-4 w-4 ml-auto" />
+                        </div>
+                      </Link>
+                      <Link href="/dashboard">
+                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/dashboard' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
+                          <LayoutDashboard className="h-5 w-5 mr-3 text-emerald-600" />
+                          User Dashboard & Insights
                           <ChevronRight className="h-4 w-4 ml-auto" />
                         </div>
                       </Link>

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { EditorialDashboard } from '@/components/admin/EditorialDashboard';
 import { ImageReviewQueue } from '@/components/admin/ImageReviewQueue';
+import { ImageDiagnosticDashboard } from '@/components/admin/ImageDiagnosticDashboard';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { FoodEditModal } from '@/components/admin/FoodEditModal';
 import { FoodEditor } from '@/components/admin/FoodEditor';
@@ -407,6 +408,9 @@ export default function AdminPage() {
 
       <Tabs defaultValue="daily-ai" className="w-full">
         <TabsList className="flex flex-wrap w-full mb-6 p-1 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="image-diagnostics" className="flex-1 flex items-center gap-2 font-bold text-rose-800 dark:text-rose-300">
+            <ShieldCheck className="h-4 w-4 text-rose-600" /> Image Diagnostics ({foods.length})
+          </TabsTrigger>
           <TabsTrigger value="daily-ai" className="flex-1 flex items-center gap-2 font-bold text-purple-800 dark:text-purple-300">
             <Wand2 className="h-4 w-4 text-purple-600" /> Daily AI Generator
           </TabsTrigger>
@@ -438,6 +442,11 @@ export default function AdminPage() {
             <GitMerge className="h-4 w-4" /> Duplicates ({duplicates.length})
           </TabsTrigger>
         </TabsList>
+
+        {/* Tab: Image Diagnostics & ImageValidator */}
+        <TabsContent value="image-diagnostics">
+          <ImageDiagnosticDashboard foods={foods} onRefreshFoods={fetchStatsAndFoods} />
+        </TabsContent>
 
         {/* Tab: Daily AI Generator */}
         <TabsContent value="daily-ai">

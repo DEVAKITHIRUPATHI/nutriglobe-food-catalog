@@ -9,6 +9,7 @@ import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 import { FeedPageSkeleton } from '@/components/ui/PageSkeleton';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 export default function FeedPage() {
   usePageViewCounter('/feed', 'Nutrition Hub & Feed');
@@ -114,6 +115,9 @@ export default function FeedPage() {
           />
         </div>
       </div>
+
+      {/* Google AdSense Responsive Ad */}
+      <AdBanner slot="8009001002" format="auto" className="my-2" />
 
       {/* Articles Feed Stream */}
       {isLoading || appLoading ? (

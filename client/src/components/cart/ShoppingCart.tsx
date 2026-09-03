@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { Link } from 'wouter';
 import { CartContext } from '@/contexts/CartContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
@@ -8,7 +9,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Heart as FavoriteIcon, Info, X } from 'lucide-react';
+import { Heart as FavoriteIcon, Info, X, LayoutDashboard } from 'lucide-react';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { FoodItemClient } from '@shared/schema';
 import { LazyImage } from '@/components/ui/LazyImage';
@@ -129,17 +130,20 @@ export function ShoppingCart() {
           </div>
 
           {cartItems.length > 0 && (
-            <div className="border-t border-gray-200 py-6 px-4 sm:px-6 dark:border-gray-700">
-              <div className="mt-6 flex justify-center text-sm text-center text-gray-500">
-                <p>
-                  <button 
-                    onClick={closeCart} 
-                    className="text-primary-500 font-medium hover:text-primary-600 ml-1"
-                  >
-                    {getLocalizedText('cart.continueShopping')}
-                    <span aria-hidden="true"> &rarr;</span>
-                  </button>
-                </p>
+            <div className="border-t border-gray-200 py-4 px-4 sm:px-6 dark:border-gray-700 space-y-2">
+              <Link href="/dashboard" onClick={closeCart}>
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 text-xs font-bold py-2 shadow-sm">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Open Full User Dashboard
+                </Button>
+              </Link>
+              <div className="flex justify-center text-xs text-center text-gray-500">
+                <button 
+                  onClick={closeCart} 
+                  className="text-primary-500 font-medium hover:text-primary-600"
+                >
+                  {getLocalizedText('cart.continueShopping')} &rarr;
+                </button>
               </div>
             </div>
           )}

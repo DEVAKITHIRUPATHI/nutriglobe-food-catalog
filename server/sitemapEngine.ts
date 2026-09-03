@@ -31,8 +31,10 @@ export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
   const staticPages = [
     { path: '', priority: '1.0', changefreq: 'daily' },
     { path: '/foods', priority: '0.9', changefreq: 'daily' },
+    { path: '/nutrition', priority: '0.9', changefreq: 'daily' },
     { path: '/calculator', priority: '0.9', changefreq: 'weekly' },
     { path: '/blog', priority: '0.8', changefreq: 'daily' },
+    { path: '/feed', priority: '0.8', changefreq: 'daily' },
     { path: '/about', priority: '0.6', changefreq: 'monthly' },
     { path: '/contact', priority: '0.5', changefreq: 'monthly' },
     { path: '/editorial-policy', priority: '0.4', changefreq: 'monthly' },

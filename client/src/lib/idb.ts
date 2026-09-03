@@ -1,6 +1,28 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import type { FoodItemClient, CartItemClient, Language } from '@shared/schema';
 
+export interface SearchHistoryItem {
+  id: string;
+  query: string;
+  category?: string;
+  timestamp: number;
+  resultCount?: number;
+}
+
+export interface UserNutritionProfile {
+  id: string;
+  displayName: string;
+  calorieTarget: number;
+  proteinTarget: number; // in grams
+  carbsTarget: number;   // in grams
+  fatTarget: number;     // in grams
+  fiberTarget: number;   // in grams
+  dietaryFocus: 'balanced' | 'high-protein' | 'plant-based' | 'low-carb' | 'heart-health' | 'gut-health';
+  healthGoals: string[];
+  allergens: string[];
+  updatedAt: number;
+}
+
 interface NutriGlobeDB extends DBSchema {
   foodItems: {
     key: string;
@@ -22,6 +44,15 @@ interface NutriGlobeDB extends DBSchema {
       isOffline: boolean;
       lastSync: number;
     };
+  };
+  searchHistory: {
+    key: string;
+    value: SearchHistoryItem;
+    indexes: { 'by-timestamp': number };
+  };
+  userNutritionProfile: {
+    key: string;
+    value: UserNutritionProfile;
   };
 }
 
@@ -54,17 +85,34 @@ function getLocalStorageItem<T>(key: string, defaultValue: T): T {
 export async function initDB() {
   if (!isIDBAvailable) return null;
   try {
-    db = await openDB<NutriGlobeDB>('nutriglobe-db', 1, {
-      upgrade(db) {
+    db = await openDB<NutriGlobeDB>('nutriglobe-db', 2, {
+      upgrade(database, oldVersion) {
         // Create food items store with category index
-        const foodStore = db.createObjectStore('foodItems', { keyPath: 'id' });
-        foodStore.createIndex('by-category', 'category', { multiEntry: true });
+        if (!database.objectStoreNames.contains('foodItems')) {
+          const foodStore = database.createObjectStore('foodItems', { keyPath: 'id' });
+          foodStore.createIndex('by-category', 'category', { multiEntry: true });
+        }
 
         // Create cart items store
-        db.createObjectStore('cartItems', { keyPath: 'id' });
+        if (!database.objectStoreNames.contains('cartItems')) {
+          database.createObjectStore('cartItems', { keyPath: 'id' });
+        }
 
         // Create settings store
-        db.createObjectStore('settings', { keyPath: 'key' });
+        if (!database.objectStoreNames.contains('settings')) {
+          database.createObjectStore('settings', { keyPath: 'key' });
+        }
+
+        // Create searchHistory store
+        if (!database.objectStoreNames.contains('searchHistory')) {
+          const searchStore = database.createObjectStore('searchHistory', { keyPath: 'id' });
+          searchStore.createIndex('by-timestamp', 'timestamp');
+        }
+
+        // Create userNutritionProfile store
+        if (!database.objectStoreNames.contains('userNutritionProfile')) {
+          database.createObjectStore('userNutritionProfile', { keyPath: 'id' });
+        }
       },
     });
     return db;
@@ -332,3 +380,196 @@ export async function updateSettings(settings: {
 
   return updatedSettings;
 }
+
+// ---------------------------------------------------------------------------
+// Search History Operations (Integrated with existing IDB/LocalStorage)
+// ---------------------------------------------------------------------------
+
+const DEFAULT_SEARCH_HISTORY_SEEDS: SearchHistoryItem[] = [
+  {
+    id: 'seed-search-1',
+    query: 'Alphonso Mango',
+    category: 'fruits',
+    timestamp: Date.now() - 1000 * 60 * 25, // 25 mins ago
+    resultCount: 3
+  },
+  {
+    id: 'seed-search-2',
+    query: 'High Protein Lentils',
+    category: 'legumes',
+    timestamp: Date.now() - 1000 * 60 * 60 * 3, // 3 hours ago
+    resultCount: 8
+  },
+  {
+    id: 'seed-search-3',
+    query: 'Citrus Vitamin C',
+    category: 'fruits',
+    timestamp: Date.now() - 1000 * 60 * 60 * 18, // 18 hours ago
+    resultCount: 12
+  },
+  {
+    id: 'seed-search-4',
+    query: 'Spinach Iron',
+    category: 'vegetables',
+    timestamp: Date.now() - 1000 * 60 * 60 * 28, // yesterday
+    resultCount: 6
+  }
+];
+
+export async function getSearchHistory(): Promise<SearchHistoryItem[]> {
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('searchHistory')) {
+      const all = await database.getAll('searchHistory');
+      if (all && all.length > 0) {
+        return all.sort((a, b) => b.timestamp - a.timestamp);
+      }
+    }
+  } catch (err) {
+    console.warn('Error reading search history from IDB:', err);
+  }
+
+  const localHistory = getLocalStorageItem<SearchHistoryItem[]>('searchHistory', []);
+  if (localHistory && localHistory.length > 0) {
+    return localHistory.sort((a, b) => b.timestamp - a.timestamp);
+  }
+
+  // Seed with realistic initial data if completely empty
+  setLocalStorageItem('searchHistory', DEFAULT_SEARCH_HISTORY_SEEDS);
+  return DEFAULT_SEARCH_HISTORY_SEEDS;
+}
+
+export async function addSearchHistory(entry: {
+  query: string;
+  category?: string;
+  resultCount?: number;
+}): Promise<SearchHistoryItem> {
+  const trimmed = entry.query ? entry.query.trim() : '';
+  if (!trimmed && (!entry.category || entry.category === 'all')) {
+    return {
+      id: `sh-${Date.now()}`,
+      query: '',
+      category: 'all',
+      timestamp: Date.now(),
+      resultCount: entry.resultCount || 0
+    };
+  }
+
+  const existing = await getSearchHistory();
+  // Filter out exact duplicate recent queries
+  const filtered = existing.filter(
+    item => !(item.query.toLowerCase() === trimmed.toLowerCase() && (item.category || 'all') === (entry.category || 'all'))
+  );
+
+  const newItem: SearchHistoryItem = {
+    id: `sh-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    query: trimmed,
+    category: entry.category || 'all',
+    timestamp: Date.now(),
+    resultCount: entry.resultCount || 0
+  };
+
+  const updatedHistory = [newItem, ...filtered].slice(0, 30); // keep last 30 searches
+  setLocalStorageItem('searchHistory', updatedHistory);
+
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('searchHistory')) {
+      const tx = database.transaction('searchHistory', 'readwrite');
+      await tx.store.put(newItem);
+      await tx.done;
+    }
+  } catch (err) {
+    console.warn('Error saving search history to IDB:', err);
+  }
+
+  return newItem;
+}
+
+export async function removeSearchHistoryItem(id: string): Promise<void> {
+  const existing = await getSearchHistory();
+  const updated = existing.filter(item => item.id !== id);
+  setLocalStorageItem('searchHistory', updated);
+
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('searchHistory')) {
+      await database.delete('searchHistory', id);
+    }
+  } catch (err) {
+    console.warn('Error deleting search history from IDB:', err);
+  }
+}
+
+export async function clearSearchHistory(): Promise<void> {
+  setLocalStorageItem('searchHistory', []);
+
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('searchHistory')) {
+      const tx = database.transaction('searchHistory', 'readwrite');
+      await tx.store.clear();
+      await tx.done;
+    }
+  } catch (err) {
+    console.warn('Error clearing search history from IDB:', err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Personalized User Nutrition Profile Operations
+// ---------------------------------------------------------------------------
+
+const DEFAULT_NUTRITION_PROFILE: UserNutritionProfile = {
+  id: 'current-profile',
+  displayName: 'Health Explorer',
+  calorieTarget: 2000,
+  proteinTarget: 75,
+  carbsTarget: 250,
+  fatTarget: 65,
+  fiberTarget: 30,
+  dietaryFocus: 'balanced',
+  healthGoals: ['Maintain healthy energy', 'Improve gut microbiome', 'Boost cellular antioxidants'],
+  allergens: [],
+  updatedAt: Date.now()
+};
+
+export async function getUserNutritionProfile(): Promise<UserNutritionProfile> {
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('userNutritionProfile')) {
+      const profile = await database.get('userNutritionProfile', 'current-profile');
+      if (profile) return profile;
+    }
+  } catch (err) {
+    console.warn('Error reading user nutrition profile from IDB:', err);
+  }
+
+  const local = getLocalStorageItem<UserNutritionProfile>('userNutritionProfile', DEFAULT_NUTRITION_PROFILE);
+  return local;
+}
+
+export async function updateUserNutritionProfile(
+  updates: Partial<UserNutritionProfile>
+): Promise<UserNutritionProfile> {
+  const current = await getUserNutritionProfile();
+  const updated: UserNutritionProfile = {
+    ...current,
+    ...updates,
+    updatedAt: Date.now()
+  };
+
+  setLocalStorageItem('userNutritionProfile', updated);
+
+  try {
+    const database = await getDB();
+    if (database && database.objectStoreNames.contains('userNutritionProfile')) {
+      await database.put('userNutritionProfile', updated);
+    }
+  } catch (err) {
+    console.warn('Error saving user nutrition profile to IDB:', err);
+  }
+
+  return updated;
+}
+

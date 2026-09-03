@@ -1,16 +1,64 @@
-import React from 'react';
-import { ShoppingBag, ExternalLink, Sparkles, Tag, Star } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { ShoppingBag, ExternalLink, Tag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function InGridAdCard() {
+interface InGridAdCardProps {
+  slot?: string;
+  client?: string;
+}
+
+export function InGridAdCard({
+  slot = '5566778899',
+  client = 'ca-pub-4353689996620152'
+}: InGridAdCardProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!client || isLoadedRef.current) return;
+
+    const tryPushAd = () => {
+      if (isLoadedRef.current) return;
+      const el = containerRef.current;
+      const width = el ? el.offsetWidth || el.parentElement?.offsetWidth || 0 : 0;
+
+      if (width >= 200 && window && (window as any).adsbygoogle) {
+        try {
+          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          isLoadedRef.current = true;
+        } catch (e) {
+          // Deferred until Google AdSense script initializes
+        }
+      }
+    };
+
+    const timer = setTimeout(tryPushAd, 400);
+    return () => clearTimeout(timer);
+  }, [client]);
+
   return (
-    <div className="relative overflow-hidden h-full flex flex-col bg-gradient-to-br from-amber-500/10 via-emerald-500/10 to-indigo-500/10 dark:from-slate-900 dark:via-amber-950/20 dark:to-slate-900 border-2 border-dashed border-amber-400/60 dark:border-amber-500/40 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 justify-between col-span-1">
+    <div 
+      ref={containerRef}
+      className="relative overflow-hidden h-full flex flex-col bg-gradient-to-br from-amber-500/10 via-emerald-500/10 to-indigo-500/10 dark:from-slate-900 dark:via-amber-950/20 dark:to-slate-900 border-2 border-dashed border-amber-400/60 dark:border-amber-500/40 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 justify-between col-span-1"
+    >
       {/* Ad Badge */}
       <div className="flex items-center justify-between mb-2">
         <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
-          <Tag className="w-3 h-3" /> Ad Space / Sponsor Deal
+          <Tag className="w-3 h-3" /> Sponsored Deal
         </span>
-        <span className="text-[10px] font-mono text-slate-400">AdSense / Amazon Slot</span>
+        <span className="text-[10px] font-mono text-slate-400">ca-pub-4353689996620152</span>
+      </div>
+
+      {/* AdSense In-Feed Unit */}
+      <div className="w-full my-1">
+        <ins
+          className="adsbygoogle block w-full text-center min-h-[50px]"
+          style={{ display: 'block' }}
+          data-ad-client={client}
+          data-ad-slot={slot}
+          data-ad-format="fluid"
+          data-ad-layout-key="-fb+5w+4e-db+86"
+        />
       </div>
 
       <div className="my-2 space-y-2">

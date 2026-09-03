@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 import { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
@@ -209,6 +210,9 @@ export default function ArticlePage() {
           {article.introduction}
         </p>
       </section>
+
+      {/* Google AdSense In-Article Responsive Ad */}
+      <AdBanner slot="7008009001" format="auto" className="my-4" />
 
       {/* THE 5 FEATURED FOODS DETAILED CARDS */}
       <section className="space-y-12 pt-4">

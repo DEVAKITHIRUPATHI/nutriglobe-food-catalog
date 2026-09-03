@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Info, Bot, Sparkles, Send, Loader2, Scale } from 'lucide-react';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 import { FoodGridSkeleton } from '@/components/ui/PageSkeleton';
 import { D3BmiScaleChart } from '@/components/nutrition/D3BmiScaleChart';
@@ -475,6 +476,9 @@ export default function Nutrition() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Google AdSense In-Content Responsive Banner */}
+      <AdBanner slot="4005006007" format="auto" className="my-6" />
 
       {/* Amazon Associate Deals for Nutrition & Health Supplements */}
       <AmazonAdBanner 

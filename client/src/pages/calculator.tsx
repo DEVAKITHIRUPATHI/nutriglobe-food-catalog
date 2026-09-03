@@ -5,6 +5,7 @@ import { MacroIntakeChart } from '@/components/calculator/MacroIntakeChart';
 import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
 import { CalculatorPageSkeleton } from '@/components/ui/PageSkeleton';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 export default function CalculatorPage() {
   usePageViewCounter('/calculator', 'RDA & Calorie Calculator');
@@ -21,6 +22,9 @@ export default function CalculatorPage() {
 
       {/* Main Clinical Calculator */}
       <NutritionCalculator />
+
+      {/* Google AdSense Responsive Banner */}
+      <AdBanner slot="3004005006" format="auto" className="my-6" />
 
       {/* Recharts 7-Day Macronutrient Intake Trends Chart */}
       <MacroIntakeChart />

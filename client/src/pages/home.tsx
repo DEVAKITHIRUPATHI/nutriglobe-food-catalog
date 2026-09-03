@@ -18,7 +18,7 @@ import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
 import { ArrowRight, AlertCircle, Search } from 'lucide-react';
 import { foodItems } from '@shared/mockData';
-import { getFoodItems, searchFoodItems } from '@/lib/idb';
+import { getFoodItems, searchFoodItems, addSearchHistory } from '@/lib/idb';
 import { matchesCategory, sortFoodsAToZ } from '@/lib/categoryUtils';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
@@ -74,6 +74,15 @@ export default function Home() {
       
       const sortedResults = sortFoodsAToZ(results);
       setFilteredFoods(sortedResults);
+
+      // Log historical search data into the existing storage interface
+      if (filters.query?.trim() || (filters.category && filters.category !== 'all')) {
+        addSearchHistory({
+          query: filters.query || '',
+          category: filters.category || 'all',
+          resultCount: sortedResults.length
+        }).catch(err => console.warn('Failed to record search history:', err));
+      }
     } catch (error) {
       console.error('Error searching foods:', error);
     }

@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Download, Wand2, Image as ImageIcon, Layers, RefreshCw, CheckCircle2, ShieldCheck, Globe, Tag, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { Sparkles, Download, Wand2, Image as ImageIcon, Layers, RefreshCw, CheckCircle2, ShieldCheck, Globe, Tag, SlidersHorizontal, Loader2, Search, ExternalLink } from 'lucide-react';
 import { FoodItemClient } from '@shared/schema';
+import { getGoogleImageSearchUrl } from '@/lib/foodImageResolver';
 
 interface FoodImageStudioModalProps {
   isOpen: boolean;
@@ -272,6 +273,18 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
                     placeholder="Enter food name..."
                     className="mt-1 bg-white dark:bg-slate-800 border-emerald-200 font-semibold text-sm"
                   />
+                  <div className="pt-1.5">
+                    <a
+                      href={getGoogleImageSearchUrl(foodName, foodItem?.category)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline"
+                    >
+                      <Search className="h-3 w-3" />
+                      <span>Search "{foodName} food" Real Photos on Google Images</span>
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-1">
