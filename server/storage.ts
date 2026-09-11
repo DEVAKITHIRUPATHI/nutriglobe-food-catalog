@@ -435,47 +435,71 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Helper method to map from database schema to client-facing schema
-  private mapToFoodItemClient(item: any): FoodItemClient {
-    // Handle both drizzle record objects and raw SQL results
-    return {
-      id: item.itemId || item.item_id,
-      name: {
-        en: item.nameEn || item.name_en || '',
-        hi: item.nameHi || item.name_hi || '',
-        ta: item.nameTa || item.name_ta || ''
-      },
-      description: {
-        en: item.descriptionEn || item.description_en || '',
-        hi: item.descriptionHi || item.description_hi || '',
-        ta: item.descriptionTa || item.description_ta || ''
-      },
-      origin: item.origin || '',
-      price: (item.price || 0) / 100, // Convert cents to dollars
-      image: item.image || '',
-      category: item.categories || item.category || [],
-      nutrition: {
-        calories: item.calories || 0,
-        carbs: (item.carbs || 0) / 10, // Convert decigrames to grams
-        protein: (item.protein || 0) / 10,
-        fat: (item.fat || 0) / 10,
-        fiber: (item.fiber || 0) / 10,
-        vitamins: (item.vitamins as Record<string, string>) || {},
-        // Enhanced nutritional information
-        minerals: (item.minerals as Record<string, string>) || undefined,
-        omega3: item.omega3 || undefined,
-        omega6: item.omega6 || undefined,
-        omega9: item.omega9 || undefined,
-        collagen: item.collagen || undefined,
-        antioxidants: (item.antioxidants as Record<string, string>) || undefined,
-        probiotics: (item.probiotics as Record<string, string>) || undefined
-      },
-      // Additional health information
-      healthBenefits: item.healthBenefits || undefined,
-      recommendedIntake: item.recommendedIntake || undefined,
-      allergens: item.allergens || [],
-      isPopular: Boolean(item.isPopular || item.is_popular)
-    };
+  mapToFoodItemClient(item: any): FoodItemClient {
+    return mapDbItemToFoodItemClient(item);
   }
+}
+
+/**
+ * Maps raw database food rows (both Drizzle record format and raw PostgreSQL rows)
+ * to client-facing FoodItemClient contracts, converting currency (cents -> dollars)
+ * and macronutrients (decigrams -> grams).
+ */
+export function mapDbItemToFoodItemClient(item: any): FoodItemClient {
+  if (!item) {
+    throw new Error('Cannot map null or undefined item to FoodItemClient');
+  }
+
+  let categories: string[] = [];
+  if (Array.isArray(item.categories)) {
+    categories = item.categories;
+  } else if (Array.isArray(item.category)) {
+    categories = item.category;
+  } else if (typeof item.categories === 'string' && item.categories.trim().length > 0) {
+    categories = [item.categories];
+  } else if (typeof item.category === 'string' && item.category.trim().length > 0) {
+    categories = [item.category];
+  }
+
+  return {
+    id: String(item.itemId || item.item_id || item.id || ''),
+    name: {
+      en: item.nameEn || item.name_en || (typeof item.name === 'object' ? item.name?.en : item.name) || '',
+      hi: item.nameHi || item.name_hi || (typeof item.name === 'object' ? item.name?.hi : '') || '',
+      ta: item.nameTa || item.name_ta || (typeof item.name === 'object' ? item.name?.ta : '') || ''
+    },
+    description: {
+      en: item.descriptionEn || item.description_en || (typeof item.description === 'object' ? item.description?.en : item.description) || '',
+      hi: item.descriptionHi || item.description_hi || (typeof item.description === 'object' ? item.description?.hi : '') || '',
+      ta: item.descriptionTa || item.description_ta || (typeof item.description === 'object' ? item.description?.ta : '') || ''
+    },
+    origin: item.origin || '',
+    price: (Number(item.price) || 0) / 100, // Convert cents to dollars
+    image: item.image || item.imageUrl || item.image_url || '',
+    imageUrl: item.imageUrl || item.image_url || item.image || '',
+    imageAttribution: item.imageAttribution || item.image_attribution || undefined,
+    imageVerifiedStatus: item.imageVerifiedStatus || item.image_verified_status || 'verified',
+    category: categories,
+    nutrition: {
+      calories: Number(item.calories) || 0,
+      carbs: (Number(item.carbs) || 0) / 10, // Convert decigrams to grams
+      protein: (Number(item.protein) || 0) / 10,
+      fat: (Number(item.fat) || 0) / 10,
+      fiber: (Number(item.fiber) || 0) / 10,
+      vitamins: (item.vitamins as Record<string, string>) || {},
+      minerals: (item.minerals as Record<string, string>) || undefined,
+      omega3: item.omega3 || undefined,
+      omega6: item.omega6 || undefined,
+      omega9: item.omega9 || undefined,
+      collagen: item.collagen || undefined,
+      antioxidants: (item.antioxidants as Record<string, string>) || undefined,
+      probiotics: (item.probiotics as Record<string, string>) || undefined
+    },
+    healthBenefits: item.healthBenefits || undefined,
+    recommendedIntake: item.recommendedIntake || undefined,
+    allergens: Array.isArray(item.allergens) ? item.allergens : [],
+    isPopular: Boolean(item.isPopular || item.is_popular)
+  };
 }
 
 // In-memory implementation

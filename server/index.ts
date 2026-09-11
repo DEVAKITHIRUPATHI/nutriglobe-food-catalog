@@ -13,8 +13,8 @@ import { setupVite, serveStatic, log } from "./vite";
     serveStatic(app);
   }
 
-  // Serve the app on port 3000 (or process.env.PORT)
-  const port = Number(process.env.PORT || 3000);
+  // Port 3000 is required by the reverse proxy infrastructure
+  const port = 3000;
   server.listen({
     port,
     host: "0.0.0.0",
