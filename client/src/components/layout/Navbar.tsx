@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { LanguageSelector } from '@/components/ui/language-selector';
+import LanguageSelector from '@/components/ui/language-selector';
+import { MultiLanguageInstantTester } from '@/components/ui/MultiLanguageInstantTester';
 import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
 import { AppContext } from '@/contexts/AppContext';
 import { CartContext } from '@/contexts/CartContext';
@@ -8,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { NutriFactsLogo } from '@/components/layout/NutriFactsLogo';
 import { 
   Leaf, Heart, Menu, X, Wifi, WifiOff, Home, Apple, Info, 
-  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck, LayoutDashboard
+  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck, LayoutDashboard, Languages
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -124,9 +125,23 @@ export function Navbar() {
         </div>
         
         {/* Actions */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
           {/* Language Selector */}
           <LanguageSelector />
+          
+          {/* Quick 45+ Multi-Language Instant Tester Modal Trigger */}
+          <MultiLanguageInstantTester 
+            trigger={
+              <button
+                type="button"
+                className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 bg-emerald-950/60 hover:bg-emerald-800/80 text-emerald-200 hover:text-white rounded-xl border border-emerald-700/50 text-xs font-bold transition-all shadow-xs"
+                title="Test all 45+ Indian & Global languages instantly"
+              >
+                <Languages className="w-3.5 h-3.5 text-emerald-300" />
+                <span>45+ Lang</span>
+              </button>
+            }
+          />
           {/* End Language Selector */}
           
           {/* Favorites Button */}
@@ -266,14 +281,26 @@ export function Navbar() {
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                       {getLocalizedText('language.current')}
                     </h3>
-                    <div className="flex items-center px-3 py-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                      <Globe className="h-5 w-5 mr-3 text-primary-500" />
-                      <div>
-                        <div className="font-medium">{language}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex flex-col gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center text-sm">
+                        <Globe className="h-4 w-4 mr-2 text-emerald-500 shrink-0" />
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {getLocalizedText('language.switchLanguage')}
-                        </div>
+                        </span>
                       </div>
+                      <LanguageSelector className="w-full" />
+                      <MultiLanguageInstantTester 
+                        trigger={
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-1.5 h-8 text-xs font-bold rounded-xl border-emerald-600/40 text-emerald-700 dark:text-emerald-300 gap-1.5"
+                          >
+                            <Languages className="w-3.5 h-3.5" />
+                            <span>Verify 45+ Languages Tester</span>
+                          </Button>
+                        }
+                      />
                     </div>
                   </div>
                   

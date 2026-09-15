@@ -13,6 +13,24 @@ export function createBaseApp(): Express {
   // Apply API & AI Endpoint Rate Limiter
   app.use(rateLimiterMiddleware);
 
+  // Security guard: Explicitly block browser requests for server build files, source code, and source maps
+  app.use((req, res, next) => {
+    const rawUrl = (req.path || req.url || "").split("?")[0].toLowerCase();
+    if (
+      rawUrl.startsWith("/dist") ||
+      rawUrl.startsWith("/server") ||
+      (rawUrl.startsWith("/api/") && (rawUrl.endsWith(".ts") || rawUrl.endsWith(".js") || rawUrl.endsWith(".tsx"))) ||
+      rawUrl.endsWith(".cjs") ||
+      rawUrl.endsWith(".mjs") ||
+      rawUrl.endsWith(".map") ||
+      rawUrl.endsWith(".ts") ||
+      rawUrl.endsWith(".tsx")
+    ) {
+      return res.status(404).type("text/plain").send("Not Found");
+    }
+    next();
+  });
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 

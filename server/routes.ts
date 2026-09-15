@@ -38,7 +38,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Root API info and health endpoints for Vercel, uptime monitors and API consumers
-  app.get([API_PREFIX, `${API_PREFIX}/`], (_req: Request, res: Response) => {
+  app.get([API_PREFIX, `${API_PREFIX}/`, `${API_PREFIX}/index`], (_req: Request, res: Response) => {
     res.json({
       status: "online",
       name: "NutriGlobe Nutrition Engine API",
@@ -63,6 +63,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       service: "NutriGlobe Engine"
     });
   });
+
+  // Food Categories List Endpoint
+  app.get(`${API_PREFIX}/categories`, asyncHandler(async (_req: Request, res: Response) => {
+    const foods = await storage.getAllFoodItems();
+    const categorySet = new Set<string>();
+    foods.forEach(f => {
+      const cats = Array.isArray(f.category) ? f.category : (typeof (f as any).category === 'string' ? [(f as any).category] : []);
+      cats.forEach(c => {
+        if (c && typeof c === 'string' && c.trim().length > 0) {
+          categorySet.add(c.trim().toLowerCase());
+        }
+      });
+    });
+    res.json(Array.from(categorySet).sort());
+  }));
 
   // --- Visitor & Telemetry Analytics Routes ---
   app.post(`${API_PREFIX}/analytics/log-visit`, asyncHandler(async (req: Request, res: Response) => {
@@ -1578,6 +1593,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/ads.txt', (_req, res) => {
     res.header('Content-Type', 'text/plain');
     res.send('google.com, pub-4353689996620152, DIRECT, f08c47fec0942fa0\n');
+  });
+
+  // 404 handler for all unmatched API endpoints to ensure JSON is returned rather than falling back to index.html
+  app.all(`${API_PREFIX}/*`, (req: Request, res: Response) => {
+    res.status(404).json({
+      error: "Not Found",
+      message: `API endpoint ${req.method} ${req.path} not found`
+    });
   });
 
   return httpServer;

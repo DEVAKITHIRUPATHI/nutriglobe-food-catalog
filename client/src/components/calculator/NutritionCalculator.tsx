@@ -14,7 +14,6 @@ import {
   ChevronRight, ArrowUpRight, Dumbbell, UserCheck, RefreshCw, PieChart as PieIcon, Share2,
   TrendingDown, TrendingUp, Ban, GlassWater, Sun, Wind, Target, Zap, ShieldX, Coffee, HeartPulse
 } from 'lucide-react';
-import { foodItems } from '@shared/mockData';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
@@ -311,7 +310,7 @@ export function NutritionCalculator() {
 
   // Recommended Foods dynamically filtered from active catalog based on BMI & Goal
   const recommendedFoods = useMemo(() => {
-    const catalog = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+    const catalog = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
     const action = calculations.weightControlAction;
 
     if (action === 'lose' || goal.includes('loss')) {

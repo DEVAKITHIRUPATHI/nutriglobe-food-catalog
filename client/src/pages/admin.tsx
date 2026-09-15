@@ -19,7 +19,6 @@ import { DailyAIGenerator } from '@/components/admin/DailyAIGenerator';
 import { SitemapDashboard } from '@/components/admin/SitemapDashboard';
 import { PerformanceDashboard } from '@/components/PerformanceDashboard';
 import { LazyImage } from '@/components/ui/LazyImage';
-import { foodItems as mockItems } from '@shared/mockData';
 import type { FoodItemClient } from '@shared/schema';
 
 import { GenericPageSkeleton } from '@/components/ui/PageSkeleton';
@@ -289,7 +288,12 @@ export default function AdminPage() {
       } else if (contextFoods && contextFoods.length > 0) {
         setFoods(contextFoods);
       } else {
-        setFoods(mockItems);
+        try {
+          const { foodItems: fallbackMock } = await import('@shared/mockData');
+          setFoods(fallbackMock);
+        } catch {
+          setFoods([]);
+        }
       }
 
       try {
@@ -316,7 +320,12 @@ export default function AdminPage() {
       if (contextFoods && contextFoods.length > 0) {
         setFoods(contextFoods);
       } else {
-        setFoods(mockItems);
+        try {
+          const { foodItems: fallbackMock } = await import('@shared/mockData');
+          setFoods(fallbackMock);
+        } catch {
+          setFoods([]);
+        }
       }
     } finally {
       setLoading(false);

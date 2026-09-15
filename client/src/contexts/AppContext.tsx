@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { initDB, getSettings, updateSettings, storeFoodItems, getFoodItems } from '@/lib/idb';
-import { foodItems as mockDataFoods } from '@shared/mockData';
 import type { Language, FoodItemClient } from '@shared/schema';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import type { OfflineStatus } from '@/types';
@@ -73,11 +72,15 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       if (idbItems && idbItems.length > 0) {
         setFoods(idbItems);
       } else {
-        setFoods([...mockDataFoods]);
-        await storeFoodItems(mockDataFoods);
+        const { foodItems: fallbackFoods } = await import('@shared/mockData');
+        setFoods([...fallbackFoods]);
+        await storeFoodItems(fallbackFoods);
       }
     } catch (err) {
-      setFoods([...mockDataFoods]);
+      try {
+        const { foodItems: fallbackFoods } = await import('@shared/mockData');
+        setFoods([...fallbackFoods]);
+      } catch {}
     }
   }, []);
 
@@ -104,6 +107,15 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
     initialize();
   }, [refreshFoods]);
+
+  // Synchronize HTML lang and writing direction (LTR/RTL) across all 45+ languages
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+      const isRtl = ['ar', 'ur', 'fa', 'sd', 'ks'].includes(language);
+      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    }
+  }, [language]);
 
   const setLanguage = async (lang: Language) => {
     setLanguageState(lang);

@@ -1,35 +1,61 @@
-import { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@/contexts/AppContext';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Globe, Search, Check, Languages } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Globe } from 'lucide-react';
 
-interface Language {
+export interface Language {
   code: string;
   name: string;
   nativeName?: string;
 }
 
-export const LANGUAGES: Language[] = [
+const LANGUAGES: Language[] = [
+  // Primary
   { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+
+  // Indian Official & Regional Languages (22 Official + Major Regional)
   { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
+  { code: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ' },
+  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+  { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
+  { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
+  { code: 'sa', name: 'Sanskrit', nativeName: 'संस्कृतम्' },
+  { code: 'mai', name: 'Maithili', nativeName: 'मैथिली' },
+  { code: 'sat', name: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ' },
+  { code: 'ks', name: 'Kashmiri', nativeName: 'कॉशुर / کٲشُر' },
+  { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
+  { code: 'kok', name: 'Konkani', nativeName: 'कोंकणी' },
+  { code: 'sd', name: 'Sindhi', nativeName: 'سنڌي' },
+  { code: 'doi', name: 'Dogri', nativeName: 'डोगरी' },
+  { code: 'brx', name: 'Bodo', nativeName: 'बर’' },
+  { code: 'mni', name: 'Manipuri', nativeName: 'মৈতৈলোন্' },
+  { code: 'bh', name: 'Bhojpuri', nativeName: 'भोजपुरी' },
+
+  // Major International Languages
   { code: 'es', name: 'Spanish', nativeName: 'Español' },
   { code: 'fr', name: 'French', nativeName: 'Français' },
   { code: 'de', name: 'German', nativeName: 'Deutsch' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文' },
+  { code: 'zh', name: 'Chinese (Simplified)', nativeName: '简体中文' },
+  { code: 'zh-TW', name: 'Chinese (Traditional)', nativeName: '繁體中文' },
   { code: 'ja', name: 'Japanese', nativeName: '日本語' },
   { code: 'ko', name: 'Korean', nativeName: '한국어' },
   { code: 'ar', name: 'Arabic', nativeName: 'العربية' },
   { code: 'ru', name: 'Russian', nativeName: 'Русский' },
   { code: 'pt', name: 'Portuguese', nativeName: 'Português' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
-  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
-  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
-  { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
   { code: 'it', name: 'Italian', nativeName: 'Italiano' },
   { code: 'nl', name: 'Dutch', nativeName: 'Nederlands' },
   { code: 'sv', name: 'Swedish', nativeName: 'Svenska' },
@@ -73,114 +99,82 @@ export const LANGUAGES: Language[] = [
   { code: 'km', name: 'Khmer', nativeName: 'ខ្មែរ' },
   { code: 'lo', name: 'Lao', nativeName: 'ລາວ' },
   { code: 'my', name: 'Burmese', nativeName: 'ဗမာစာ' },
-  { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
   { code: 'si', name: 'Sinhala', nativeName: 'සිංහල' },
   { code: 'am', name: 'Amharic', nativeName: 'አማርኛ' },
+  { code: 'so', name: 'Somali', nativeName: 'Soomaali' },
+  { code: 'ha', name: 'Hausa', nativeName: 'Harshen Hausa' },
   { code: 'yo', name: 'Yoruba', nativeName: 'Yorùbá' },
+  { code: 'ig', name: 'Igbo', nativeName: 'Asụsụ Igbo' },
   { code: 'zu', name: 'Zulu', nativeName: 'isiZulu' },
+  { code: 'xh', name: 'Xhosa', nativeName: 'isiXhosa' },
   { code: 'ps', name: 'Pashto', nativeName: 'پښتو' },
-  { code: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ' },
-  { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
-  { code: 'bh', name: 'Bhojpuri', nativeName: 'भोजपुरी' },
-  { code: 'mai', name: 'Maithili', nativeName: 'मैथिली' },
-  { code: 'sa', name: 'Sanskrit', nativeName: 'संस्कृतम्' },
-  { code: 'kok', name: 'Konkani', nativeName: 'कोंकणी' },
-  { code: 'doi', name: 'Dogri', nativeName: 'डोगरी' },
-  { code: 'ks', name: 'Kashmiri', nativeName: 'कॉशुर' }
+  { code: 'fil', name: 'Filipino / Tagalog', nativeName: 'Wikang Filipino' },
+  { code: 'yue', name: 'Cantonese', nativeName: '粵語' },
+  { code: 'om', name: 'Oromo', nativeName: 'Afaan Oromoo' },
+  { code: 'cy', name: 'Welsh', nativeName: 'Cymraeg' },
+  { code: 'eu', name: 'Basque', nativeName: 'Euskara' },
+  { code: 'gl', name: 'Galician', nativeName: 'Galego' },
+  { code: 'ca', name: 'Catalan', nativeName: 'Català' },
+  { code: 'be', name: 'Belarusian', nativeName: 'Беларуская' },
+  { code: 'mk', name: 'Macedonian', nativeName: 'Македонски' },
+  { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski' },
+  { code: 'bo', name: 'Tibetan', nativeName: 'བོད་སྐད་' },
+  { code: 'ku', name: 'Kurdish', nativeName: 'Kurdî / کوردی' },
+  { code: 'tg', name: 'Tajik', nativeName: 'Тоҷикӣ' },
+  { code: 'tk', name: 'Turkmen', nativeName: 'Türkmençe' },
+  { code: 'ky', name: 'Kyrgyz', nativeName: 'Кыргызча' },
+  { code: 'tt', name: 'Tatar', nativeName: 'Татарча' },
+  { code: 'haw', name: 'Hawaiian', nativeName: 'ʻŌlelo Hawaiʻi' },
+  { code: 'sm', name: 'Samoan', nativeName: 'Gagana Samoa' },
+  { code: 'mi', name: 'Maori', nativeName: 'Te Reo Māori' },
+  { code: 'la', name: 'Latin', nativeName: 'Latīna' },
+  { code: 'eo', name: 'Esperanto', nativeName: 'Esperanto' }
 ];
 
-export function LanguageSelector() {
+function LanguageSelector({ className }: { className?: string }) {
   const { language, setLanguage } = useContext(AppContext);
-  const [search, setSearch] = useState('');
-  const [open, setOpen] = useState(false);
+  const { getLocalizedText } = useTranslation();
 
-  const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0];
+  const currentLang = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
-  const filteredLanguages = LANGUAGES.filter(l => 
-    l.name.toLowerCase().includes(search.toLowerCase()) ||
-    (l.nativeName && l.nativeName.toLowerCase().includes(search.toLowerCase())) ||
-    l.code.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleLanguageChange = (value: string) => {
+    if (value && typeof setLanguage === 'function') {
+      setLanguage(value as any);
+    }
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          className="flex items-center gap-2 px-3 py-1.5 bg-emerald-950/70 hover:bg-emerald-900/90 text-white rounded-xl border border-emerald-600/50 shadow-md transition-all text-xs font-semibold cursor-pointer group"
-          title="Select from 45+ supported global languages"
+    <div className={`relative inline-flex items-center ${className || ''}`}>
+      <Select value={language} onValueChange={handleLanguageChange}>
+        <SelectTrigger
+          className="h-8 md:h-9 bg-emerald-950/80 hover:bg-emerald-900/90 text-white rounded-xl border border-emerald-600/50 shadow-md text-xs font-semibold px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-400 gap-1.5 min-w-[110px] sm:min-w-[130px]"
+          aria-label={getLocalizedText('nav.language') || 'Select Language'}
         >
-          <Globe className="w-4 h-4 text-emerald-300 group-hover:rotate-12 transition-transform" />
-          <span className="font-bold">{currentLang.nativeName || currentLang.name}</span>
-          <span className="bg-amber-400 text-amber-950 text-[10px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tight shadow-sm">
-            45+ Multi
-          </span>
-        </button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-80 p-3 bg-slate-900 text-white border-emerald-800 shadow-2xl rounded-2xl z-50">
-        <div className="space-y-3">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div className="flex items-center gap-2">
-              <Languages className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-black uppercase text-slate-200">Select App Language</span>
-            </div>
-            <span className="text-[10px] bg-emerald-900/80 text-emerald-300 font-extrabold px-2 py-0.5 rounded-full border border-emerald-700/50">
-              45+ Supported
-            </span>
+          <div className="flex items-center gap-1.5 truncate">
+            <Globe className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+            <span className="truncate font-bold">{currentLang.nativeName || currentLang.name}</span>
           </div>
-
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
-            <input
-              type="text"
-              placeholder="Search 45+ languages (e.g. Tamil, Español, हिन्दी)..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-
-          {/* Language List */}
-          <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-            {filteredLanguages.length === 0 ? (
-              <div className="p-4 text-center text-xs text-slate-400">No matching language found</div>
-            ) : (
-              filteredLanguages.map((lang) => {
-                const isSelected = lang.code === language;
-                return (
-                  <button
-                    key={lang.code}
-                    onClick={() => {
-                      setLanguage(lang.code as any);
-                      setOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all ${
-                      isSelected 
-                        ? 'bg-emerald-600 text-white font-bold shadow-md' 
-                        : 'hover:bg-slate-800 text-slate-200 font-medium'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{lang.nativeName || lang.name}</span>
-                      <span className={`text-[10px] ${isSelected ? 'text-emerald-200' : 'text-slate-400'}`}>
-                        ({lang.name})
-                      </span>
-                    </div>
-
-                    {isSelected && <Check className="w-4 h-4 text-white" />}
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </SelectTrigger>
+        <SelectContent className="max-h-72 overflow-y-auto bg-slate-900 text-white border border-emerald-800 shadow-2xl rounded-xl z-50 min-w-[210px]">
+          {LANGUAGES.map((lang) => (
+            <SelectItem
+              key={lang.code}
+              value={lang.code}
+              className="text-xs focus:bg-emerald-800 focus:text-white hover:bg-slate-800 text-slate-200 cursor-pointer py-1.5 px-2.5 rounded-lg"
+            >
+              <div className="flex items-center justify-between w-full gap-2">
+                <span className="font-semibold">{lang.nativeName || lang.name}</span>
+                {lang.nativeName && lang.nativeName !== lang.name && (
+                  <span className="text-[10px] text-slate-400">({lang.name})</span>
+                )}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
 
+export { LanguageSelector, LANGUAGES };
 export default LanguageSelector;
-
-

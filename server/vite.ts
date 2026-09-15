@@ -32,6 +32,18 @@ export async function setupVite(app: Express, server: Server) {
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
+    const rawUrl = (req.originalUrl || req.url || "").split("?")[0].toLowerCase();
+    if (
+      rawUrl.startsWith("/dist") ||
+      rawUrl.startsWith("/server") ||
+      rawUrl.endsWith(".cjs") ||
+      rawUrl.endsWith(".mjs") ||
+      rawUrl.endsWith(".map") ||
+      rawUrl.endsWith(".ts") ||
+      rawUrl.endsWith(".tsx")
+    ) {
+      return res.status(404).type("text/plain").send("Not Found");
+    }
     const url = req.originalUrl;
 
     try {
@@ -69,10 +81,40 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Security guard: Explicitly block browser requests for server build files, source code, and source maps
+  app.use((req, res, next) => {
+    const rawUrl = (req.url || "").split("?")[0].toLowerCase();
+    if (
+      rawUrl.startsWith("/dist") ||
+      rawUrl.startsWith("/server") ||
+      rawUrl.startsWith("/api/") && (rawUrl.endsWith(".ts") || rawUrl.endsWith(".js") || rawUrl.endsWith(".tsx")) ||
+      rawUrl.endsWith(".cjs") ||
+      rawUrl.endsWith(".mjs") ||
+      rawUrl.endsWith(".map") ||
+      rawUrl.endsWith(".ts") ||
+      rawUrl.endsWith(".tsx")
+    ) {
+      return res.status(404).type("text/plain").send("Not Found");
+    }
+    next();
+  });
+
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", (req, res) => {
+    const rawUrl = (req.originalUrl || req.url || "").split("?")[0].toLowerCase();
+    if (
+      rawUrl.startsWith("/dist") ||
+      rawUrl.startsWith("/server") ||
+      rawUrl.endsWith(".cjs") ||
+      rawUrl.endsWith(".mjs") ||
+      rawUrl.endsWith(".map") ||
+      rawUrl.endsWith(".ts") ||
+      rawUrl.endsWith(".tsx")
+    ) {
+      return res.status(404).type("text/plain").send("Not Found");
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
@@ -10,7 +10,7 @@ import {
   ArrowLeftRight, Search, Zap, Heart, ShieldCheck, ChevronDown, RefreshCw
 } from 'lucide-react';
 import { FoodItemClient } from '@shared/schema';
-import { foodItems } from '@shared/mockData';
+import { AppContext } from '@/contexts/AppContext';
 import { getAccurateFoodImage, handleFoodImageError } from '@/lib/foodImageResolver';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -25,6 +25,32 @@ interface FoodComparisonModalProps {
   initialItemB?: FoodItemClient | null;
 }
 
+const DEFAULT_FALLBACK_FOOD_A: FoodItemClient = {
+  id: 'apple',
+  name: { en: 'Apple', hi: 'सेब', ta: 'ஆப்பிள்' },
+  description: { en: 'Crisp and sweet fresh apple' },
+  category: ['fruits'],
+  origin: 'Central Asia',
+  price: 0,
+  allergens: [],
+  isPopular: true,
+  image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6',
+  nutrition: { calories: 52, carbs: 14, protein: 0.3, fat: 0.2, fiber: 2.4, vitamins: {}, minerals: {} },
+};
+
+const DEFAULT_FALLBACK_FOOD_B: FoodItemClient = {
+  id: 'banana',
+  name: { en: 'Banana', hi: 'केला', ta: 'வாழைப்பழம்' },
+  description: { en: 'Naturally sweet nutrient-dense banana' },
+  category: ['fruits'],
+  origin: 'Southeast Asia',
+  price: 0,
+  allergens: [],
+  isPopular: true,
+  image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e',
+  nutrition: { calories: 89, carbs: 23, protein: 1.1, fat: 0.3, fiber: 2.6, vitamins: {}, minerals: {} },
+};
+
 export const FoodComparisonModal: React.FC<FoodComparisonModalProps> = ({
   isOpen,
   onClose,
@@ -32,13 +58,14 @@ export const FoodComparisonModal: React.FC<FoodComparisonModalProps> = ({
   initialItemB
 }) => {
   const { t } = useTranslation();
-  const allFoods = foodItems;
+  const { foods: contextFoods } = useContext(AppContext);
+  const allFoods = contextFoods && contextFoods.length > 0 ? contextFoods : [];
 
   const [foodA, setFoodA] = useState<FoodItemClient>(
-    initialItemA || allFoods[0] || foodItems[0]
+    initialItemA || allFoods[0] || DEFAULT_FALLBACK_FOOD_A
   );
   const [foodB, setFoodB] = useState<FoodItemClient>(
-    initialItemB || allFoods[1] || foodItems[1]
+    initialItemB || allFoods[1] || DEFAULT_FALLBACK_FOOD_B
   );
 
   const [portionA, setPortionA] = useState<number>(100); // grams
@@ -52,51 +79,63 @@ export const FoodComparisonModal: React.FC<FoodComparisonModalProps> = ({
   // Sync initial items when modal opens
   React.useEffect(() => {
     if (initialItemA) setFoodA(initialItemA);
+    else if (allFoods.length > 0) setFoodA(allFoods[0]);
+
     if (initialItemB) setFoodB(initialItemB);
-    else if (initialItemA && initialItemA.id === foodB.id) {
+    else if (allFoods.length > 1) setFoodB(allFoods[1]);
+    else if (initialItemA && foodB && initialItemA.id === foodB.id) {
       const alt = allFoods.find(f => f.id !== initialItemA.id);
       if (alt) setFoodB(alt);
     }
-  }, [initialItemA, initialItemB, isOpen]);
+  }, [initialItemA, initialItemB, isOpen, allFoods]);
 
   // Portion multiplier ratio based on 100g standard
   const scaleA = portionA / 100;
   const scaleB = portionB / 100;
 
   // Scaled nutritional values
-  const nutA = useMemo(() => ({
-    calories: Math.round(foodA.nutrition.calories * scaleA),
-    protein: Math.round(foodA.nutrition.protein * scaleA * 10) / 10,
-    carbs: Math.round(foodA.nutrition.carbs * scaleA * 10) / 10,
-    fat: Math.round(foodA.nutrition.fat * scaleA * 10) / 10,
-    fiber: Math.round(foodA.nutrition.fiber * scaleA * 10) / 10,
-    sugar: Math.round(((foodA.nutrition as any).sugar || 0) * scaleA * 10) / 10,
-    water: Math.round(((foodA.nutrition as any).waterContent || 80) * scaleA),
-    calcium: Math.round((foodA.nutrition.minerals?.['Calcium'] ? parseFloat(foodA.nutrition.minerals['Calcium']) : 20) * scaleA),
-    iron: Math.round((foodA.nutrition.minerals?.['Iron'] ? parseFloat(foodA.nutrition.minerals['Iron']) : 1.5) * scaleA * 10) / 10,
-    potassium: Math.round((foodA.nutrition.minerals?.['Potassium'] ? parseFloat(foodA.nutrition.minerals['Potassium']) : 250) * scaleA),
-  }), [foodA, scaleA]);
+  const nutA = useMemo(() => {
+    if (!foodA?.nutrition) return { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, water: 0, calcium: 0, iron: 0, potassium: 0 };
+    return {
+      calories: Math.round(foodA.nutrition.calories * scaleA),
+      protein: Math.round(foodA.nutrition.protein * scaleA * 10) / 10,
+      carbs: Math.round(foodA.nutrition.carbs * scaleA * 10) / 10,
+      fat: Math.round(foodA.nutrition.fat * scaleA * 10) / 10,
+      fiber: Math.round(foodA.nutrition.fiber * scaleA * 10) / 10,
+      sugar: Math.round(((foodA.nutrition as any).sugar || 0) * scaleA * 10) / 10,
+      water: Math.round(((foodA.nutrition as any).waterContent || 80) * scaleA),
+      calcium: Math.round((foodA.nutrition.minerals?.['Calcium'] ? parseFloat(foodA.nutrition.minerals['Calcium']) : 20) * scaleA),
+      iron: Math.round((foodA.nutrition.minerals?.['Iron'] ? parseFloat(foodA.nutrition.minerals['Iron']) : 1.5) * scaleA * 10) / 10,
+      potassium: Math.round((foodA.nutrition.minerals?.['Potassium'] ? parseFloat(foodA.nutrition.minerals['Potassium']) : 250) * scaleA),
+    };
+  }, [foodA, scaleA]);
 
-  const nutB = useMemo(() => ({
-    calories: Math.round(foodB.nutrition.calories * scaleB),
-    protein: Math.round(foodB.nutrition.protein * scaleB * 10) / 10,
-    carbs: Math.round(foodB.nutrition.carbs * scaleB * 10) / 10,
-    fat: Math.round(foodB.nutrition.fat * scaleB * 10) / 10,
-    fiber: Math.round(foodB.nutrition.fiber * scaleB * 10) / 10,
-    sugar: Math.round(((foodB.nutrition as any).sugar || 0) * scaleB * 10) / 10,
-    water: Math.round(((foodB.nutrition as any).waterContent || 80) * scaleB),
-    calcium: Math.round((foodB.nutrition.minerals?.['Calcium'] ? parseFloat(foodB.nutrition.minerals['Calcium']) : 20) * scaleB),
-    iron: Math.round((foodB.nutrition.minerals?.['Iron'] ? parseFloat(foodB.nutrition.minerals['Iron']) : 1.5) * scaleB * 10) / 10,
-    potassium: Math.round((foodB.nutrition.minerals?.['Potassium'] ? parseFloat(foodB.nutrition.minerals['Potassium']) : 250) * scaleB),
-  }), [foodB, scaleB]);
+  const nutB = useMemo(() => {
+    if (!foodB?.nutrition) return { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, water: 0, calcium: 0, iron: 0, potassium: 0 };
+    return {
+      calories: Math.round(foodB.nutrition.calories * scaleB),
+      protein: Math.round(foodB.nutrition.protein * scaleB * 10) / 10,
+      carbs: Math.round(foodB.nutrition.carbs * scaleB * 10) / 10,
+      fat: Math.round(foodB.nutrition.fat * scaleB * 10) / 10,
+      fiber: Math.round(foodB.nutrition.fiber * scaleB * 10) / 10,
+      sugar: Math.round(((foodB.nutrition as any).sugar || 0) * scaleB * 10) / 10,
+      water: Math.round(((foodB.nutrition as any).waterContent || 80) * scaleB),
+      calcium: Math.round((foodB.nutrition.minerals?.['Calcium'] ? parseFloat(foodB.nutrition.minerals['Calcium']) : 20) * scaleB),
+      iron: Math.round((foodB.nutrition.minerals?.['Iron'] ? parseFloat(foodB.nutrition.minerals['Iron']) : 1.5) * scaleB * 10) / 10,
+      potassium: Math.round((foodB.nutrition.minerals?.['Potassium'] ? parseFloat(foodB.nutrition.minerals['Potassium']) : 250) * scaleB),
+    };
+  }, [foodB, scaleB]);
+
+  const nameA = foodA?.name ? t(foodA.name) : 'Item A';
+  const nameB = foodB?.name ? t(foodB.name) : 'Item B';
 
   // Chart data for Bar Chart side-by-side
   const chartData = [
-    { name: 'Calories (kcal)', [t(foodA.name)]: nutA.calories, [t(foodB.name)]: nutB.calories },
-    { name: 'Protein (g)', [t(foodA.name)]: nutA.protein, [t(foodB.name)]: nutB.protein },
-    { name: 'Carbs (g)', [t(foodA.name)]: nutA.carbs, [t(foodB.name)]: nutB.carbs },
-    { name: 'Fat (g)', [t(foodA.name)]: nutA.fat, [t(foodB.name)]: nutB.fat },
-    { name: 'Fiber (g)', [t(foodA.name)]: nutA.fiber, [t(foodB.name)]: nutA.fiber },
+    { name: 'Calories (kcal)', [nameA]: nutA.calories, [nameB]: nutB.calories },
+    { name: 'Protein (g)', [nameA]: nutA.protein, [nameB]: nutB.protein },
+    { name: 'Carbs (g)', [nameA]: nutA.carbs, [nameB]: nutB.carbs },
+    { name: 'Fat (g)', [nameA]: nutA.fat, [nameB]: nutB.fat },
+    { name: 'Fiber (g)', [nameA]: nutA.fiber, [nameB]: nutB.fiber },
   ];
 
   // Filtered lists for dropdown search
@@ -120,9 +159,6 @@ export const FoodComparisonModal: React.FC<FoodComparisonModalProps> = ({
     setFoodB(tempFood);
     setPortionB(tempPortion);
   };
-
-  const nameA = t(foodA.name);
-  const nameB = t(foodB.name);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

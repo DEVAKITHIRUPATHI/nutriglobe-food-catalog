@@ -8,7 +8,6 @@ import { AppContext } from '@/contexts/AppContext';
 import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
 import { Search, Scale, ArrowLeftRight, Wand2, Sparkles, Download, ShieldCheck, CheckCircle2, Loader2, FileSpreadsheet, ExternalLink, Copy } from 'lucide-react';
-import { foodItems } from '@shared/mockData';
 import { getFoodItems, searchFoodItems, addSearchHistory } from '@/lib/idb';
 import { matchesCategory, sortFoodsAToZ } from '@/lib/categoryUtils';
 import { getGoogleImageSearchUrl, getExcelHyperlinkFormula } from '@/lib/foodImageResolver';
@@ -18,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { InGridAdCard } from '@/components/ads/InGridAdCard';
 import { AdBanner } from '@/components/ads/AdBanner';
+import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
+import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
 import { FoodGridSkeleton } from '@/components/ui/PageSkeleton';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 
@@ -77,8 +78,8 @@ export default function Foods() {
         // Search in IndexedDB
         results = await searchFoodItems(filters.query, filters.category);
       } else {
-        // Source active database foods from context or mockData
-        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+        // Source active database foods from context
+        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
         results = [...sourceData];
         
         if (filters.query) {
@@ -138,23 +139,24 @@ export default function Foods() {
 
   const handleExportCSV = () => {
     const headers = ['ID', 'Name (English)', 'Name (Hindi)', 'Name (Tamil)', 'Category', 'Calories (kcal)', 'Carbs (g)', 'Protein (g)', 'Fat (g)', 'Origin'];
-    const rows = foodItems.map(f => [
+    const exportItems = (contextFoods && contextFoods.length > 0) ? contextFoods : foods;
+    const rows = exportItems.map(f => [
       `"${f.id}"`,
-      `"${f.name.en.replace(/"/g, '""')}"`,
-      `"${(f.name.hi || '').replace(/"/g, '""')}"`,
-      `"${(f.name.ta || '').replace(/"/g, '""')}"`,
-      `"${(f.category[0] || '').replace(/"/g, '""')}"`,
-      f.nutrition.calories,
-      f.nutrition.carbs,
-      f.nutrition.protein,
-      f.nutrition.fat,
-      `"${f.origin.replace(/"/g, '""')}"`
+      `"${(f.name?.en || '').replace(/"/g, '""')}"`,
+      `"${(f.name?.hi || '').replace(/"/g, '""')}"`,
+      `"${(f.name?.ta || '').replace(/"/g, '""')}"`,
+      `"${(Array.isArray(f.category) ? f.category[0] || '' : f.category || '').replace(/"/g, '""')}"`,
+      f.nutrition?.calories ?? 0,
+      f.nutrition?.carbs ?? 0,
+      f.nutrition?.protein ?? 0,
+      f.nutrition?.fat ?? 0,
+      `"${(f.origin || '').replace(/"/g, '""')}"`
     ]);
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `nutriglobe_complete_food_catalog_${foodItems.length}_items.csv`);
+    link.setAttribute('download', `nutriglobe_complete_food_catalog_${exportItems.length}_items.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -291,7 +293,7 @@ export default function Foods() {
             title="Export full 1,376 food dataset as CSV"
           >
             <Download className="w-4 h-4 text-white" />
-            <span>Export Catalog CSV ({foodItems.length})</span>
+            <span>Export Catalog CSV ({contextFoods.length || foods.length || 1376})</span>
           </Button>
           <Button
             onClick={handleRunAutoAudit}
@@ -358,9 +360,9 @@ export default function Foods() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 flex-grow mb-8">
             {paginatedFoods.map((item, idx) => (
               <React.Fragment key={item.id}>
-                {/* Insert Ad Space card in middle section (e.g. after every 24 items in grid) */}
-                {idx > 0 && idx % 24 === 0 && (
-                  <InGridAdCard />
+                {/* Insert non-intrusive Ad Space card rotating Google, Amazon, and Flipkart deals every 16 items */}
+                {idx > 0 && idx % 16 === 0 && (
+                  <InGridAdCard index={idx} variant="auto" />
                 )}
                 <FoodCard 
                   item={item}
@@ -372,7 +374,23 @@ export default function Foods() {
             ))}
           </div>
 
-          {/* AdSense Horizontal Banner in middle section */}
+          {/* Partner Ad Spaces: Flipkart Grocery & Amazon Prime (Clean, Non-disruptive) */}
+          <div className="my-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <FlipkartAdBanner 
+              format="banner" 
+              category="all" 
+              maxItems={2} 
+              title="Flipkart Supermart & Organic Grocery Deals" 
+            />
+            <AmazonAdBanner 
+              format="banner" 
+              category="kitchen" 
+              maxItems={2} 
+              title="Amazon Prime Verified Kitchen Tools & Scales" 
+            />
+          </div>
+
+          {/* Google AdSense Horizontal Banner */}
           <AdBanner slot="1002003004" format="horizontal" className="my-6" />
 
           {/* Bottom Pagination Bar (Page 1, 2, 3...) */}
@@ -585,7 +603,7 @@ export default function Foods() {
 
                 {/* Explorer Scrollable Item List */}
                 <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
-                  {(auditData.auditResultsList || foodItems || [])
+                  {(auditData.auditResultsList || contextFoods || [])
                     .filter((item: any) => {
                       if (auditFilter === 'needs_fix' && !item.needsUpdate && item.status !== 'NEEDS_ACCURATE_IMAGE') {
                         return false;

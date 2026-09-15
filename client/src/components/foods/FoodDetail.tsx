@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { getAccurateFoodImage, handleFoodImageError, getGoogleImageSearchUrl, getExcelHyperlinkFormula, autoCheckFoodAccuracy } from '@/lib/foodImageResolver';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
@@ -617,13 +618,21 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
           {/* Google AdSense Responsive Banner for all 1,376 Food Items */}
           <AdBanner slot="2003004005" format="auto" className="my-4" />
 
-          {/* Amazon Associate Native Shopping Deals */}
-          <AmazonAdBanner 
-            format="banner" 
-            category="kitchen" 
-            maxItems={2} 
-            title="Amazon Recommended Kitchen Tools & Food Scales" 
-          />
+          {/* Partner Affiliate Deals: Amazon Prime & Flipkart Supermart */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-4">
+            <AmazonAdBanner 
+              format="banner" 
+              category="kitchen" 
+              maxItems={2} 
+              title="Amazon Recommended Kitchen Tools & Scales" 
+            />
+            <FlipkartAdBanner 
+              format="banner" 
+              category="all" 
+              maxItems={2} 
+              title="Flipkart Grocery & Organic Nutrition Deals" 
+            />
+          </div>
 
           {/* Footer Branding Line (Mandatory Credit) */}
           <div className="pt-4 border-t text-center text-xs text-gray-400 font-medium">

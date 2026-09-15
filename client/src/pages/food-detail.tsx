@@ -6,13 +6,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useFoodSEO } from '@/hooks/useFoodSEO';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 import { FoodItemClient } from '@shared/schema';
-import { foodItems } from '@shared/mockData';
 import { getAccurateFoodImage, handleFoodImageError, getGoogleImageSearchUrl, getExcelHyperlinkFormula, autoCheckFoodAccuracy } from '@/lib/foodImageResolver';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
+import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +46,7 @@ export default function FoodDetailPage() {
   // Find the food item from context or mockData
   useEffect(() => {
     if (!foodId) return;
-    const all = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+    const all = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
     const matched = all.find(f => 
       f.id === foodId || 
       f.id.toLowerCase() === foodId.toLowerCase() ||
@@ -461,7 +461,23 @@ export default function FoodDetailPage() {
         </Tabs>
       </div>
 
-      {/* AdSense In-Page Responsive Banner */}
+      {/* Verified Partner Deals: Amazon Prime & Flipkart Supermart (Non-disturbing reading) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-6">
+        <AmazonAdBanner 
+          format="banner" 
+          category="kitchen" 
+          maxItems={2} 
+          title={`Amazon Prime Essentials for ${food.name?.en || 'Healthy Living'}`} 
+        />
+        <FlipkartAdBanner 
+          format="banner" 
+          category="all" 
+          maxItems={2} 
+          title={`Flipkart Supermart Deals for ${food.name?.en || 'Nutrition'}`} 
+        />
+      </div>
+
+      {/* Google AdSense In-Page Responsive Banner */}
       <AdBanner slot="1002003004" format="horizontal" className="my-6" />
 
       {/* Related Foods in Same Category */}

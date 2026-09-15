@@ -9,7 +9,6 @@ import {
   Heart, Leaf, Dumbbell, Star, Filter, Flame, AlertCircle, ChefHat, Sparkles, Send, Loader2
 } from 'lucide-react';
 import type { FilterCategory, SearchFilters } from '@/types';
-import { foodItems } from '@shared/mockData';
 import { matchesCategory } from '@/lib/categoryUtils';
 
 interface SearchFilterProps {
@@ -25,7 +24,7 @@ export function SearchFilter({ onSearch }: SearchFilterProps) {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAiSearching, setIsAiSearching] = useState(false);
 
-  const activeCatalog = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+  const activeCatalog = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
 
   // Compute category counts dynamically directly from active database data
   const getCategoryCount = (cat: string) => {

@@ -26,29 +26,9 @@ window.addEventListener('unhandledrejection', (event) => {
 (() => {
   try {
     const reactOk = typeof React !== 'undefined' && typeof React.useState === 'function';
-    console.log('[NutriGlobe Diagnostics] React status:', reactOk ? 'OK' : 'FAIL');
+    if (!reactOk) console.warn('[NutriGlobe Diagnostics] React not detected properly');
   } catch (err) {
-    console.error('[NutriGlobe Diagnostics] React import resolution error:', err);
-  }
-
-  try {
-    import('@tanstack/react-query').then((rq) => {
-      console.log('[NutriGlobe Diagnostics] TanStack React Query status:', rq?.QueryClient ? 'OK' : 'FAIL');
-    }).catch((err) => {
-      console.error('[NutriGlobe Diagnostics] TanStack React Query resolution error:', err);
-    });
-  } catch (err) {
-    console.error('[NutriGlobe Diagnostics] TanStack React Query import exception:', err);
-  }
-
-  try {
-    import('wouter').then((w) => {
-      console.log('[NutriGlobe Diagnostics] Wouter router status:', typeof w?.Router === 'function' ? 'OK' : 'FAIL');
-    }).catch((err) => {
-      console.error('[NutriGlobe Diagnostics] Wouter router resolution error:', err);
-    });
-  } catch (err) {
-    console.error('[NutriGlobe Diagnostics] Wouter router import exception:', err);
+    console.error('[NutriGlobe Diagnostics] React check error:', err);
   }
 })();
 

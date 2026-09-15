@@ -17,7 +17,6 @@ import { AppContext } from '@/contexts/AppContext';
 import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
 import { ArrowRight, AlertCircle, Search } from 'lucide-react';
-import { foodItems } from '@shared/mockData';
 import { getFoodItems, searchFoodItems, addSearchHistory } from '@/lib/idb';
 import { matchesCategory, sortFoodsAToZ } from '@/lib/categoryUtils';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
@@ -55,7 +54,7 @@ export default function Home() {
         // Search in IndexedDB
         results = await searchFoodItems(filters.query, filters.category);
       } else {
-        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : foodItems;
+        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
         results = [...sourceData];
         
         if (filters.query) {

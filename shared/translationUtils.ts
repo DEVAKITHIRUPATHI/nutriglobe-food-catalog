@@ -9,10 +9,10 @@ export interface LanguageMetadata {
 }
 
 export const SUPPORTED_LANGUAGES: LanguageMetadata[] = [
-  // Primary
+  // Primary Global Language
   { code: 'en', name: 'English', nativeName: 'English', direction: 'ltr', isIndianLanguage: false },
   
-  // Indian Official & Regional Languages
+  // Indian Official & Major Regional Languages (Eighth Schedule & High-Volume)
   { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', direction: 'ltr', isIndianLanguage: true },
   { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்', direction: 'ltr', isIndianLanguage: true },
   { code: 'bn', name: 'Bengali', nativeName: 'বাংলা', direction: 'ltr', isIndianLanguage: true },
@@ -25,9 +25,11 @@ export const SUPPORTED_LANGUAGES: LanguageMetadata[] = [
   { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം', direction: 'ltr', isIndianLanguage: true },
   { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', direction: 'ltr', isIndianLanguage: true },
   { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া', direction: 'ltr', isIndianLanguage: true },
+  { code: 'mai', name: 'Maithili', nativeName: 'मैथिली', direction: 'ltr', isIndianLanguage: true },
+  { code: 'sat', name: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ', direction: 'ltr', isIndianLanguage: true },
+  { code: 'ks', name: 'Kashmiri', nativeName: 'کٲشُر', direction: 'rtl', isIndianLanguage: true },
   { code: 'ne', name: 'Nepali', nativeName: 'नेपाली', direction: 'ltr', isIndianLanguage: true },
   { code: 'sd', name: 'Sindhi', nativeName: 'سنڌي', direction: 'rtl', isIndianLanguage: true },
-  { code: 'ks', name: 'Kashmiri', nativeName: 'کٲشُر', direction: 'rtl', isIndianLanguage: true },
   { code: 'kok', name: 'Konkani', nativeName: 'कोंकणी', direction: 'ltr', isIndianLanguage: true },
 
   // International Global Languages
@@ -36,18 +38,28 @@ export const SUPPORTED_LANGUAGES: LanguageMetadata[] = [
   { code: 'ar', name: 'Arabic', nativeName: 'العربية', direction: 'rtl', isIndianLanguage: false },
   { code: 'ru', name: 'Russian', nativeName: 'Русский', direction: 'ltr', isIndianLanguage: false },
   { code: 'pt', name: 'Portuguese', nativeName: 'Português', direction: 'ltr', isIndianLanguage: false },
+  { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', direction: 'ltr', isIndianLanguage: false },
   { code: 'de', name: 'German', nativeName: 'Deutsch', direction: 'ltr', isIndianLanguage: false },
   { code: 'ja', name: 'Japanese', nativeName: '日本語', direction: 'ltr', isIndianLanguage: false },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', direction: 'ltr', isIndianLanguage: false },
+  { code: 'sw', name: 'Swahili', nativeName: 'Kiswahili', direction: 'ltr', isIndianLanguage: false },
+  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', direction: 'ltr', isIndianLanguage: false },
+  { code: 'yue', name: 'Cantonese', nativeName: '粵語', direction: 'ltr', isIndianLanguage: false },
+  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', direction: 'ltr', isIndianLanguage: false },
   { code: 'ko', name: 'Korean', nativeName: '한국어', direction: 'ltr', isIndianLanguage: false },
   { code: 'it', name: 'Italian', nativeName: 'Italiano', direction: 'ltr', isIndianLanguage: false },
-  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', direction: 'ltr', isIndianLanguage: false },
-  { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', direction: 'ltr', isIndianLanguage: false },
-  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', direction: 'ltr', isIndianLanguage: false },
-  { code: 'sw', name: 'Swahili', nativeName: 'Kiswahili', direction: 'ltr', isIndianLanguage: false },
+  { code: 'fa', name: 'Persian', nativeName: 'فارسی', direction: 'rtl', isIndianLanguage: false },
   { code: 'th', name: 'Thai', nativeName: 'ไทย', direction: 'ltr', isIndianLanguage: false },
+  { code: 'ha', name: 'Hausa', nativeName: 'Harshen Hausa', direction: 'ltr', isIndianLanguage: false },
+  { code: 'pl', name: 'Polish', nativeName: 'Polski', direction: 'ltr', isIndianLanguage: false },
+  { code: 'uk', name: 'Ukrainian', nativeName: 'Українська', direction: 'ltr', isIndianLanguage: false },
+  { code: 'ms', name: 'Malay', nativeName: 'Bahasa Melayu', direction: 'ltr', isIndianLanguage: false },
+  { code: 'ro', name: 'Romanian', nativeName: 'Română', direction: 'ltr', isIndianLanguage: false },
   { code: 'nl', name: 'Dutch', nativeName: 'Nederlands', direction: 'ltr', isIndianLanguage: false },
-  { code: 'pl', name: 'Polish', nativeName: 'Polski', direction: 'ltr', isIndianLanguage: false }
+  { code: 'am', name: 'Amharic', nativeName: 'አማርኛ', direction: 'ltr', isIndianLanguage: false },
+  { code: 'fil', name: 'Filipino', nativeName: 'Wikang Filipino', direction: 'ltr', isIndianLanguage: false },
+  { code: 'my', name: 'Burmese', nativeName: 'မြန်မာစာ', direction: 'ltr', isIndianLanguage: false },
+  { code: 'om', name: 'Oromo', nativeName: 'Afaan Oromoo', direction: 'ltr', isIndianLanguage: false },
+  { code: 'zh', name: 'Mandarin Chinese', nativeName: '简体中文', direction: 'ltr', isIndianLanguage: false }
 ];
 
 export const DEFAULT_TRANSLATIONS: Record<string, Record<string, string>> = {
@@ -159,7 +171,156 @@ export const DEFAULT_TRANSLATIONS: Record<string, Record<string, string>> = {
   'food.fiber': {
     en: 'Fiber',
     hi: 'फाइबर',
-    ta: 'நார்ச்சத்து'
+    ta: 'நார்ச்சத்து',
+    te: 'పీచు పదార్థం',
+    bn: 'আঁশ',
+    mr: 'फायबर',
+    gu: 'રેસા',
+    kn: 'ನಾರು',
+    ml: 'നാരുകൾ',
+    ur: 'ریشہ',
+    pa: 'ਫਾਈਬਰ',
+    es: 'Fibra',
+    fr: 'Fibres',
+    de: 'Ballaststoffe',
+    ar: 'ألياف',
+    ru: 'Клетчатка',
+    pt: 'Fibra',
+    zh: '膳食纤维',
+    ja: '食物繊維'
+  },
+  'ad.sponsored': {
+    en: 'Sponsored',
+    hi: 'प्रायोजित',
+    ta: 'விளம்பரம்',
+    te: 'ప్రాయోజితం',
+    bn: 'বিজ্ঞাপন',
+    mr: 'प्रायोजित',
+    gu: 'પ્રાયોજિત',
+    kn: 'ಪ್ರಾಯೋಜಿತ',
+    ml: 'പരസ്യം',
+    ur: 'اسپانسر شدہ',
+    pa: 'ਪ੍ਰਾਯੋਜਿਤ',
+    es: 'Patrocinado',
+    fr: 'Sponsorisé',
+    de: 'Gesponsert',
+    ar: 'إعلان ممول',
+    ru: 'Спонсорский',
+    pt: 'Patrocinado',
+    zh: '赞助商',
+    ja: 'スポンサー',
+    id: 'Disponsori',
+    vi: 'Được tài trợ'
+  },
+  'ad.google': {
+    en: 'Google Advertisement',
+    hi: 'गूगल विज्ञापन',
+    ta: 'கூகிள் விளம்பரம்',
+    te: 'గూగుల్ ప్రకటన',
+    bn: 'গুগল বিজ্ঞাপন',
+    mr: 'गूगल जाहिरात',
+    gu: 'ગૂગલ જાહેરાત',
+    ur: 'گوگل اشتہار',
+    es: 'Anuncio de Google',
+    fr: 'Publicité Google',
+    de: 'Google Anzeige',
+    ar: 'إعلان جوجل',
+    ru: 'Реклама Google',
+    zh: '谷歌广告',
+    ja: 'Google 広告'
+  },
+  'ad.amazon': {
+    en: 'Amazon Prime Partner Deals',
+    hi: 'अमेज़ॅन प्राइम पार्टनर डील्स',
+    ta: 'அமேசான் பிரைம் சலுகைகள்',
+    te: 'అమెజాన్ ప్రైమ్ డీల్స్',
+    bn: 'অ্যামাজন প্রাইম ডিল',
+    mr: 'अ‍ॅमेझॉन प्राइम डील्स',
+    gu: 'એમેઝોન પ્રાઇમ ડીલ્સ',
+    ur: 'ایمیزون پرائم ڈیلز',
+    es: 'Ofertas de Amazon Prime',
+    fr: 'Offres Amazon Prime',
+    de: 'Amazon Prime Angebote',
+    ar: 'عروض أمازون برايم',
+    ru: 'Сделки Amazon Prime',
+    zh: '亚马逊精选优惠',
+    ja: 'Amazon プライム 特選'
+  },
+  'ad.flipkart': {
+    en: 'Flipkart Supermart & Grocery Deals',
+    hi: 'फ्लिपकार्ट सुपरमार्ट एवं ग्रॉसरी डील्स',
+    ta: 'பிளிப்கார்ட் மளிகை மற்றும் சலுகைகள்',
+    te: 'ఫ్లిప్‌కార్ట్ గ్రోసరీ డీల్స్',
+    bn: 'ফ্লিপকার্ট সুপারমার্ট ও গ্রোসারি',
+    mr: 'फ्लिपकार्ट सुपरमार्ट आणि ग्रोसरी',
+    gu: 'ફ્લિપકાર્ટ સુપરમાર્ટ અને કરિયાણું',
+    ur: 'فلپ کارٹ گروسری ڈیلز',
+    es: 'Ofertas de Flipkart Supermart',
+    fr: 'Offres Flipkart Épicerie',
+    de: 'Flipkart Supermart Angebote',
+    ar: 'عروض فليبكارت للبقالة',
+    ru: 'Предложения Flipkart Supermart',
+    zh: 'Flipkart 杂货特惠',
+    ja: 'Flipkart グローサリー セール'
+  },
+  'ad.buyAmazon': {
+    en: 'Buy on Amazon',
+    hi: 'अमेज़ॅन पर खरीदें',
+    ta: 'அமேசானில் வாங்கவும்',
+    te: 'అమెజాన్‌లో కొనండి',
+    bn: 'অ্যামাজনে কিনুন',
+    mr: 'अ‍ॅमेझॉनवर खरेदी करा',
+    gu: 'એમેઝોન પર ખરીદો',
+    ur: 'ایمیزون پر خریدیں',
+    es: 'Comprar en Amazon',
+    fr: 'Acheter sur Amazon',
+    de: 'Auf Amazon kaufen',
+    ar: 'شراء من أمازون',
+    ru: 'Купить на Amazon',
+    zh: '在亚马逊购买',
+    ja: 'Amazon で購入'
+  },
+  'ad.buyFlipkart': {
+    en: 'Buy on Flipkart',
+    hi: 'फ्लिपकार्ट पर खरीदें',
+    ta: 'பிளிப்கார்ட்டில் வாங்கவும்',
+    te: 'ఫ్లిప్‌కార్ట్‌లో కొనండి',
+    bn: 'ফ্লিপকার্টে কিনুন',
+    mr: 'फ्लिपकार्टवर खरेदी करा',
+    gu: 'ફ્લિપકાર્ટ પર ખરીદો',
+    ur: 'فلپ کارٹ پر خریدیں',
+    es: 'Comprar en Flipkart',
+    fr: 'Acheter sur Flipkart',
+    de: 'Auf Flipkart kaufen',
+    ar: 'شراء من فليبكارت',
+    ru: 'Купить на Flipkart',
+    zh: '在 Flipkart 购买',
+    ja: 'Flipkart で購入'
+  },
+  'nav.language': {
+    en: 'Language',
+    hi: 'भाषा',
+    ta: 'மொழி',
+    te: 'భాష',
+    bn: 'ভাষা',
+    mr: 'भाषा',
+    gu: 'ભાષા',
+    kn: 'ಭಾಷೆ',
+    ml: 'ഭാഷ',
+    ur: 'زبان',
+    pa: 'ਭਾਸ਼ਾ',
+    es: 'Idioma',
+    fr: 'Langue',
+    de: 'Sprache',
+    ar: 'اللغة',
+    ru: 'Язык',
+    pt: 'Idioma',
+    zh: '语言',
+    ja: '言語',
+    ko: '언어',
+    vi: 'Ngôn ngữ',
+    id: 'Bahasa',
+    tr: 'Dil'
   },
   'button.details': {
     en: 'Details',
@@ -582,6 +743,201 @@ export function getLocalizedText(
 }
 
 /**
+ * Common food name dictionary across 45+ languages for instant fallbacks
+ */
+export const COMMON_FOOD_VOCABULARY: Record<string, Partial<Record<Language, string>>> = {
+  mango: {
+    en: 'Mango',
+    hi: 'आम',
+    ta: 'மாம்பழம்',
+    te: 'మామిడి',
+    bn: 'আম',
+    mr: 'आंबा',
+    gu: 'કેરી',
+    kn: 'ಮಾವಿನ ಹಣ್ಣು',
+    ml: 'മാങ്ങ',
+    ur: 'آم',
+    pa: 'ਅੰਬ',
+    es: 'Mango',
+    fr: 'Mangue',
+    de: 'Mango',
+    ar: 'مانجو',
+    ru: 'Манго',
+    pt: 'Manga',
+    zh: '芒果',
+    ja: 'マンゴー'
+  },
+  apple: {
+    en: 'Apple',
+    hi: 'सेब',
+    ta: 'ஆப்பிள்',
+    te: 'యాపిల్',
+    bn: 'আপেল',
+    mr: 'सफरचंद',
+    gu: 'સફરજન',
+    kn: 'ಸೇಬು',
+    ml: 'ആപ്പിൾ',
+    ur: 'سیب',
+    pa: 'ਸੇਬ',
+    es: 'Manzana',
+    fr: 'Pomme',
+    de: 'Apfel',
+    ar: 'تفاح',
+    ru: 'Яблоко',
+    pt: 'Maçã',
+    zh: '苹果',
+    ja: 'リンゴ'
+  },
+  banana: {
+    en: 'Banana',
+    hi: 'केला',
+    ta: 'வாழைப்பழம்',
+    te: 'అరటిపండు',
+    bn: 'কলা',
+    mr: 'केळी',
+    gu: 'કેળું',
+    kn: 'ಬಾಳೆಹಣ್ಣು',
+    ml: 'വാഴപ്പഴം',
+    ur: 'کیلا',
+    pa: 'ਕੇਲਾ',
+    es: 'Plátano',
+    fr: 'Banane',
+    de: 'Banane',
+    ar: 'موز',
+    ru: 'Банан',
+    pt: 'Banana',
+    zh: '香蕉',
+    ja: 'バナナ'
+  },
+  almond: {
+    en: 'Almonds',
+    hi: 'बादाम',
+    ta: 'பாதாம்',
+    te: 'బాదం',
+    bn: 'বাদাম',
+    mr: 'बदाम',
+    gu: 'બદામ',
+    kn: 'ಬಾದಾಮಿ',
+    ml: 'ബദാം',
+    ur: 'بادام',
+    pa: 'ਬਦਾਮ',
+    es: 'Almendras',
+    fr: 'Amandes',
+    de: 'Mandeln',
+    ar: 'لوز',
+    ru: 'Миндаль',
+    pt: 'Amêndoas',
+    zh: '杏仁',
+    ja: 'アーモンド'
+  },
+  turmeric: {
+    en: 'Turmeric',
+    hi: 'हल्दी',
+    ta: 'மஞ்சள்',
+    te: 'పసుపు',
+    bn: 'হলুদ',
+    mr: 'हळद',
+    gu: 'હળદર',
+    kn: 'ಅರಿಶಿನ',
+    ml: 'മഞ്ഞൾ',
+    ur: 'ہلدی',
+    pa: 'ਹਲਦੀ',
+    es: 'Cúrcuma',
+    fr: 'Curcuma',
+    de: 'Kurkuma',
+    ar: 'كركم',
+    ru: 'Куркума',
+    pt: 'Cúrcuma',
+    zh: '姜黄',
+    ja: 'ウコン'
+  },
+  spinach: {
+    en: 'Spinach',
+    hi: 'पालक',
+    ta: 'பசலைக் கீரை',
+    te: 'పాలకూర',
+    bn: 'পালং শাক',
+    mr: 'पालक',
+    gu: 'પાલક',
+    kn: 'ಪಾಲಕ್',
+    ml: 'ചീര',
+    ur: 'پالک',
+    pa: 'ਪਾਲਕ',
+    es: 'Espinaca',
+    fr: 'Épinards',
+    de: 'Spinat',
+    ar: 'سبانخ',
+    ru: 'Шпинат',
+    pt: 'Espinafre',
+    zh: '菠菜',
+    ja: 'ほうれん草'
+  },
+  milk: {
+    en: 'Milk',
+    hi: 'दूध',
+    ta: 'பால்',
+    te: 'పాలు',
+    bn: 'দুধ',
+    mr: 'दूध',
+    gu: 'દૂધ',
+    kn: 'ಹಾಲು',
+    ml: 'പാൽ',
+    ur: 'دودھ',
+    pa: 'ਦੁੱਧ',
+    es: 'Leche',
+    fr: 'Lait',
+    de: 'Milch',
+    ar: 'حليب',
+    ru: 'Молоко',
+    pt: 'Leite',
+    zh: '牛奶',
+    ja: '牛乳'
+  },
+  salmon: {
+    en: 'Salmon',
+    hi: 'सैल्मन मछली',
+    ta: 'சால்மன் மீன்',
+    te: 'సాల్మన్ చేప',
+    bn: 'স্যামন মাছ',
+    mr: 'सॅल्मन मासा',
+    gu: 'સેલમન માછલી',
+    kn: 'ಸಾಲ್ಮನ್ ಮೀನು',
+    ml: 'സാൽമൺ മത്സ്യം',
+    ur: 'سامن مچھلی',
+    pa: 'ਸਾਲਮਨ ਮੱਛੀ',
+    es: 'Salmón',
+    fr: 'Saumon',
+    de: 'Lachs',
+    ar: 'سلمون',
+    ru: 'Лосось',
+    pt: 'Salmão',
+    zh: '三文鱼',
+    ja: 'サーモン'
+  },
+  rice: {
+    en: 'Rice',
+    hi: 'चावल',
+    ta: 'அரிசி',
+    te: 'బియ్యం',
+    bn: 'চাল',
+    mr: 'तांदूळ',
+    gu: 'ચોખા',
+    kn: 'ಅಕ್ಕಿ',
+    ml: 'അരി',
+    ur: 'چاول',
+    pa: 'ਚੌਲ',
+    es: 'Arroz',
+    fr: 'Riz',
+    de: 'Reis',
+    ar: 'أرز',
+    ru: 'Рис',
+    pt: 'Arroz',
+    zh: '米饭',
+    ja: '米'
+  }
+};
+
+/**
  * Helper to safely extract localized name from FoodItemClient
  */
 export function translateFoodName(
@@ -589,7 +945,25 @@ export function translateFoodName(
   language: Language | string = 'en'
 ): string {
   if (!food) return '';
-  return translateContent(food.name as TranslatedContent, language);
+  
+  // 1. Check if direct translation exists on food object
+  const directName = translateContent(food.name as TranslatedContent, language);
+  if (directName && directName !== food.name?.en) {
+    return directName;
+  }
+
+  // 2. Check vocabulary dictionary for common matches
+  const enName = (food.name?.en || '').toLowerCase().trim();
+  for (const [key, translations] of Object.entries(COMMON_FOOD_VOCABULARY)) {
+    if (enName.includes(key)) {
+      const vocabVal = translations[language as Language];
+      if (vocabVal) {
+        return directName.includes('(') ? directName : `${directName} (${vocabVal})`;
+      }
+    }
+  }
+
+  return directName || food.name?.en || '';
 }
 
 /**

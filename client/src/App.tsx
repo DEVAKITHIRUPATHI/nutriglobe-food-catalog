@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, lazy, Suspense } from 'react';
 import { Switch, Route, useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -12,24 +12,24 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { GlobalLoadingIndicator } from "@/components/ui/GlobalLoadingIndicator";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
-
-import Home from "@/pages/home";
-import Foods from "@/pages/foods";
-import FoodDetailPage from "@/pages/food-detail";
-import Nutrition from "@/pages/nutrition";
-import CalculatorPage from "@/pages/calculator";
-import About from "@/pages/about";
-import AdminPage from "@/pages/admin";
-import FeedPage from "@/pages/feed";
-import BlogPage from "@/pages/blog";
-import ArticlePage from "@/pages/article";
-import EditorialPolicyPage from "@/pages/editorialPolicy";
-import PrivacyPage from "@/pages/privacy";
-import TermsPage from "@/pages/terms";
-import ContactPage from "@/pages/contact";
-import DashboardPage from "@/pages/dashboard";
-import NotFound from "@/pages/not-found";
 import { CookieConsentBanner } from "@/components/ads/CookieConsentBanner";
+
+const Home = lazy(() => import("@/pages/home"));
+const Foods = lazy(() => import("@/pages/foods"));
+const FoodDetailPage = lazy(() => import("@/pages/food-detail"));
+const Nutrition = lazy(() => import("@/pages/nutrition"));
+const CalculatorPage = lazy(() => import("@/pages/calculator"));
+const About = lazy(() => import("@/pages/about"));
+const AdminPage = lazy(() => import("@/pages/admin"));
+const FeedPage = lazy(() => import("@/pages/feed"));
+const BlogPage = lazy(() => import("@/pages/blog"));
+const ArticlePage = lazy(() => import("@/pages/article"));
+const EditorialPolicyPage = lazy(() => import("@/pages/editorialPolicy"));
+const PrivacyPage = lazy(() => import("@/pages/privacy"));
+const TermsPage = lazy(() => import("@/pages/terms"));
+const ContactPage = lazy(() => import("@/pages/contact"));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -63,31 +63,33 @@ function Layout({ children }: { children: React.ReactNode }) {
       
       {/* Main content area that grows to fill space with Framer Motion transitions */}
       <main id="main-content-region" className="container mx-auto flex-1 px-4 py-6">
-        <AnimatePresence mode="wait">
-          {isAppLoading ? (
-            <motion.div
-              key={`skeleton-${location}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="w-full"
-            >
-              <PageSkeleton variant={getSkeletonVariant(location)} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={location}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-              className="w-full"
-            >
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location)} />}>
+          <AnimatePresence mode="wait">
+            {isAppLoading ? (
+              <motion.div
+                key={`skeleton-${location}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <PageSkeleton variant={getSkeletonVariant(location)} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key={location}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.22, ease: 'easeOut' }}
+                className="w-full"
+              >
+                {children}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Suspense>
       </main>
 
       <Footer />
@@ -96,7 +98,6 @@ function Layout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 
 function Router() {
   return (

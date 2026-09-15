@@ -20,13 +20,19 @@ export default defineConfig({
     allowedHosts: true,
   },
   build: {
-    outDir: path.resolve(process.cwd(), "dist"),
+    outDir: path.resolve(process.cwd(), "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes("shared/mockData") || id.includes("shared\\mockData")) {
+            return "data-foods-catalog";
+          }
           if (id.includes("node_modules")) {
+            if (id.includes("framer-motion")) {
+              return "vendor-motion";
+            }
             if (id.includes("jspdf") || id.includes("html2canvas") || id.includes("html-to-image")) {
               return "vendor-export";
             }
