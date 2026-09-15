@@ -31,8 +31,8 @@ function extractTextFromContentBlock(block: any): string {
  * (e.g., auto=format&fit=crop&w=800&q=80) for Unsplash and verified food imagery URLs.
  */
 export function formatFoodImageUrl(url: string, foodName?: string): string {
-  if (!url || typeof url !== 'string' || url.trim() === '' || url.includes('placeholder')) {
-    return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+  if (!url || typeof url !== 'string' || url.trim() === '' || url.includes('placeholder') || url.includes('source.unsplash.com')) {
+    return '';
   }
 
   // If it's an Unsplash image URL, ensure optimal high-resolution query parameters
@@ -50,15 +50,6 @@ export function formatFoodImageUrl(url: string, foodName?: string): string {
       const separator = cleanUrl.includes('?') ? '&' : '?';
       return `${cleanUrl}${separator}auto=format&fit=crop&w=800&q=80`;
     }
-  }
-
-  // Handle source.unsplash.com URLs if provided
-  if (url.includes('source.unsplash.com')) {
-    const separator = url.includes('?') ? '&' : '?';
-    if (!url.includes('fit=crop')) {
-      return `${url}${separator}fit=crop&w=800&q=80`;
-    }
-    return url;
   }
 
   return url;
@@ -382,7 +373,7 @@ export async function generateCompleteFoodItem(
     image: finalImageUrl,
     imageUrl: finalImageUrl,
     imageVerifiedStatus: 'verified',
-    imageSourceType: imageMetadata.sourceType,
+    imageSourceType: imageMetadata.sourceType as any,
     imageAttribution: imageMetadata.attribution,
     imageLicense: imageMetadata.license,
     imageLastCheckedAt: new Date().toISOString(),

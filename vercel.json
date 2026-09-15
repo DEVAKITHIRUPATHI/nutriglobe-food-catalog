@@ -3,13 +3,24 @@
   "framework": "vite",
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/index"
     },
     {
-      "source": "/(.*)",
+      "source": "/api",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

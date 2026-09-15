@@ -15,12 +15,12 @@ class AnalyticsEngine {
   private adLogsMap: Map<string, AdPerformanceLog> = new Map();
 
   private pageViewsMap: Map<string, { pageName: string; totalViews: number; dailyViews: number; uniqueIPs: Set<string> }> = new Map([
-    ['/', { pageName: 'Home Page', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
-    ['/foods', { pageName: 'Foods Database Catalog', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
-    ['/calculator', { pageName: 'RDA & Calorie Calculator', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
-    ['/feed', { pageName: 'Nutrition Hub & Feed', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
-    ['/blog', { pageName: 'Health News & Blog Articles', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
-    ['/admin', { pageName: 'Admin Control Portal', totalViews: 0, dailyViews: 0, uniqueIPs: new Set() }],
+    ['/', { pageName: 'Home Page', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
+    ['/foods', { pageName: 'Foods Database Catalog', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
+    ['/calculator', { pageName: 'RDA & Calorie Calculator', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
+    ['/feed', { pageName: 'Nutrition Hub & Feed', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
+    ['/blog', { pageName: 'Health News & Blog Articles', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
+    ['/admin', { pageName: 'Admin Control Portal', totalViews: 0, dailyViews: 0, uniqueIPs: new Set<string>() }],
   ]);
 
   private dailyHistoryMap: Map<string, {

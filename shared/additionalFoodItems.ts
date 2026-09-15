@@ -273,7 +273,7 @@ export const additionalVegetables: FoodItemClient[] = [
     },
     'Mediterranean',
     2.49,
-    'https://cdn.pixabay.com/photo/2018/06/09/23/15/chard-3465438_640.jpg',
+    'https://images.unsplash.com/photo-1759579719674-22b27ba1b8b0?auto=format&fit=crop&w=800&q=80',
     ['vegetables', 'leafy green', 'nutrient-dense'],
     {
       calories: 19,
@@ -441,7 +441,7 @@ export const additionalVegetables: FoodItemClient[] = [
     },
     'Europe',
     2.69,
-    'https://cdn.pixabay.com/photo/2017/07/11/17/12/kohlrabi-2494329_640.jpg',
+    'https://images.unsplash.com/photo-1554107716-ec43584a2e9a?auto=format&fit=crop&w=800&q=80',
     ['vegetables', 'cruciferous', 'root'],
     {
       calories: 36,

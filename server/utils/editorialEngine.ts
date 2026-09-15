@@ -14,7 +14,7 @@ export function select5FoodsForTopic(category?: string, region?: string, nutrien
   let pool = [...foodItems];
 
   if (category && category !== 'all') {
-    pool = pool.filter(f => f.categories.includes(category) || f.category === category);
+    pool = pool.filter(f => (f.category && f.category.includes(category)) || ((f as any).categories && (f as any).categories.includes(category)));
   }
   if (region && region !== 'all') {
     pool = pool.filter(f => f.origin.toLowerCase().includes(region.toLowerCase()));
@@ -155,7 +155,7 @@ export async function generateAIArticle(
       es: f.name.es,
       fr: f.name.fr,
     },
-    image: f.imagePath || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+    image: f.image || f.imageUrl || (f as any).imagePath || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
     origin: f.origin || 'Global Regional Harvest',
     nutritionSummary: {
       calories: f.nutrition.calories || 100,
@@ -164,7 +164,7 @@ export async function generateAIArticle(
       fat: f.nutrition.fat || 0.5,
       fiber: f.nutrition.fiber || 1.5
     },
-    keyNutrients: f.richIn || ['Dietary Fiber', 'Vitamins', 'Essential Minerals'],
+    keyNutrients: (f as any).richIn || ['Dietary Fiber', 'Vitamins', 'Essential Minerals'],
     regionalNames: {
       ta: f.name.ta || '',
       hi: f.name.hi || '',

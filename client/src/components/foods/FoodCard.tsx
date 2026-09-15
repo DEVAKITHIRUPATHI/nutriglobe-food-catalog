@@ -4,10 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CartContext } from '@/contexts/CartContext';
-import { Scale, Heart, Info, Star } from 'lucide-react';
+import { Scale, Heart, Info, Star, Search, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getAccurateFoodImage, handleFoodImageError } from '@/lib/foodImageResolver';
+import { getGoogleImageSearchUrl } from '@shared/foodImageResolver';
 import { LazyImage } from '@/components/ui/LazyImage';
 
 interface FoodCardProps {
@@ -23,6 +24,7 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
   const isMobile = useIsMobile();
   const isItemFavorite = isFavorite(item.id);
   const imageUrl = getAccurateFoodImage(item);
+  const googleSearchUrl = item.googleSearchUrl || getGoogleImageSearchUrl(item.name.en, item.category);
 
   // Helper function to truncate text for mobile view
   const truncate = (text: string, maxLength: number) => {
@@ -74,7 +76,7 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
         <LazyImage 
           src={imageUrl} 
           alt={t(item.name)} 
-          onError={(e) => handleFoodImageError(e, item.category)}
+          onError={handleFoodImageError}
           containerClassName="w-full h-full"
           className="transition-transform duration-700 ease-out group-hover:scale-110 object-cover"
         />
@@ -133,11 +135,25 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
       
       {/* Content Area */}
       <CardContent className="p-3.5 sm:p-4 flex-1 flex flex-col bg-gradient-to-b from-white to-slate-50/60 dark:from-slate-900 dark:to-slate-900/80">
-        <div>
-          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-            {t(item.name)}
-          </h3>
-          <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400/90">{item.origin || 'Global'}</p>
+        <div className="flex items-center justify-between gap-1">
+          <div>
+            <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              {t(item.name)}
+            </h3>
+            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400/90">{item.origin || 'Global'}</p>
+          </div>
+          <a
+            href={googleSearchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            title={`Search original Google Images for ${item.name.en}`}
+            className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50 text-[10px] font-extrabold transition-all hover:scale-105"
+          >
+            <Search className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Google Images</span>
+            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+          </a>
         </div>
         
         <p className="mt-1.5 text-slate-600 dark:text-slate-300 text-xs line-clamp-2 leading-relaxed">

@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   LayoutDashboard, Heart, History, Sparkles, Database, 
-  Settings, Flame, Dumbbell, ShieldCheck, Download, RefreshCw 
+  Settings, Flame, Dumbbell, ShieldCheck, Download, RefreshCw, Zap 
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -337,7 +337,7 @@ export function UserDashboard() {
         <TabsContent value="recommendations" className="outline-none">
           <ClinicalRecommendationsView
             currentFocus={profile.dietaryFocus}
-            onFocusChange={(f) => setProfile(prev => ({ ...prev, dietaryFocus: f }))}
+            onFocusChange={(f) => setProfile(prev => ({ ...prev, dietaryFocus: f as any }))}
           />
         </TabsContent>
 

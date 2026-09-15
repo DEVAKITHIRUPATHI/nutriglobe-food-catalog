@@ -3,7 +3,10 @@ import postgres from 'postgres';
 import * as schema from '../shared/schema';
 
 // Connection string is provided by the environment variable if available
-const connectionString = process.env.DATABASE_URL;
+const rawUrl = process.env.DATABASE_URL;
+const connectionString = (rawUrl && typeof rawUrl === 'string' && rawUrl.trim().length > 0 && rawUrl !== 'undefined' && rawUrl !== 'null')
+  ? rawUrl.trim()
+  : null;
 
 let client: any = null;
 let db: any = null;

@@ -1,5 +1,12 @@
 {
-  "include": ["client/src/**/*", "shared/**/*"],
+  "include": [
+    "client/src/**/*",
+    "shared/**/*",
+    "server/**/*",
+    "scripts/batch-update-food-images.ts",
+    "scripts/batch-validate-food-images.ts",
+    "api/**/*"
+  ],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,

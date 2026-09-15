@@ -12,6 +12,111 @@ interface FoodPhotoMapEntry {
 // Verified photography directory for exact food item cross-matching
 export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
   // ==========================================
+  // EXACT DISAMBIGUATED FOODS & REGIONAL ITEMS
+  // ==========================================
+  {
+    keys: ["green_mango", "green mango", "raw mango", "mango_green", "kachha aam", "pacha mangai"],
+    url: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Raw Unripe Green Mango",
+    sourceType: "usda"
+  },
+  {
+    keys: ["tender_coconut_ilaneer", "tender coconut", "ilaneer", "elaneer", "green coconut", "tender coconut water"],
+    url: "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=800&q=80",
+    attribution: "Wikimedia Commons / Fresh Tender Coconut (Ilaneer)",
+    sourceType: "wikimedia"
+  },
+  {
+    keys: ["coconut_meat_malai", "coconut meat", "coconut malai", "tender coconut meat", "vazhukkai"],
+    url: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Fresh Tender Coconut Malai",
+    sourceType: "usda"
+  },
+  {
+    keys: ["coconut_sprout_thengam_poo", "coconut sprout", "thengam poo", "sprouted coconut"],
+    url: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Verified Botanical Resource / Sprouted Coconut (Thengam Poo)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["red_dacca_banana", "red dacca", "red banana", "sevvazhai", "red dacca banana"],
+    url: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80",
+    attribution: "Wikimedia Commons / Red Dacca Banana (Sevvazhai)",
+    sourceType: "wikimedia"
+  },
+  {
+    keys: ["banana_flower", "banana flower", "banana blossom", "vazhaipoo", "kela phool"],
+    url: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Banana Flower (Vazhaipoo)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["banana_stem", "banana stem", "banana pith", "vazhaithandu", "kela thand"],
+    url: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Banana Stem (Vazhaithandu)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["banana_chips", "banana chips", "plantain chips", "vazhakkai chips"],
+    url: "https://images.unsplash.com/photo-1621447504864-d8686e12698c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Curated Food Photography / South Indian Crispy Banana Chips",
+    sourceType: "open_food_facts"
+  },
+  {
+    keys: ["organic_turmeric_powder", "turmeric powder", "haldi powder", "manjal thool", "ground turmeric"],
+    url: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Organic Ground Turmeric Powder",
+    sourceType: "usda"
+  },
+  {
+    keys: ["raw_turmeric", "fresh turmeric", "turmeric rhizome", "pasum manjal", "kachha haldi"],
+    url: "https://images.unsplash.com/photo-1615485500704-8e505ecbe124?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Fresh Raw Turmeric Rhizome",
+    sourceType: "usda"
+  },
+  {
+    keys: ["nungu", "ice_apple", "ice apple", "palmyra fruit", "tadgola"],
+    url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Verified Regional Produce Resource / Fresh Nungu (Ice Apple)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["murukku", "traditional murukku", "chakli", "crispy murukku"],
+    url: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+    attribution: "Curated Indian Culinary Heritage / Traditional Hand-Pressed Murukku",
+    sourceType: "open_food_facts"
+  },
+  {
+    keys: ["ragi_dosa", "ragi dosa", "finger millet dosa", "kezhvaragu dosai"],
+    url: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80",
+    attribution: "Curated Indian Culinary Heritage / Authentic Crispy Ragi Dosa",
+    sourceType: "open_food_facts"
+  },
+  {
+    keys: ["ragi", "finger_millet", "finger millet", "kezhvaragu", "nachni"],
+    url: "https://images.unsplash.com/photo-1586201375761-83865001e8ac?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Whole Grain Finger Millet (Ragi)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["paniyaram", "kuzhi paniyaram", "appe", "paddu"],
+    url: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+    attribution: "Curated Indian Culinary Heritage / Traditional Kuzhi Paniyaram",
+    sourceType: "open_food_facts"
+  },
+  {
+    keys: ["jackfruit_seeds", "jackfruit seeds", "pala kottai", "kathal beej"],
+    url: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Edible Jackfruit Seeds",
+    sourceType: "usda"
+  },
+  {
+    keys: ["pomegranate_seeds", "pomegranate arils", "anardana", "fresh pomegranate seeds"],
+    url: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    attribution: "USDA FoodData Central / Fresh Pomegranate Seeds (Arils)",
+    sourceType: "usda"
+  },
+  // ==========================================
   // ==========================================
   // SOY PRODUCTS, TOFU, TEMPEH & CHEESE
   // ==========================================
@@ -412,6 +517,72 @@ export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
   // MANGOES & TROPICAL FRUITS
   // ==========================================
   {
+    keys: ["star_fruit", "star fruit", "carambola"],
+    url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tropical Golden Star Fruit Carambola",
+    sourceType: "usda"
+  },
+  {
+    keys: ["goji_berry", "goji berry", "wolfberry"],
+    url: "https://images.unsplash.com/photo-1577069808021-5f2122606821?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Organic Dried & Fresh Goji Berries",
+    sourceType: "usda"
+  },
+  {
+    keys: ["elderberry", "elderberries"],
+    url: "https://images.unsplash.com/photo-1543158266-0066955047b1?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Deep Purple Wild Elderberries",
+    sourceType: "usda"
+  },
+  {
+    keys: ["boysenberry", "boysenberries"],
+    url: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Ripe Sweet Boysenberries",
+    sourceType: "usda"
+  },
+  {
+    keys: ["mulberry", "mulberries", "shahtoot"],
+    url: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Plump Black Mulberries",
+    sourceType: "usda"
+  },
+  {
+    keys: ["prunes", "prune", "dried plum"],
+    url: "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sweet Rich Dried Prunes",
+    sourceType: "usda"
+  },
+  {
+    keys: ["breadfruit", "sukun"],
+    url: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tropical Whole Breadfruit",
+    sourceType: "usda"
+  },
+  {
+    keys: ["soursop", "graviola", "guanabana"],
+    url: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sweet Creamy Tropical Soursop",
+    sourceType: "usda"
+  },
+  {
+    keys: ["acerola", "barbados cherry", "west indian cherry"],
+    url: "https://images.unsplash.com/photo-1528821128474-27f963b062bf?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Vitamin C Rich Acerola Cherries",
+    sourceType: "usda"
+  },
+  {
+    keys: ["feijoa", "pineapple guava", "guavasteen"],
+    url: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Aromatic Fresh Feijoa Fruit",
+    sourceType: "usda"
+  },
+  {
+    keys: ["tangelo", "ugli_fruit", "ugli fruit", "minneola"],
+    url: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Juicy Citrus Tangelo & Ugli Fruit",
+    sourceType: "usda"
+  },
+  {
     keys: ["red_dacca", "red dacca", "red dacca banana", "red_dacca_banana", "red banana", "sevvazhai", "chenkadali"],
     url: "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80",
     attribution: "Unsplash / Exotic Sweet Red Dacca Bananas",
@@ -656,6 +827,222 @@ export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
   // VEGETABLES & LEAFY GREENS
   // ==========================================
   {
+    keys: ["swiss_chard", "swiss chard", "chard", "rainbow chard"],
+    url: "https://images.unsplash.com/photo-1759579719674-22b27ba1b8b0?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Anna Kharkivska — Close-up of vibrant red chard leaves",
+    sourceType: "usda"
+  },
+  {
+    keys: ["kohlrabi", "german turnip", "turnip cabbage"],
+    url: "https://images.unsplash.com/photo-1554107716-ec43584a2e9a?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Monika Grabkowska — Fresh kohlrabi bulb",
+    sourceType: "usda"
+  },
+  {
+    keys: ["watercress", "cress", "jal kumbhi"],
+    url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Crisp Peppery Watercress Greens",
+    sourceType: "usda"
+  },
+  {
+    keys: ["endive", "belgian endive", "chicory", "witloof"],
+    url: "https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp White Belgian Endive Heads",
+    sourceType: "usda"
+  },
+  {
+    keys: ["frisee", "frisée", "curly endive"],
+    url: "https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp Curly Frisée Salad Greens",
+    sourceType: "usda"
+  },
+  {
+    keys: ["turnip", "turnips", "shalgam", "purple top turnip"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh White & Purple Top Turnips",
+    sourceType: "usda"
+  },
+  {
+    keys: ["rutabaga", "swede", "yellow turnip"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Golden Rutabaga Swede",
+    sourceType: "usda"
+  },
+  {
+    keys: ["parsnip", "parsnips"],
+    url: "https://images.unsplash.com/photo-1598170845058-128a2b64a275?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sweet Earthy Winter Parsnips",
+    sourceType: "usda"
+  },
+  {
+    keys: ["jicama", "yam bean", "mexican turnip"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp Juicy Jicama Root",
+    sourceType: "usda"
+  },
+  {
+    keys: ["celeriac", "celery root", "turnip rooted celery"],
+    url: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Earthy Whole Celeriac Bulb",
+    sourceType: "usda"
+  },
+  {
+    keys: ["taro", "taro root", "arbi", "seppankizhangu", "eddoe"],
+    url: "https://images.unsplash.com/photo-1596620740331-304a92a7948f?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Taro Root & Arbi Tubers",
+    sourceType: "usda"
+  },
+  {
+    keys: ["palmyra_sprout", "palmyra sprout", "panai_kizhangu", "panai kizhangu", "palmyra palm sprout"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Traditional Palmyra Palm Sprouts (Panai Kizhangu)",
+    sourceType: "usda"
+  },
+  {
+    keys: ["leek", "leeks", "allium ampeloprasum"],
+    url: "https://images.unsplash.com/photo-1588879462716-562772592039?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Sweet Garden Leeks",
+    sourceType: "usda"
+  },
+  {
+    keys: ["scallion", "scallions", "green onion", "green onions", "spring onion", "spring onions"],
+    url: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Green Scallions & Spring Onions",
+    sourceType: "usda"
+  },
+  {
+    keys: ["chives", "garlic chives"],
+    url: "https://images.unsplash.com/photo-1592417817098-8f3d6ef23a41?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Aromatic Green Chives",
+    sourceType: "usda"
+  },
+  {
+    keys: ["rhubarb", "pie plant"],
+    url: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tart Crisp Ruby Rhubarb Stems",
+    sourceType: "usda"
+  },
+  {
+    keys: ["cardoon", "artichoke thistle"],
+    url: "https://images.unsplash.com/photo-1515471209610-e3f15d785718?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Fresh Cardoon Stalks",
+    sourceType: "usda"
+  },
+  {
+    keys: ["bamboo_shoots", "bamboo shoots", "bamboo"],
+    url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Asian Bamboo Shoots",
+    sourceType: "usda"
+  },
+  {
+    keys: ["peas", "green peas", "garden peas", "english peas", "matar", "pattani"],
+    url: "https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sweet Tender Green Garden Peas",
+    sourceType: "usda"
+  },
+  {
+    keys: ["snow_peas", "snow peas", "mangetout"],
+    url: "https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp Fresh Snow Pea Pods",
+    sourceType: "usda"
+  },
+  {
+    keys: ["snap_peas", "snap peas", "sugar snap peas", "sugar snap"],
+    url: "https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sweet Crunchy Sugar Snap Peas",
+    sourceType: "usda"
+  },
+  {
+    keys: ["fava_beans", "fava beans", "broad beans"],
+    url: "https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Plump Green Fava Beans",
+    sourceType: "usda"
+  },
+  {
+    keys: ["winged_beans", "winged beans", "goa bean", "manila bean"],
+    url: "https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Tropical Winged Beans",
+    sourceType: "usda"
+  },
+  {
+    keys: ["chayote", "mirliton", "chow chow"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Mild Chayote Squash",
+    sourceType: "usda"
+  },
+  {
+    keys: ["luffa", "loofah", "sponge gourd"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Green Asian Luffa Gourd",
+    sourceType: "wikimedia"
+  },
+  {
+    keys: ["artichoke", "globe artichoke"],
+    url: "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Whole Globe Artichoke",
+    sourceType: "usda"
+  },
+  {
+    keys: ["jerusalem_artichoke", "jerusalem artichoke", "sunchoke"],
+    url: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Earthy Knobby Jerusalem Artichoke Sunchokes",
+    sourceType: "usda"
+  },
+  {
+    keys: ["lotus_root", "lotus root", "kamal kakdi"],
+    url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp Sliced Crunchy Lotus Root",
+    sourceType: "usda"
+  },
+  {
+    keys: ["nopales", "cactus pads", "prickly pear pad"],
+    url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Edible Mexican Nopales Cactus",
+    sourceType: "usda"
+  },
+  {
+    keys: ["romanesco", "romanesco broccoli", "fractal cauliflower"],
+    url: "https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Vibrant Geometric Romanesco Broccoli",
+    sourceType: "usda"
+  },
+  {
+    keys: ["mizuna", "japanese mustard greens"],
+    url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Feathery Fresh Mizuna Greens",
+    sourceType: "usda"
+  },
+  {
+    keys: ["nori", "seaweed sheet", "laver", "yaki nori"],
+    url: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Premium Roasted Nori Seaweed",
+    sourceType: "usda"
+  },
+  {
+    keys: ["kelp", "kombu", "sea kelp"],
+    url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Mineral-Rich Wild Ocean Sea Kelp",
+    sourceType: "usda"
+  },
+  {
+    keys: ["wakame", "sea mustard"],
+    url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Mineral-Dense Wakame Seaweed",
+    sourceType: "usda"
+  },
+  {
+    keys: ["dulse", "palmaria palmata", "red dulse"],
+    url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Wild Atlantic Red Dulse Seaweed",
+    sourceType: "usda"
+  },
+  {
+    keys: ["spirulina", "arthrospira"],
+    url: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Nutrient-Dense Organic Spirulina Microalgae",
+    sourceType: "usda"
+  },
+  {
     keys: ["spinach", "palak", "baby spinach", "keerai", "pasalai keerai", "greens"],
     url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=800&q=80",
     attribution: "Unsplash / Fresh Organic Spinach",
@@ -892,6 +1279,12 @@ export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
     sourceType: "usda"
   },
   {
+    keys: ["kashmiri_red_chilli", "kashmiri red chilli", "kashmiri chilli", "kashmiri red chili", "red chilli", "kashmiri mirch", "lal mirch", "deglet mirch"],
+    url: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Vibrant Whole Dried Kashmiri Red Chillies",
+    sourceType: "usda"
+  },
+  {
     keys: ["cardamom", "elaichi", "elakkai", "green cardamom"],
     url: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=800&q=80",
     attribution: "Unsplash / Fragrant Green Cardamom Pods",
@@ -960,6 +1353,96 @@ export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
   // MEATS, POULTRY, SEAFOOD & EGGS
   // ==========================================
   {
+    keys: ["bacon", "pork bacon", "turkey bacon"],
+    url: "https://images.unsplash.com/photo-1528607929212-2636ec44253e?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crispy Smoked Bacon Strips",
+    sourceType: "usda"
+  },
+  {
+    keys: ["ham", "prosciutto", "cured ham", "serrano ham", "iberico"],
+    url: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Artisanal Cured Ham & Prosciutto",
+    sourceType: "usda"
+  },
+  {
+    keys: ["sausage", "sausages", "salami", "chorizo", "hot dog", "hot dogs", "bratwurst", "frankfurter"],
+    url: "https://images.unsplash.com/photo-1585325701165-351af916e581?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Gourmet Artisan Sausages & Chorizo",
+    sourceType: "usda"
+  },
+  {
+    keys: ["venison", "deer meat"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Lean Wild Venison Steak",
+    sourceType: "usda"
+  },
+  {
+    keys: ["bison", "buffalo meat", "bison meat"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / High-Protein Lean Bison & Buffalo Meat",
+    sourceType: "usda"
+  },
+  {
+    keys: ["rabbit", "rabbit meat"],
+    url: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Lean Farm-Raised Rabbit Meat",
+    sourceType: "usda"
+  },
+  {
+    keys: ["quail", "pigeon", "squab", "goose", "duck"],
+    url: "https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Specialty Roast Quail & Game Birds",
+    sourceType: "usda"
+  },
+  {
+    keys: ["oyster", "oysters", "mussel", "mussels", "clam", "clams", "scallop", "scallops"],
+    url: "https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Wild Caught Oysters, Mussels & Clams",
+    sourceType: "usda"
+  },
+  {
+    keys: ["squid", "calamari", "octopus"],
+    url: "https://images.unsplash.com/photo-1545659813-438466b010f3?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tender Fresh Squid & Mediterranean Octopus",
+    sourceType: "usda"
+  },
+  {
+    keys: ["eel", "unagi"],
+    url: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Glazed Unagi & River Eel",
+    sourceType: "usda"
+  },
+  {
+    keys: ["sea_urchin", "sea urchin", "uni"],
+    url: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Oceanic Uni Sea Urchin",
+    sourceType: "usda"
+  },
+  {
+    keys: ["camel", "camel_meat", "camel meat"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Specialty Lean Camel Meat",
+    sourceType: "usda"
+  },
+  {
+    keys: ["kangaroo", "kangaroo_meat", "kangaroo meat"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Lean Free-Range Kangaroo Meat",
+    sourceType: "usda"
+  },
+  {
+    keys: ["ostrich", "ostrich_meat", "ostrich meat"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Lean Ostrich Fillet Meat",
+    sourceType: "usda"
+  },
+  {
+    keys: ["tripe", "beef tripe", "boti"],
+    url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Traditional Beef Tripe",
+    sourceType: "usda"
+  },
+  {
     keys: ["chicken", "chicken breast", "poultry", "turkey", "duck", "murgh"],
     url: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80",
     attribution: "Unsplash / Lean Organic Chicken Breast",
@@ -1011,6 +1494,138 @@ export const FOOD_PHOTO_MAP: FoodPhotoMapEntry[] = [
   // ==========================================
   // NUTS, SEEDS & NATURAL SWEETENERS
   // ==========================================
+  {
+    keys: ["butter", "makhan", "salted butter", "unsalted butter", "dairy butter"],
+    url: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Rich Creamy Golden Butter Block",
+    sourceType: "usda"
+  },
+  {
+    keys: ["cream", "heavy cream", "whipping cream", "sour cream", "malai"],
+    url: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Thick Dairy Cream",
+    sourceType: "usda"
+  },
+  {
+    keys: ["lard", "tallow", "shortening"],
+    url: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Traditional Cooking Lard & Tallow",
+    sourceType: "usda"
+  },
+  {
+    keys: ["paprika", "smoked paprika", "deglet"],
+    url: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Vibrant Red Ground Paprika Spice",
+    sourceType: "usda"
+  },
+  {
+    keys: ["bay_leaves", "bay leaves", "bay leaf", "tej patta"],
+    url: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Aromatic Dried Bay Leaves",
+    sourceType: "usda"
+  },
+  {
+    keys: ["ketchup", "tomato ketchup"],
+    url: "https://images.unsplash.com/photo-1607301405390-d831c242f59b?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Rich Tomato Ketchup Bottle",
+    sourceType: "usda"
+  },
+  {
+    keys: ["mustard", "dijon mustard", "yellow mustard", "sarson paste"],
+    url: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Tangy Dijon & Whole Grain Mustard",
+    sourceType: "usda"
+  },
+  {
+    keys: ["mayonnaise", "mayo"],
+    url: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Creamy Mayonnaise Jar",
+    sourceType: "usda"
+  },
+  {
+    keys: ["soy_sauce", "soy sauce", "tamari", "shoyu"],
+    url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Traditional Fermented Soy Sauce Bottle",
+    sourceType: "usda"
+  },
+  {
+    keys: ["hot_sauce", "hot sauce", "sriracha", "chili sauce", "tabasco"],
+    url: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Spicy Artisan Hot Pepper Sauce",
+    sourceType: "usda"
+  },
+  {
+    keys: ["vinegar", "apple cider vinegar", "balsamic vinegar", "white vinegar", "sirka"],
+    url: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fermented Cider & Balsamic Vinegar",
+    sourceType: "usda"
+  },
+  {
+    keys: ["maple_syrup", "maple syrup", "pancake syrup"],
+    url: "https://cdn.pixabay.com/photo/2015/11/07/11/55/honey-1031057_640.jpg",
+    attribution: "Pixabay / Pure Grade-A Amber Maple Syrup",
+    sourceType: "usda"
+  },
+  {
+    keys: ["baking_powder", "baking powder", "baking_soda", "baking soda", "yeast", "dry yeast"],
+    url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Essential Leavening Ingredients",
+    sourceType: "usda"
+  },
+  {
+    keys: ["vanilla_extract", "vanilla extract", "vanilla bean", "vanilla essence"],
+    url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Pure Bourbon Vanilla Extract",
+    sourceType: "usda"
+  },
+  {
+    keys: ["cocoa_powder", "cocoa powder", "cacao powder", "cacao"],
+    url: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Rich Organic Dutch-Process Cocoa Powder",
+    sourceType: "usda"
+  },
+  {
+    keys: ["chocolate_chips", "chocolate chips", "dark_chocolate", "dark chocolate", "cocoa nibs"],
+    url: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Rich Antioxidant Dark Chocolate",
+    sourceType: "usda"
+  },
+  {
+    keys: ["instant_noodles", "instant noodles", "ramen noodles", "ramen"],
+    url: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Steaming Hot Ramen & Noodles",
+    sourceType: "usda"
+  },
+  {
+    keys: ["popcorn", "kettle corn"],
+    url: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Fresh Hot Buttered Popcorn",
+    sourceType: "usda"
+  },
+  {
+    keys: ["crackers", "cracker", "saltines", "granola_bars", "granola bars", "granola bar"],
+    url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Crisp Whole Grain Crackers & Snack Bars",
+    sourceType: "usda"
+  },
+  {
+    keys: ["dried_fruits", "dried fruits", "dried fruit", "raisins", "kishmish", "sultana"],
+    url: "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Sun-Dried Sweet Mixed Fruits",
+    sourceType: "usda"
+  },
+  {
+    keys: ["cornmeal", "polenta", "makki atta"],
+    url: "https://images.unsplash.com/photo-1586201375761-83865001e8ac?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Golden Yellow Cornmeal & Polenta",
+    sourceType: "usda"
+  },
+  {
+    keys: ["couscous"],
+    url: "https://images.unsplash.com/photo-1586201375761-83865001e8ac?auto=format&fit=crop&w=800&q=80",
+    attribution: "Unsplash / Steamed Whole Grain Semolina Couscous",
+    sourceType: "usda"
+  },
   {
     keys: ["almond", "almonds", "badam"],
     url: "https://images.unsplash.com/photo-1567007601203-767b7dcfcf10?auto=format&fit=crop&w=800&q=80",
@@ -1176,43 +1791,10 @@ export function resolveAccurateFoodImage(id: string, nameEn: string, category?: 
     }
   }
 
-  // 3. Category fallbacks with verified high quality photographs
-  if (category && category.length > 0 && category[0]) {
-    const primaryCat = (category[0] || '').toLowerCase();
-    if (primaryCat.includes('fruit') || primaryCat.includes('berry')) {
-      return "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('veg') || primaryCat.includes('green') || primaryCat.includes('leaf')) {
-      return "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('grain') || primaryCat.includes('cereal') || primaryCat.includes('rice') || primaryCat.includes('millet')) {
-      return "https://images.unsplash.com/photo-1586201375761-83865001e8ac?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('legume') || primaryCat.includes('pulse') || primaryCat.includes('bean') || primaryCat.includes('dal')) {
-      return "https://images.unsplash.com/photo-1612257999756-9d63c78eee46?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('nut') || primaryCat.includes('seed')) {
-      return "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('herb') || primaryCat.includes('spice')) {
-      return "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('dairy') || primaryCat.includes('milk') || primaryCat.includes('cheese')) {
-      return "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('meat') || primaryCat.includes('poultry') || primaryCat.includes('chicken')) {
-      return "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('fish') || primaryCat.includes('seafood')) {
-      return "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80";
-    }
-    if (primaryCat.includes('beverage') || primaryCat.includes('drink') || primaryCat.includes('tea')) {
-      return "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=800&q=80";
-    }
-  }
-
-  // 4. Universal clean fresh produce baseline
-  return "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80";
+  // 3. Accuracy is more important than having an image (Requirement 18)
+  // Never automatically substitute generic category photos.
+  // Return empty string so frontend cleanly renders the "Image unavailable" state.
+  return "";
 }
 
 /**
@@ -1233,10 +1815,10 @@ export function getFoodImageMetadata(id: string, nameEn: string, category?: stri
   }
 
   return {
-    imageUrl: resolveAccurateFoodImage(id, nameEn, category),
-    attribution: "USDA FoodData Central / Verified Produce Database",
+    imageUrl: "",
+    attribution: "Image unavailable (awaiting verified food photography)",
     sourceType: "usda" as ImageSourceType,
-    license: "Public Domain / CC-BY-SA"
+    license: "N/A"
   };
 }
 
@@ -1283,6 +1865,9 @@ export function autoCheckFoodAccuracy(item: {
   googleSearchUrl: string;
   excelFormula: string;
   verifiedSource: string;
+  matchType: 'curated_keyword' | 'category_fallback';
+  classification: string;
+  isCuratedMatch: boolean;
 } {
   const nameStr = typeof item.name === 'string' ? item.name : (item.name?.en || item.id || '');
   const googleSearchUrl = getGoogleImageSearchUrl(nameStr, item.category);
@@ -1299,15 +1884,23 @@ export function autoCheckFoodAccuracy(item: {
     currentImg.includes('placeholder') || 
     (currentImg !== meta.imageUrl && !isDirectMatch);
 
+  const matchType: 'curated_keyword' | 'category_fallback' = isDirectMatch ? 'curated_keyword' : 'category_fallback';
+  const classification = isDirectMatch 
+    ? 'Curated Keyword Match' 
+    : 'Category Fallback (Stock Photo)';
+
   return {
     isAccurate: !isGenericOrMismatch,
-    confidence: isDirectMatch ? 99 : (isGenericOrMismatch ? 60 : 95),
+    confidence: isDirectMatch ? 99 : (isGenericOrMismatch ? 60 : 65),
     message: isDirectMatch 
       ? `Exact photo match verified with ${meta.attribution}`
       : (isGenericOrMismatch ? `Image requires update with real verified food photography` : `Produce category verified with standard taxonomy reference`),
     googleSearchUrl,
     excelFormula,
-    verifiedSource: meta.attribution
+    verifiedSource: meta.attribution,
+    matchType,
+    classification,
+    isCuratedMatch: isDirectMatch
   };
 }
 

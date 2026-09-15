@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import { registerRoutes } from "./routes";
 import { securityHeadersMiddleware, rateLimiterMiddleware, safeErrorHandler } from "./middleware/security";
-import { log } from "./vite";
+import { log } from "./logger";
 import type { Server } from "http";
 
 export function createBaseApp(): Express {

@@ -37,6 +37,17 @@ export const foodItems = pgTable("food_items", {
   vitamins: jsonb("vitamins").notNull(),
   allergens: text("allergens").array().notNull(),
   isPopular: boolean("is_popular").notNull().default(false),
+  imageSource: text("image_source"),
+  imageSourceUrl: text("image_source_url"),
+  imageLicense: text("image_license"),
+  imageStatus: text("image_status").default("VERIFIED"),
+  imageConfidence: integer("image_confidence").default(95),
+  imageHash: text("image_hash"),
+  imagePerceptualHash: text("image_perceptual_hash"),
+  imageVerifiedAt: text("image_verified_at"),
+  imageVerificationReason: text("image_verification_reason"),
+  imageSearchQuery: text("image_search_query"),
+  imageAltText: text("image_alt_text"),
 }, (table) => ({
   itemIdIdx: index("food_items_item_id_idx").on(table.itemId),
   nameEnIdx: index("food_items_name_en_idx").on(table.nameEn),
@@ -232,11 +243,43 @@ export type FoodItemClient = {
   imageLastCheckedAt?: string;
   imageFallbackUrl?: string;
 
+  // Exact Image Validation System fields (Requirement 1 & 13)
+  image_url?: string;
+  image_source?: string;
+  image_source_url?: string;
+  image_license?: string;
+  image_status?: 'VERIFIED' | 'NEEDS_REVIEW' | 'REJECTED' | 'MISSING' | 'DUPLICATE';
+  image_confidence?: number;
+  image_hash?: string;
+  image_perceptual_hash?: string;
+  image_verified_at?: string;
+  image_verification_reason?: string;
+  image_search_query?: string;
+  image_alt_text?: string;
+
+  // CamelCase equivalents for developer ergonomics
+  imageSource?: string;
+  imageSourceUrl?: string;
+  imageStatus?: 'VERIFIED' | 'NEEDS_REVIEW' | 'REJECTED' | 'MISSING' | 'DUPLICATE';
+  imageHash?: string;
+  imagePerceptualHash?: string;
+  imageVerifiedAt?: string;
+  imageVerificationReason?: string;
+  imageSearchQuery?: string;
+  imageAltText?: string;
+  isDuplicate?: boolean;
+  duplicateOfId?: string;
+
   // Image QA metadata
   imageConfidence?: number;
   verifiedStatus?: 'unverified' | 'ai_flagged' | 'admin_verified' | 'admin_rejected';
+
+  // Google Images search link & Excel spreadsheet export metadata
+  googleSearchUrl?: string;
+  excelFormula?: string;
 };
 
+export type ImageStatus = 'VERIFIED' | 'NEEDS_REVIEW' | 'REJECTED' | 'MISSING' | 'DUPLICATE';
 export type ImageSourceType = 'usda' | 'open_food_facts' | 'wikimedia' | 'ai_generated';
 export type ImageVerifiedStatus = 'verified' | 'unverified' | 'ai_placeholder' | 'mismatch_flagged';
 

@@ -178,7 +178,7 @@ export default function FoodDetailPage() {
                 src={getAccurateFoodImage(food)}
                 alt={`${t(food.name)} Clinical Photography`}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => handleFoodImageError(e, food)}
+                onError={(e) => handleFoodImageError(e, food.category)}
                 loading="eager"
               />
               <div className="absolute top-3 left-3 flex flex-col gap-1.5">
@@ -318,7 +318,7 @@ export default function FoodDetailPage() {
           <TabsContent value="nutrition" className="space-y-6">
             <div className="flex flex-col lg:flex-row gap-8 items-start">
               <div className="w-full lg:w-96 shrink-0">
-                <NutritionFactsLabel item={food} servingGrams={100} />
+                <NutritionFactsLabel item={food} />
               </div>
               <div className="flex-1 space-y-4">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -336,7 +336,7 @@ export default function FoodDetailPage() {
                   </div>
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Natural Sugars</span>
-                    <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{food.nutrition?.sugar ?? 0} g</span>
+                    <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{(food.nutrition as any)?.sugar ?? 0} g</span>
                     <p className="text-[11px] text-slate-500 mt-1">Provides direct cellular glucose energy.</p>
                   </div>
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">

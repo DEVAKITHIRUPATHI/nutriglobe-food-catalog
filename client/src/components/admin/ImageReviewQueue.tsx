@@ -218,14 +218,23 @@ export function ImageReviewQueue() {
                 Review and audit food photographs across the 4 waterfall stages: USDA → Open Food Facts → Wikimedia → AI Fallback.
               </CardDescription>
             </div>
-            <Button 
-              onClick={fetchQueueData} 
-              variant="outline" 
-              size="sm"
-              className="flex items-center gap-1.5 text-xs shrink-0"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-600' : ''}`} /> Sync Queue
-            </Button>
+            <div className="flex items-center gap-2">
+              <a
+                href="/api/admin/food-images/validation-report.csv"
+                download="food_images_validation_report.csv"
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 shadow-xs"
+              >
+                Download CSV Report
+              </a>
+              <Button 
+                onClick={fetchQueueData} 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1.5 text-xs shrink-0"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-600' : ''}`} /> Sync Queue
+              </Button>
+            </div>
           </div>
         </CardHeader>
 

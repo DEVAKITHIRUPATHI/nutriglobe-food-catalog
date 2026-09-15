@@ -20,7 +20,7 @@ export default defineConfig({
     allowedHosts: true,
   },
   build: {
-    outDir: path.resolve(process.cwd(), "dist/public"),
+    outDir: path.resolve(process.cwd(), "dist"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {

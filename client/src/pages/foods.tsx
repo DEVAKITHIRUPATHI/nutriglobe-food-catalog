@@ -191,7 +191,7 @@ export default function Foods() {
         
         // Update local foods state
         if (data.fixedItems && data.fixedItems.length > 0) {
-          const fixedMap = new Map(data.fixedItems.map((fi: any) => [fi.id, fi.newImage]));
+          const fixedMap = new Map<string, string>(data.fixedItems.map((fi: any) => [String(fi.id), String(fi.newImage || '')]));
           setFoods(prevFoods => 
             prevFoods.map(f => fixedMap.has(f.id) ? { ...f, image: fixedMap.get(f.id)!, imageUrl: fixedMap.get(f.id)! } : f)
           );
@@ -258,6 +258,15 @@ export default function Foods() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <a href="/api/foods/export/audit-spreadsheet" download>
+            <Button
+              className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2 border border-emerald-600/50"
+              title="Download Consolidated Photo Audit Spreadsheet identifying match classifications and verification links"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-200" />
+              <span>Consolidated Audit Spreadsheet</span>
+            </Button>
+          </a>
           <a href="/api/foods/export/google-images-csv" download>
             <Button
               className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2 border border-emerald-500/40"
@@ -427,16 +436,29 @@ export default function Foods() {
                   <span className="text-lg font-bold text-white">{auditData.totalCatalogCount}</span>
                 </div>
                 <div className="p-3 bg-slate-800/80 rounded-xl border border-emerald-500/30 text-center">
-                  <span className="text-xs text-slate-400 block">Verified Accurate</span>
-                  <span className="text-lg font-bold text-emerald-400">{auditData.totalVerifiedImages}</span>
+                  <span className="text-xs text-slate-400 block">Curated Matches</span>
+                  <span className="text-lg font-bold text-emerald-400">{auditData.curatedKeywordMatches || auditData.totalVerifiedImages} <span className="text-xs font-normal">({auditData.percentCurated || auditData.accuracyRate})</span></span>
+                </div>
+                <div className="p-3 bg-slate-800/80 rounded-xl border border-amber-500/30 text-center">
+                  <span className="text-xs text-slate-400 block">Category Fallbacks</span>
+                  <span className="text-lg font-bold text-amber-300">{auditData.categoryFallbackMatches || auditData.fallbackResolvedImages || 0}</span>
                 </div>
                 <div className="p-3 bg-slate-800/80 rounded-xl border border-emerald-500/30 text-center">
-                  <span className="text-xs text-slate-400 block">Action Needed</span>
-                  <span className="text-lg font-bold text-amber-300">{auditData.needsFixCount ?? auditData.fallbackResolvedImages}</span>
+                  <span className="text-xs text-slate-400 block">Verification Rate</span>
+                  <span className="text-lg font-bold text-emerald-400">{auditData.percentCurated || auditData.accuracyRate}</span>
                 </div>
-                <div className="p-3 bg-slate-800/80 rounded-xl border border-emerald-500/30 text-center">
-                  <span className="text-xs text-slate-400 block">Accuracy Rate</span>
-                  <span className="text-lg font-bold text-emerald-400">{auditData.accuracyRate}</span>
+              </div>
+
+              {/* Honest Audit Caveat */}
+              <div className="p-3 bg-slate-800/60 border border-slate-700/80 rounded-xl text-xs text-slate-300">
+                <div className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-white block mb-0.5">Audit Classification & Variety-Exact Caveat</span>
+                    <span>
+                      {auditData.caveat || 'Keyword matches are curated to food types. For named cultivars or regional variants, use the direct Google Images link to cross-verify specific cultivars.'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -602,7 +624,7 @@ export default function Foods() {
                                 alt={englishName}
                                 className="w-10 h-10 rounded-lg object-cover border border-slate-700 shrink-0 bg-slate-900"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80';
+                                  (e.target as HTMLImageElement).style.display = 'none';
                                 }}
                               />
                             ) : (
@@ -621,9 +643,13 @@ export default function Foods() {
                                   <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
                                     Needs Fix
                                   </span>
+                                ) : item.isCuratedMatch ? (
+                                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30" title="Curated keyword match from photo map">
+                                    Curated Match ({item.confidence || 99}%)
+                                  </span>
                                 ) : (
-                                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
-                                    Verified
+                                  <span className="text-[10px] bg-slate-700/60 text-slate-300 font-medium px-2 py-0.5 rounded-full border border-slate-600/50" title="Category fallback photo. Use Google Images link for specific cultivar.">
+                                    Category Fallback ({item.confidence || 65}%)
                                   </span>
                                 )}
                               </div>

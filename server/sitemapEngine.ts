@@ -108,9 +108,10 @@ export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
     xml += `    <changefreq>monthly</changefreq>\n`;
     xml += `    <priority>0.7</priority>\n`;
 
-    if (article.imageUrl) {
+    const articleImg = (article as any).coverImage || (article as any).imageUrl;
+    if (articleImg) {
       xml += `    <image:image>\n`;
-      xml += `      <image:loc>${escapeXml(article.imageUrl)}</image:loc>\n`;
+      xml += `      <image:loc>${escapeXml(articleImg)}</image:loc>\n`;
       xml += `      <image:title>${escapeXml(article.title)}</image:title>\n`;
       xml += `    </image:image>\n`;
     }

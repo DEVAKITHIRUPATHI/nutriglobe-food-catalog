@@ -1,0 +1,215 @@
+{
+  "totalProcessed": 1376,
+  "updatedCount": 1180,
+  "alreadyAccurateCount": 196,
+  "curatedMatchCount": 1376,
+  "fallbackCount": 0,
+  "successRate": "100.0%",
+  "isDatabaseConnected": false,
+  "dryRun": true,
+  "durationMs": 762,
+  "summaryByCategory": {
+    "fruits": {
+      "total": 528,
+      "updated": 460,
+      "curated": 528
+    },
+    "spices": {
+      "total": 114,
+      "updated": 100,
+      "curated": 114
+    },
+    "grains": {
+      "total": 113,
+      "updated": 100,
+      "curated": 113
+    },
+    "vegetables": {
+      "total": 317,
+      "updated": 270,
+      "curated": 317
+    },
+    "seafood": {
+      "total": 41,
+      "updated": 30,
+      "curated": 41
+    },
+    "nuts": {
+      "total": 24,
+      "updated": 20,
+      "curated": 24
+    },
+    "dairy": {
+      "total": 69,
+      "updated": 60,
+      "curated": 69
+    },
+    "legumes": {
+      "total": 79,
+      "updated": 70,
+      "curated": 79
+    },
+    "seeds": {
+      "total": 22,
+      "updated": 20,
+      "curated": 22
+    },
+    "oils": {
+      "total": 2,
+      "updated": 0,
+      "curated": 2
+    },
+    "poultry": {
+      "total": 13,
+      "updated": 10,
+      "curated": 13
+    },
+    "protein": {
+      "total": 2,
+      "updated": 0,
+      "curated": 2
+    },
+    "meat": {
+      "total": 27,
+      "updated": 20,
+      "curated": 27
+    },
+    "sweeteners": {
+      "total": 2,
+      "updated": 0,
+      "curated": 2
+    },
+    "sweets": {
+      "total": 22,
+      "updated": 20,
+      "curated": 22
+    },
+    "millets": {
+      "total": 1,
+      "updated": 0,
+      "curated": 1
+    }
+  },
+  "sampleUpdatedItems": [
+    {
+      "id": "fuji_apple_var_1001",
+      "name": "Fresh Organic Fuji Apple",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1002",
+      "name": "Sun-Dried Fuji Apple (Dried)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1003",
+      "name": "Himalayan Grade Fuji Apple (Special)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1004",
+      "name": "South Indian Fuji Apple (Traditional)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1005",
+      "name": "North Indian Style Fuji Apple (Spiced)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1006",
+      "name": "Mediterranean Classic Fuji Apple (Imported)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1007",
+      "name": "Asian Specialty Fuji Apple (Select)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1008",
+      "name": "European Heirloom Fuji Apple (Artisanal)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1009",
+      "name": "Farm-Fresh Premium Fuji Apple (A-Grade)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "fuji_apple_var_1010",
+      "name": "Wild-Harvested Fuji Apple (Pure)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "finalImage": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb...",
+      "attribution": "Unsplash / High-res Fuji Apple Photography"
+    },
+    {
+      "id": "gala_apple_var_1011",
+      "name": "Fresh Organic Gala Apple",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "finalImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "attribution": "Unsplash / Gala Apple Studio Photo"
+    },
+    {
+      "id": "gala_apple_var_1012",
+      "name": "Sun-Dried Gala Apple (Dried)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "finalImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "attribution": "Unsplash / Gala Apple Studio Photo"
+    },
+    {
+      "id": "gala_apple_var_1013",
+      "name": "Himalayan Grade Gala Apple (Special)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "finalImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "attribution": "Unsplash / Gala Apple Studio Photo"
+    },
+    {
+      "id": "gala_apple_var_1014",
+      "name": "South Indian Gala Apple (Traditional)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "finalImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "attribution": "Unsplash / Gala Apple Studio Photo"
+    },
+    {
+      "id": "gala_apple_var_1015",
+      "name": "North Indian Style Gala Apple (Spiced)",
+      "category": "fruits",
+      "previousImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "finalImage": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a...",
+      "attribution": "Unsplash / Gala Apple Studio Photo"
+    }
+  ]
+}

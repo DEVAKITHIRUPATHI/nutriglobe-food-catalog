@@ -225,7 +225,7 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
                 <LazyImage 
                   src={overrideImageUrl || getAccurateFoodImage(item)} 
                   alt={t(item.name)} 
-                  onError={(e) => handleFoodImageError(e, item.category)}
+                  onError={handleFoodImageError}
                   containerClassName="w-full h-full"
                   className="group-hover:scale-105 transition-transform duration-500"
                 />

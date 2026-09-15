@@ -219,12 +219,12 @@ export function SavedFavoritesView({
                   {/* Thumbnail */}
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative">
                     <img
-                      src={food.image || '/assets/images/foods/placeholder.jpg'}
+                      src={food.image || ''}
                       alt={getFoodName(food)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e: any) => {
                         e.target.onerror = null;
-                        e.target.src = 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=150&auto=format&fit=crop&q=60';
+                        e.target.style.display = 'none';
                       }}
                     />
                     {food.origin && (

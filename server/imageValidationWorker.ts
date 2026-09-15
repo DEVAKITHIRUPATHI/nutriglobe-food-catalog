@@ -58,6 +58,7 @@ export class ImageValidationWorker {
   private brokenDetected: number = 0;
   private successfullyReplaced: number = 0;
   private failedReplacements: number = 0;
+  private nextScheduledRun?: string;
   private currentFoodItem?: string;
   private lastStartedAt?: string;
   private lastCompletedAt?: string;
@@ -176,7 +177,7 @@ export class ImageValidationWorker {
       image: ''
     });
 
-    if (taxonomyMatch.updatedImage && !taxonomyMatch.isGenericFallback) {
+    if (taxonomyMatch.updatedImage && !taxonomyMatch.updatedImage.includes('placeholder')) {
       // Test URL validity
       const test = await this.validateImageUrl(taxonomyMatch.updatedImage, 3500);
       if (test.isValid) {
