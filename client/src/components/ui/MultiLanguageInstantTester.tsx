@@ -104,13 +104,13 @@ export function MultiLanguageInstantTester({
               </div>
               <div>
                 <DialogTitle className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  Instant Multi-Language Verification Tester
+                  Multi-Language QA & Verification Tool
                   <Badge className="bg-emerald-600 text-white text-[10px] font-bold py-0.5">
-                    {SUPPORTED_LANGUAGES.length} Languages Active
+                    {SUPPORTED_LANGUAGES.length} Supported Languages Active
                   </Badge>
                 </DialogTitle>
                 <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
-                  Switch instantly between all 45+ Indian official and global languages with zero page reload.
+                  Switch instantly between all 46 supported languages with zero page reload. Quality assurance diagnostic tool.
                 </DialogDescription>
               </div>
             </div>

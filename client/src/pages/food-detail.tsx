@@ -11,9 +11,7 @@ import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
-import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
-import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
-import { AdBanner } from '@/components/ads/AdBanner';
+import { AdContainer } from '@/components/ads/AdContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,6 +34,7 @@ export default function FoodDetailPage() {
   const { t, getLocalizedText, language } = useTranslation();
 
   const [food, setFood] = useState<FoodItemClient | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
@@ -43,24 +42,75 @@ export default function FoodDetailPage() {
   const [compareItemB, setCompareItemB] = useState<FoodItemClient | null>(null);
   const [relatedFoods, setRelatedFoods] = useState<FoodItemClient[]>([]);
 
-  // Find the food item from context or mockData
+  // Find the food item from context or fetch directly from API
   useEffect(() => {
-    if (!foodId) return;
+    if (!foodId) {
+      setIsLoading(false);
+      return;
+    }
+
+    const cleanTarget = decodeURIComponent(foodId).toLowerCase().trim();
     const all = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
-    const matched = all.find(f => 
-      f.id === foodId || 
-      f.id.toLowerCase() === foodId.toLowerCase() ||
-      (f.name?.en && f.name.en.toLowerCase().replace(/\s+/g, '-') === foodId.toLowerCase())
-    );
+
+    // 1. Try matching from in-memory contextFoods
+    const matched = all.find(f => {
+      const fId = (f.id || '').toLowerCase();
+      const fSlug = fId.replace(/_/g, '-');
+      const fUnder = fId.replace(/-/g, '_');
+      const nameSlug = (f.name?.en || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      return (
+        fId === cleanTarget ||
+        fSlug === cleanTarget ||
+        fUnder === cleanTarget ||
+        nameSlug === cleanTarget ||
+        (f.name?.en || '').toLowerCase() === cleanTarget.replace(/-/g, ' ')
+      );
+    });
+
     if (matched) {
       setFood(matched);
-      // Find 4 related foods from same category
       const category = matched.category?.[0];
       const related = all
         .filter(f => f.id !== matched.id && f.category?.includes(category))
         .slice(0, 4);
       setRelatedFoods(related);
+      setIsLoading(false);
+      return;
     }
+
+    // 2. Fetch directly from backend API for SEO crawlers or direct entry
+    setIsLoading(true);
+    fetch(`/api/foods/${encodeURIComponent(cleanTarget)}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Food not found');
+        return res.json();
+      })
+      .then((item: FoodItemClient) => {
+        if (item && item.id) {
+          setFood(item);
+          if (all.length > 0) {
+            const category = item.category?.[0];
+            const related = all
+              .filter(f => f.id !== item.id && f.category?.includes(category))
+              .slice(0, 4);
+            setRelatedFoods(related);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback: search query
+        fetch(`/api/foods?query=${encodeURIComponent(cleanTarget.replace(/-/g, ' '))}`)
+          .then(r => r.json())
+          .then((items: FoodItemClient[]) => {
+            if (Array.isArray(items) && items.length > 0) {
+              setFood(items[0]);
+            }
+          })
+          .catch(() => {});
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [foodId, contextFoods]);
 
   // Dynamic SEO Meta Tags & Schema.org JSON-LD updates
@@ -74,6 +124,17 @@ export default function FoodDetailPage() {
   );
 
   if (!food) {
+    if (isLoading) {
+      return (
+        <div className="py-24 text-center space-y-4 max-w-md mx-auto">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">
+            Loading clinical nutrition facts &amp; bio-actives...
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="py-16 text-center space-y-4 max-w-md mx-auto">
         <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950 rounded-2xl flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400">
@@ -293,9 +354,6 @@ export default function FoodDetailPage() {
         </div>
       </div>
 
-      {/* Google AdSense Top Leaderboard Ad */}
-      <AdBanner slot="1002003004" format="auto" className="my-4" />
-
       {/* Main Tabs Section: Complete Nutritional Breakdown & Health Systems */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-sm">
         <Tabs defaultValue="nutrition" className="w-full">
@@ -461,28 +519,9 @@ export default function FoodDetailPage() {
         </Tabs>
       </div>
 
-      {/* Verified Partner Deals: Amazon Prime & Flipkart Supermart (Non-disturbing reading) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-6">
-        <AmazonAdBanner 
-          format="banner" 
-          category="kitchen" 
-          maxItems={2} 
-          title={`Amazon Prime Essentials for ${food.name?.en || 'Healthy Living'}`} 
-        />
-        <FlipkartAdBanner 
-          format="banner" 
-          category="all" 
-          maxItems={2} 
-          title={`Flipkart Supermart Deals for ${food.name?.en || 'Nutrition'}`} 
-        />
-      </div>
-
-      {/* Google AdSense In-Page Responsive Banner */}
-      <AdBanner slot="1002003004" format="horizontal" className="my-6" />
-
-      {/* Related Foods in Same Category */}
+      {/* 3. RELATED CONTENT: Related Foods in Same Category */}
       {relatedFoods.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4 my-8">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-emerald-500" />
@@ -507,6 +546,23 @@ export default function FoodDetailPage() {
           </div>
         </div>
       )}
+
+      {/* 4. ADVERTISEMENT: Google AdSense Unit (Explicitly labeled) */}
+      <AdContainer 
+        slotType="google" 
+        placement="banner" 
+        adSlot="1002003004" 
+        className="my-8" 
+      />
+
+      {/* 5. AFFILIATE PRODUCTS: Verified Partner Links with Amazon and Flipkart disclosures */}
+      <AdContainer
+        slotType="dual-partner"
+        placement="detail"
+        foodName={food.name?.en}
+        category={food.category?.[0]}
+        className="my-8"
+      />
 
       {/* Compare Modal */}
       <FoodComparisonModal

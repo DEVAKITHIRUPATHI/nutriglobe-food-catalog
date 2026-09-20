@@ -122,8 +122,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFoodItemById(id: string): Promise<FoodItemClient | undefined> {
-    const [item] = await db.select().from(foodItems).where(eq(foodItems.itemId, id));
-    return item ? this.mapToFoodItemClient(item) : undefined;
+    if (!id) return undefined;
+    const cleanId = decodeURIComponent(id).trim();
+    // 1. Direct ID match
+    const [item] = await db.select().from(foodItems).where(eq(foodItems.itemId, cleanId));
+    if (item) return this.mapToFoodItemClient(item);
+
+    // 2. Hyphen vs underscore swap
+    const altId = cleanId.includes('-') ? cleanId.replace(/-/g, '_') : cleanId.replace(/_/g, '-');
+    const [itemAlt] = await db.select().from(foodItems).where(eq(foodItems.itemId, altId));
+    if (itemAlt) return this.mapToFoodItemClient(itemAlt);
+
+    // 3. Normalized slug or English name match
+    const target = cleanId.toLowerCase();
+    const all = await db.select().from(foodItems);
+    const found = all.find((it: any) => {
+      const itId = (it.itemId || '').toLowerCase();
+      const itNameSlug = (it.nameEn || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      return (
+        itId === target ||
+        itId.replace(/_/g, '-') === target ||
+        itId.replace(/-/g, '_') === target ||
+        itNameSlug === target ||
+        (it.nameEn || '').toLowerCase() === target.replace(/-/g, ' ')
+      );
+    });
+    return found ? this.mapToFoodItemClient(found) : undefined;
   }
 
   async searchFoodItems(query?: string, category?: string, lang: string = 'en'): Promise<FoodItemClient[]> {
@@ -672,7 +696,35 @@ export class MemStorage implements IStorage {
   }
 
   async getFoodItemById(id: string): Promise<FoodItemClient | undefined> {
-    return this.foodItemsMap.get(id);
+    if (!id) return undefined;
+    const cleanId = decodeURIComponent(id).trim();
+    // 1. Direct ID match
+    if (this.foodItemsMap.has(cleanId)) {
+      return this.foodItemsMap.get(cleanId);
+    }
+    // 2. Hyphen vs underscore swap
+    const altId = cleanId.includes('-') ? cleanId.replace(/-/g, '_') : cleanId.replace(/_/g, '-');
+    if (this.foodItemsMap.has(altId)) {
+      return this.foodItemsMap.get(altId);
+    }
+    // 3. Lowercase, slug or name match
+    const target = cleanId.toLowerCase();
+    const allItems = Array.from(this.foodItemsMap.values());
+    for (let i = 0; i < allItems.length; i++) {
+      const item = allItems[i];
+      const itId = (item.id || '').toLowerCase();
+      const itNameSlug = (item.name?.en || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      if (
+        itId === target ||
+        itId.replace(/_/g, '-') === target ||
+        itId.replace(/-/g, '_') === target ||
+        itNameSlug === target ||
+        (item.name?.en || '').toLowerCase() === target.replace(/-/g, ' ')
+      ) {
+        return item;
+      }
+    }
+    return undefined;
   }
 
   async searchFoodItems(query?: string, category?: string, lang: string = 'en'): Promise<FoodItemClient[]> {

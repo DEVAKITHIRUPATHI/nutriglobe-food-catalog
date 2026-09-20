@@ -194,13 +194,20 @@ export default function Home() {
           <FoodGridSkeleton count={8} />
         ) : (
           <>
-            {/* Grid layout for displaying 100 food cards per page with middle section Ad Space cards */}
+            {/* Grid layout for displaying food cards with in-grid ad units injected every 16 items */}
             <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
               {paginatedFoods.map((item, idx) => (
                 <React.Fragment key={item.id}>
-                  {/* Insert Ad Space card in middle section (e.g. after every 24 items in grid) */}
-                  {idx > 0 && idx % 24 === 0 && (
-                    <InGridAdCard />
+                  {/* Insert Ad Space card every 16 items with defensive collapse to avoid layout gaps */}
+                  {idx > 0 && idx % 16 === 0 && (
+                    <InGridAdCard
+                      index={idx}
+                      variant="auto"
+                      foodName={typeof item.name === 'string' ? item.name : (item.name?.en || item.id)}
+                      category={Array.isArray(item.category) ? item.category[0] : (typeof item.category === 'string' ? item.category : 'Nutrition')}
+                      fallbackMode="collapse"
+                      className="col-span-1 w-full max-w-full min-w-0"
+                    />
                   )}
                   <FoodCard
                     item={item}

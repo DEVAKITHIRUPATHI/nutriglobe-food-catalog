@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ShoppingCart } from "@/components/cart/ShoppingCart";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { ReconnectionSyncIndicator } from "@/components/layout/ReconnectionSyncIndicator";
 import { GlobalLoadingIndicator } from "@/components/ui/GlobalLoadingIndicator";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,6 +60,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     <div id="nutriglobe-app-root" className="min-h-screen flex flex-col relative bg-slate-50/50 dark:bg-slate-950">
       <GlobalLoadingIndicator />
       <OfflineBanner />
+      <ReconnectionSyncIndicator />
       <Navbar />
       
       {/* Main content area that grows to fill space with Framer Motion transitions */}

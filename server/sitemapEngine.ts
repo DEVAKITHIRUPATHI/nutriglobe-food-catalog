@@ -23,6 +23,10 @@ export const SEO_LANGUAGES = [
   'th', 'fa', 'he', 'sw', 'af'
 ];
 
+export function getFoodSlug(food: { id: string; name?: { en?: string } }): string {
+  return (food.id || '').toLowerCase().replace(/_/g, '-');
+}
+
 export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
   const host = baseUrl.replace(/\/$/, '');
   const foods = await storage.getAllFoodItems();
@@ -35,6 +39,7 @@ export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
     { path: '/calculator', priority: '0.9', changefreq: 'weekly' },
     { path: '/blog', priority: '0.8', changefreq: 'daily' },
     { path: '/feed', priority: '0.8', changefreq: 'daily' },
+    { path: '/dashboard', priority: '0.8', changefreq: 'daily' },
     { path: '/about', priority: '0.6', changefreq: 'monthly' },
     { path: '/contact', priority: '0.5', changefreq: 'monthly' },
     { path: '/editorial-policy', priority: '0.4', changefreq: 'monthly' },
@@ -67,9 +72,10 @@ export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
     xml += `  </url>\n`;
   }
 
-  // 2. Food Item Pages with Image Metadata and Multi-Language Hreflangs
+  // 2. Separate Dedicated URLs for all 1300+ Food Items with Food Names & Rich Google Image SEO
   for (const food of foods) {
-    const foodPath = `/foods?item=${encodeURIComponent(food.id)}`;
+    const foodSlug = getFoodSlug(food);
+    const foodPath = `/food/${encodeURIComponent(foodSlug)}`;
     const loc = `${host}${foodPath}`;
     const foodName = food.name?.en || food.id;
 
@@ -77,20 +83,21 @@ export async function generateMainSitemapXml(baseUrl: string): Promise<string> {
     xml += `    <loc>${escapeXml(loc)}</loc>\n`;
     xml += `    <lastmod>${now}</lastmod>\n`;
     xml += `    <changefreq>weekly</changefreq>\n`;
-    xml += `    <priority>0.8</priority>\n`;
+    xml += `    <priority>0.85</priority>\n`;
 
-    // Image tag for Google Image Search indexing
+    // Image tag for Google Image Search indexing with full entity escaping
     if (food.image) {
       xml += `    <image:image>\n`;
       xml += `      <image:loc>${escapeXml(food.image)}</image:loc>\n`;
-      xml += `      <image:title>${escapeXml(foodName)} Nutrition Facts & Calorie Counter</image:title>\n`;
+      xml += `      <image:title>${escapeXml(foodName)} Nutrition Facts &amp; Calorie Counter</image:title>\n`;
+      xml += `      <image:caption>Comprehensive clinical nutrient breakdown, vitamins, and minerals for ${escapeXml(foodName)}</image:caption>\n`;
       xml += `    </image:image>\n`;
     }
 
-    // Multi-Language hreflangs for foods
+    // Multi-Language hreflangs for foods across all 45 languages
     xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(loc)}" />\n`;
     for (const lang of SEO_LANGUAGES) {
-      const langUrl = `${loc}&amp;lang=${lang}`;
+      const langUrl = `${loc}?lang=${lang}`;
       xml += `    <xhtml:link rel="alternate" hreflang="${lang}" href="${escapeXml(langUrl)}" />\n`;
     }
 
@@ -173,11 +180,11 @@ export async function reindexSitemap(baseUrl: string) {
 export async function getSitemapStats(baseUrl: string) {
   const foods = await storage.getAllFoodItems();
   const articles = await storage.getArticles('published');
-  const staticCount = 9;
+  const staticCount = 12;
   const foodCount = foods.length;
   const articleCount = articles.length;
   const totalBaseUrls = staticCount + foodCount + articleCount;
-  const totalIndexedHreflangs = totalBaseUrls * SEO_LANGUAGES.length;
+  const totalIndexedHreflangs = totalBaseUrls * (SEO_LANGUAGES.length + 1);
 
   const currentIso = lastReindexedAt || new Date().toISOString();
 

@@ -26,7 +26,8 @@ export function useFoodSEO(food: FoodItemClient | null | undefined, isDetailActi
     const fat = food.nutrition?.fat ?? 0;
     const fiber = food.nutrition?.fiber ?? 0;
     const imageUrl = food.image || food.imageUrl || DEFAULT_IMAGE;
-    const foodUrl = typeof window !== 'undefined' ? `${window.location.origin}/food/${encodeURIComponent(food.id)}` : `https://nutrifacts.app/food/${food.id}`;
+    const foodSlug = (food.id || '').toLowerCase().replace(/_/g, '-');
+    const foodUrl = typeof window !== 'undefined' ? `${window.location.origin}/food/${encodeURIComponent(foodSlug)}` : `https://nutrifacts.app/food/${foodSlug}`;
 
     // 1. Dynamic Page Title
     const newTitle = `${foodName} Nutrition Facts, Calories & Health Benefits | NutriFacts`;

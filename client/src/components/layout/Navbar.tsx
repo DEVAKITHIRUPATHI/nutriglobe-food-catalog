@@ -161,6 +161,11 @@ export function Navbar() {
             )}
           </button>
 
+          {/* Data Synchronization Status Indicator - Desktop */}
+          <div className="hidden xl:flex items-center">
+            <DataSyncStatusIndicator variant="compact" />
+          </div>
+
           {/* Toggle offline - Desktop */}
           <Button 
             onClick={toggleOfflineMode} 
@@ -305,7 +310,12 @@ export function Navbar() {
                   </div>
                   
                   {/* Mobile Only Actions */}
-                  <div className="px-4 py-2 mt-6">
+                  <div className="px-4 py-2 mt-4 space-y-3">
+                    {/* Mobile Data Synchronization Status Indicator */}
+                    <div className="mb-2">
+                      <DataSyncStatusIndicator variant="card" />
+                    </div>
+
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                       {getLocalizedText('actions.title')}
                     </h3>

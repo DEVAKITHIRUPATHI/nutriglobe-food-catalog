@@ -1,31 +1,40 @@
-import { getInitializedApp } from "../server/app";
+import express from "express";
+import { registerRoutes } from "../server/routes";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Initialize routes for Vercel Serverless Functions
+let serverPromise: Promise<any> | null = null;
 
 export default async function handler(req: any, res: any) {
   try {
-    let url = req.url || "/";
+    if (!serverPromise) {
+      serverPromise = registerRoutes(app);
+    }
+    await serverPromise;
 
-    // Vercel serverless functions can rewrite internal destination to /api/index.
-    // Recover original route if x-matched-path or x-original-url or x-forwarded-url is present.
+    // Normalize URL for Express routing if Vercel strips or rewrites /api
+    let url = req.url || "/";
     const matchedPath = (req.headers?.["x-matched-path"] || req.headers?.["x-original-url"] || req.headers?.["x-forwarded-url"]) as string | undefined;
     if (matchedPath && matchedPath.startsWith("/api") && matchedPath !== "/api/index" && matchedPath !== "/api/index/") {
       url = matchedPath;
     }
-
-    // If Vercel rewrites stripped the /api prefix, restore it so Express router matches
-    if (!url.startsWith("/api") && !url.startsWith("/index.html")) {
+    if (!url.startsWith("/api") && !url.startsWith("/health")) {
       url = "/api" + (url.startsWith("/") ? url : "/" + url);
     }
     req.url = url;
 
-    const { app } = await getInitializedApp();
     return app(req, res);
   } catch (err: any) {
-    console.error("[Vercel Handler Error]:", err);
+    console.error("[Vercel Serverless Error]:", err);
     if (!res.headersSent) {
       res.status(500).json({
         error: "Internal Server Error",
-        message: err?.message || "Server initialization failed"
+        message: err?.message || "Server initialization failed",
       });
     }
   }
 }
+

@@ -115,6 +115,9 @@ export function Footer() {
               <span className="inline-block mx-2 text-gray-600">|</span>
               <span className="text-emerald-400 font-semibold">Designed & Developed by SDSV Trade Tech</span>
             </p>
+            <p className="text-[11px] text-gray-400 leading-relaxed max-w-3xl pt-1">
+              <strong>Affiliate Disclosure:</strong> NutriFacts is a participant in the Amazon Services LLC Associates Program and Flipkart Affiliate Program. As an Amazon Associate I earn from qualifying purchases. Outbound partner links are clearly designated as sponsored/paid links and do not influence our independent nutritional data or WHO reference calculations.
+            </p>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-slate-400 pt-1">
               <Link href="/about" className="hover:text-emerald-400 font-medium transition">About NutriFacts</Link>
               <span>•</span>

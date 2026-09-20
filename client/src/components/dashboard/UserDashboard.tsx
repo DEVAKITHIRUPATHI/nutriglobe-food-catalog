@@ -14,13 +14,16 @@ import { SavedFavoritesView } from './SavedFavoritesView';
 import { HistoricalSearchData } from './HistoricalSearchData';
 import { ClinicalRecommendationsView } from './ClinicalRecommendationsView';
 import { PersonalizationGoalsModal } from './PersonalizationGoalsModal';
+import { UserProfileView } from './UserProfileView';
+import { CommunityForumView } from './CommunityForumView';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   LayoutDashboard, Heart, History, Sparkles, Database, 
-  Settings, Flame, Dumbbell, ShieldCheck, Download, RefreshCw, Zap 
+  Settings, Flame, Dumbbell, ShieldCheck, Download, RefreshCw, Zap,
+  User, MessageSquare, ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -220,9 +223,58 @@ export function UserDashboard() {
         </div>
       </div>
 
+      {/* Profile Summary Banner Bar */}
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white p-5 rounded-2xl border border-emerald-500/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-white text-xl font-black shadow-md border border-emerald-300/30 shrink-0">
+            {profile.displayName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-black text-white text-base sm:text-lg tracking-tight">
+                {profile.displayName}
+              </span>
+              <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold uppercase tracking-wider">
+                {profile.dietaryFocus.replace('-', ' ')}
+              </Badge>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-200/80 mt-1 font-medium">
+              <span>Goal: <strong className="text-white">{profile.calorieTarget} kcal</strong></span>
+              <span>•</span>
+              <span className="text-blue-300">P: {profile.proteinTarget}g</span>
+              <span>•</span>
+              <span className="text-amber-300">C: {profile.carbsTarget}g</span>
+              <span>•</span>
+              <span className="text-rose-300">F: {profile.fatTarget}g</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-stretch md:self-auto">
+          <Button
+            size="sm"
+            onClick={() => setActiveTab('profile')}
+            className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm h-9 px-3 gap-1.5 flex-1 md:flex-initial"
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>Edit Profile &amp; Biometrics</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => setActiveTab('forum')}
+            variant="outline"
+            className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/60 font-bold text-xs rounded-xl h-9 px-3 gap-1.5 flex-1 md:flex-initial"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Care Forum</span>
+          </Button>
+        </div>
+      </div>
+
       {/* 4 Quick Stat Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-slate-200/80 dark:border-slate-800">
+        <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 rounded-2xl">
           <CardContent className="p-3.5 flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-500 shrink-0">
               <Heart className="w-5 h-5" />
@@ -236,7 +288,7 @@ export function UserDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/80 dark:border-slate-800">
+        <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 rounded-2xl">
           <CardContent className="p-3.5 flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 shrink-0">
               <Flame className="w-5 h-5" />
@@ -250,7 +302,7 @@ export function UserDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/80 dark:border-slate-800">
+        <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 rounded-2xl">
           <CardContent className="p-3.5 flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-500 shrink-0">
               <Dumbbell className="w-5 h-5" />
@@ -264,7 +316,7 @@ export function UserDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/80 dark:border-slate-800">
+        <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 rounded-2xl">
           <CardContent className="p-3.5 flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-500 shrink-0">
               <History className="w-5 h-5" />
@@ -281,39 +333,65 @@ export function UserDashboard() {
 
       {/* Main Tabbed Sections */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-slate-200/70 dark:bg-slate-800/70 p-1 rounded-xl h-auto w-full sm:w-auto grid grid-cols-2 sm:grid-cols-4 gap-1">
-          <TabsTrigger 
-            value="nutrition" 
-            className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Nutrition Insights</span>
-          </TabsTrigger>
+        <div className="overflow-x-auto pb-1">
+          <TabsList className="bg-slate-200/70 dark:bg-slate-800/70 p-1 rounded-xl h-auto flex gap-1 w-max sm:w-auto">
+            <TabsTrigger 
+              value="profile" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <User className="w-3.5 h-3.5 text-teal-600" />
+              <span>Profile &amp; Biometrics</span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="favorites" 
-            className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm"
-          >
-            <Heart className="w-3.5 h-3.5 text-rose-500" />
-            <span>Saved Favorites ({cartItems.length})</span>
-          </TabsTrigger>
+            <TabsTrigger 
+              value="nutrition" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Nutrition Insights</span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="recommendations" 
-            className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm"
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-500" />
-            <span>Recommendations</span>
-          </TabsTrigger>
+            <TabsTrigger 
+              value="favorites" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-500" />
+              <span>Saved Favorites ({cartItems.length})</span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="history" 
-            className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm"
-          >
-            <History className="w-3.5 h-3.5 text-blue-500" />
-            <span>Search History ({searchHistory.length})</span>
-          </TabsTrigger>
-        </TabsList>
+            <TabsTrigger 
+              value="forum" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
+              <span>Care &amp; Community Forum</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
+              value="recommendations" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              <span>Recommendations</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
+              value="history" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <History className="w-3.5 h-3.5 text-blue-500" />
+              <span>Search History ({searchHistory.length})</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Tab 0: User Profile & Biometrics */}
+        <TabsContent value="profile" className="outline-none">
+          <UserProfileView
+            profile={profile}
+            onProfileUpdated={(updated) => setProfile(updated)}
+          />
+        </TabsContent>
 
         {/* Tab 1: Personalized Nutrition Insights */}
         <TabsContent value="nutrition" className="outline-none">
@@ -333,7 +411,12 @@ export function UserDashboard() {
           />
         </TabsContent>
 
-        {/* Tab 3: Clinical Algorithmic Recommendations */}
+        {/* Tab 3: Care & Community Forum */}
+        <TabsContent value="forum" className="outline-none">
+          <CommunityForumView />
+        </TabsContent>
+
+        {/* Tab 4: Clinical Algorithmic Recommendations */}
         <TabsContent value="recommendations" className="outline-none">
           <ClinicalRecommendationsView
             currentFocus={profile.dietaryFocus}
@@ -341,7 +424,7 @@ export function UserDashboard() {
           />
         </TabsContent>
 
-        {/* Tab 4: Historical Search Data */}
+        {/* Tab 5: Historical Search Data */}
         <TabsContent value="history" className="outline-none">
           <HistoricalSearchData
             searchHistory={searchHistory}

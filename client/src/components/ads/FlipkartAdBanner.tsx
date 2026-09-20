@@ -279,10 +279,10 @@ export function FlipkartAdBanner({
               <a
                 href={product.flipkartUrl}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer sponsored"
                 className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 pt-0.5"
               >
-                <span>Buy on Flipkart</span>
+                <span>View current offer on Flipkart</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </a>
             </div>
@@ -292,8 +292,8 @@ export function FlipkartAdBanner({
 
       {/* Trust & Non-intrusive Transparency Note */}
       <div className="mt-3 pt-2 border-t border-blue-100/60 dark:border-blue-900/30 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500">
-        <span>Curated pantry & kitchen equipment for NutriGlobe readers.</span>
-        <span className="font-mono">Flipkart Verified Supermart</span>
+        <span>Affiliate partner link. Check offer and pricing on Flipkart.</span>
+        <span className="font-mono">Sponsored / Affiliate</span>
       </div>
     </div>
   );

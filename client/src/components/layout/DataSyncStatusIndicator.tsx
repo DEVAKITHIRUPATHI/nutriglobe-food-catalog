@@ -19,13 +19,20 @@ export function DataSyncStatusIndicator({
   variant = 'compact', 
   className = '' 
 }: DataSyncStatusIndicatorProps) {
-  const { offlineStatus, toggleOfflineMode } = useContext(AppContext);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
-  const [cachedItemsCount, setCachedItemsCount] = useState<number>(100);
+  const { 
+    offlineStatus, 
+    toggleOfflineMode, 
+    syncStatus, 
+    lastSyncStats, 
+    triggerSync 
+  } = useContext(AppContext);
+
+  const [lastSyncTime, setLastSyncTime] = useState<number>(() => lastSyncStats?.timestamp || Date.now());
+  const [cachedItemsCount, setCachedItemsCount] = useState<number>(() => lastSyncStats?.syncedCount || 100);
 
   // Sync state determination
   const isOnline = offlineStatus === 'online' && typeof navigator !== 'undefined' && navigator.onLine;
+  const isActivelySyncing = syncStatus === 'syncing';
 
   const loadSyncMetadata = async () => {
     try {
@@ -44,27 +51,21 @@ export function DataSyncStatusIndicator({
 
   useEffect(() => {
     loadSyncMetadata();
-  }, [offlineStatus]);
+  }, [offlineStatus, lastSyncStats]);
 
   const handleManualSync = async () => {
-    setIsSyncing(true);
+    if (isActivelySyncing) return;
     try {
       if (isOnline) {
-        // Attempt a ping fetch to server API
-        const res = await fetch('/api/stats').catch(() => null);
-        if (res && res.ok) {
-          const now = Date.now();
-          await updateSettings({ lastSync: now });
-          setLastSyncTime(now);
+        const stats = await triggerSync();
+        if (stats?.timestamp) {
+          setLastSyncTime(stats.timestamp);
         }
       } else {
-        // Offline cache refresh check from IndexedDB
         await loadSyncMetadata();
       }
     } catch (e) {
       console.error('Manual sync failed:', e);
-    } finally {
-      setTimeout(() => setIsSyncing(false), 600);
     }
   };
 
@@ -87,17 +88,17 @@ export function DataSyncStatusIndicator({
             <div 
               onClick={handleManualSync}
               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-sm select-none ${
-                isSyncing 
+                isActivelySyncing 
                   ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
                   : isOnline
                   ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/25'
                   : 'bg-amber-500/15 border-amber-400/30 text-amber-300 hover:bg-amber-500/25'
               } ${className}`}
             >
-              {isSyncing ? (
+              {isActivelySyncing ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                  <span>Syncing...</span>
+                  <span>Syncing with DB...</span>
                 </>
               ) : isOnline ? (
                 <>
@@ -106,7 +107,7 @@ export function DataSyncStatusIndicator({
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                   <Cloud className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="hidden sm:inline">Synced with Server</span>
+                  <span className="hidden sm:inline">Synced with DB</span>
                   <span className="sm:hidden">Synced</span>
                 </>
               ) : (
@@ -212,7 +213,7 @@ export function DataSyncStatusIndicator({
         <div className="flex items-center gap-2 shrink-0">
           <Button
             onClick={handleManualSync}
-            disabled={isSyncing}
+            disabled={isActivelySyncing}
             size="sm"
             variant="outline"
             className={`text-xs font-bold rounded-xl gap-1.5 border shadow-sm ${
@@ -221,8 +222,8 @@ export function DataSyncStatusIndicator({
                 : 'bg-white dark:bg-slate-800 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50'
             }`}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Syncing Data...' : 'Re-Sync Now'}
+            <RefreshCw className={`w-3.5 h-3.5 ${isActivelySyncing ? 'animate-spin' : ''}`} />
+            {isActivelySyncing ? 'Syncing with DB...' : 'Re-Sync Now'}
           </Button>
 
           <Button

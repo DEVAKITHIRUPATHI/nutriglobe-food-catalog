@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { Link } from 'wouter';
 import { FoodItemClient } from '@shared/schema';
 import {
   Dialog,
@@ -19,9 +20,7 @@ import {
   ExternalLink, Search, Copy, FileSpreadsheet
 } from 'lucide-react';
 import { getAccurateFoodImage, handleFoodImageError, getGoogleImageSearchUrl, getExcelHyperlinkFormula, autoCheckFoodAccuracy } from '@/lib/foodImageResolver';
-import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
-import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
-import { AdBanner } from '@/components/ads/AdBanner';
+import { AdContainer } from '@/components/ads/AdContainer';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
@@ -97,8 +96,11 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
   const isItemFavorite = isFavorite(item.id);
 
   const handleShare = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(`Check out ${t(item.name)} nutrition details: ${url}`);
+    const slug = (item.id || '').toLowerCase().replace(/_/g, '-');
+    const url = `${window.location.origin}/food/${slug}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(`Check out ${t(item.name)} nutrition details: ${url}`);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -199,6 +201,17 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
               {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'Copied Link!' : 'Share'}
             </Button>
+            <Link href={`/food/${(item.id || '').toLowerCase().replace(/_/g, '-')}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 h-8 px-2.5 text-xs gap-1 transition-all font-medium border border-white/20 hidden sm:flex items-center"
+                title="Open dedicated standalone URL for this food"
+              >
+                <ExternalLink className="h-3.5 w-3.5 text-emerald-300" />
+                <span>Full Page</span>
+              </Button>
+            </Link>
             <Button
               onClick={handleDownloadCard}
               variant="ghost"
@@ -615,24 +628,22 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
             </TabsContent>
           </Tabs>
 
-          {/* Google AdSense Responsive Banner for all 1,376 Food Items */}
-          <AdBanner slot="2003004005" format="auto" className="my-4" />
+          {/* 4. ADVERTISEMENT: Google AdSense Responsive Unit */}
+          <AdContainer 
+            slotType="google" 
+            placement="banner" 
+            adSlot="2003004005" 
+            className="my-4" 
+          />
 
-          {/* Partner Affiliate Deals: Amazon Prime & Flipkart Supermart */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-4">
-            <AmazonAdBanner 
-              format="banner" 
-              category="kitchen" 
-              maxItems={2} 
-              title="Amazon Recommended Kitchen Tools & Scales" 
-            />
-            <FlipkartAdBanner 
-              format="banner" 
-              category="all" 
-              maxItems={2} 
-              title="Flipkart Grocery & Organic Nutrition Deals" 
-            />
-          </div>
+          {/* 5. AFFILIATE PRODUCTS: Partner Affiliate Space with Disclosures */}
+          <AdContainer
+            slotType="partner-tabs"
+            placement="detail"
+            foodName={item.name?.en}
+            category={item.category?.[0]}
+            className="my-4"
+          />
 
           {/* Footer Branding Line (Mandatory Credit) */}
           <div className="pt-4 border-t text-center text-xs text-gray-400 font-medium">

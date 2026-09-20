@@ -200,7 +200,7 @@ export const AmazonAdBanner: React.FC<AmazonAdBannerProps> = ({
             </div>
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{title}</h3>
           </div>
-          <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Sponsored by Amazon</span>
+          <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase font-bold tracking-widest">Sponsored (paid link)</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -209,7 +209,7 @@ export const AmazonAdBanner: React.FC<AmazonAdBannerProps> = ({
               key={deal.id}
               href={deal.amazonUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer sponsored"
               className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
             >
               <div className="space-y-3">
@@ -244,14 +244,9 @@ export const AmazonAdBanner: React.FC<AmazonAdBannerProps> = ({
               </div>
 
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-3">
-                <div>
-                  <span className="text-base font-black text-amber-600 dark:text-amber-400">{deal.price}</span>
-                  {deal.originalPrice && (
-                    <span className="text-xs text-slate-400 line-through ml-1.5">{deal.originalPrice}</span>
-                  )}
-                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Check current offer</span>
                 <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl gap-1">
-                  <span>Buy on Amazon</span>
+                  <span>View on Amazon</span>
                   <ExternalLink className="w-3 h-3" />
                 </Button>
               </div>
@@ -260,7 +255,7 @@ export const AmazonAdBanner: React.FC<AmazonAdBannerProps> = ({
         </div>
 
         <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center italic">
-          * As an Amazon Associate, NutriGlobe earns from qualifying purchases. Prices verified live via Amazon API.
+          As an Amazon Associate I earn from qualifying purchases. (paid link)
         </p>
       </div>
     );

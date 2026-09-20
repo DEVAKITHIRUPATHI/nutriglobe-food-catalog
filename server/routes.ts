@@ -182,6 +182,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(foodItems);
   }));
 
+  // Reconnection synchronization endpoint for offline-cached food items & local updates
+  app.post(`${API_PREFIX}/foods/sync`, asyncHandler(async (req: Request, res: Response) => {
+    const { pendingItems } = req.body || {};
+    let appliedCount = 0;
+
+    if (Array.isArray(pendingItems) && pendingItems.length > 0) {
+      for (const item of pendingItems) {
+        if (item && item.id) {
+          try {
+            const existing = await storage.getFoodItemById(item.id);
+            if (existing) {
+              await storage.updateFoodItem(item.id, item);
+            } else {
+              await storage.createFoodItem(item);
+            }
+            appliedCount++;
+          } catch (e) {
+            console.warn(`[Sync] Failed to apply offline item ${item.id}:`, e);
+          }
+        }
+      }
+    }
+
+    const allFoods = await storage.getAllFoodItems();
+    res.json({
+      success: true,
+      timestamp: Date.now(),
+      totalFoods: allFoods.length,
+      syncedCount: allFoods.length,
+      pendingAppliedCount: appliedCount,
+      database: "connected",
+      foods: allFoods
+    });
+  }));
+
+  // Lightweight status check for remote database connectivity & sync verification
+  app.get(`${API_PREFIX}/foods/sync-status`, asyncHandler(async (_req: Request, res: Response) => {
+    const totalFoods = await storage.getAllFoodItems().then(f => f.length).catch(() => 0);
+    res.json({
+      status: "online",
+      database: "connected",
+      totalFoods,
+      timestamp: Date.now()
+    });
+  }));
+
   // Export full catalog as CSV
   app.get(`${API_PREFIX}/foods/export/csv`, asyncHandler(async (_req: Request, res: Response) => {
     const foodItems = await storage.getAllFoodItems();

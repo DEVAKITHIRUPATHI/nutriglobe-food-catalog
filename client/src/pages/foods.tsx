@@ -16,6 +16,8 @@ import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { InGridAdCard } from '@/components/ads/InGridAdCard';
+import { AdContainer } from '@/components/ads/AdContainer';
+import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
@@ -37,6 +39,7 @@ export default function Foods() {
   const [isFixingAll, setIsFixingAll] = useState(false);
   const [fixMessage, setFixMessage] = useState<string | null>(null);
   const [auditFilter, setAuditFilter] = useState<'all' | 'needs_fix' | 'verified'>('all');
+  const [adFallbackMode, setAdFallbackMode] = useState<'collapse' | 'placeholder'>('collapse');
   const [fixingItemId, setFixingItemId] = useState<string | null>(null);
   const [auditSearchQuery, setAuditSearchQuery] = useState('');
   const [copiedFormulaId, setCopiedFormulaId] = useState<string | null>(null);
@@ -317,6 +320,7 @@ export default function Foods() {
             <Scale className="w-4 h-4 text-emerald-400" />
             <span>Compare Foods (VS)</span>
           </Button>
+          <DataSyncStatusIndicator variant="compact" />
           <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-3.5 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 hidden md:inline-block">
             Page {currentPage} of {totalPages} ({foods.length.toLocaleString()} Total)
           </span>
@@ -356,13 +360,64 @@ export default function Foods() {
         <FoodGridSkeleton count={8} />
       ) : (
         <>
-          {/* Grid container for 100 food cards per page with middle-section Ad Space cards */}
+          {/* Ad status & layout resilience control bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 my-3 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 rounded-xl text-xs">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="font-medium">
+                AdContainer Grid Injection: <strong className="font-bold text-slate-900 dark:text-white">Active every 16 items</strong>
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">On Ad Failure:</span>
+              <div className="inline-flex rounded-lg bg-slate-200/80 dark:bg-slate-800 p-0.5 border border-slate-300/70 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setAdFallbackMode('collapse')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                    adFallbackMode === 'collapse'
+                      ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="If an ad fails or is blocked, completely collapse to 0 height so no empty grid hole exists"
+                >
+                  Collapse (0-Height)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdFallbackMode('placeholder')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                    adFallbackMode === 'placeholder'
+                      ? 'bg-white dark:bg-slate-950 text-emerald-600 dark:text-emerald-400 shadow-xs'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="If an ad fails or is blocked, display a neutral verified sponsor card matching the food card height"
+                >
+                  Neutral Placeholder
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid container for food cards per page with responsive AdContainer units injected every 16 items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 flex-grow mb-8">
             {paginatedFoods.map((item, idx) => (
               <React.Fragment key={item.id}>
-                {/* Insert non-intrusive Ad Space card rotating Google, Amazon, and Flipkart deals every 16 items */}
+                {/* Inject AdContainer every 16 items in the food collection grid with defensive failure handling */}
                 {idx > 0 && idx % 16 === 0 && (
-                  <InGridAdCard index={idx} variant="auto" />
+                  <AdContainer
+                    key={`in-grid-ad-${idx}`}
+                    type="auto"
+                    placement="in-grid"
+                    index={idx}
+                    adSlot="5566778899"
+                    publisherClient="ca-pub-4353689996620152"
+                    foodName={typeof item.name === 'string' ? item.name : (item.name?.en || item.id)}
+                    category={Array.isArray(item.category) ? item.category[0] : (typeof item.category === 'string' ? item.category : 'Nutrition')}
+                    collapseOnError={true}
+                    fallbackMode={adFallbackMode}
+                    className="col-span-1 w-full max-w-full min-w-0"
+                  />
                 )}
                 <FoodCard 
                   item={item}
