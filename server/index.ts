@@ -13,13 +13,13 @@ import { setupVite, serveStatic, log } from "./vite";
     serveStatic(app);
   }
 
-  // Port 3000 is default required by the reverse proxy infrastructure
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  // Port 3000 is strictly required by the reverse proxy infrastructure
+  const PORT = 3000;
   server.listen({
-    port,
+    port: PORT,
     host: "0.0.0.0",
   }, () => {
-    log(`serving on port ${port}`);
+    log(`serving on port ${PORT}`);
   });
 })();
 

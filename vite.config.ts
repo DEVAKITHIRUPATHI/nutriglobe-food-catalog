@@ -22,12 +22,24 @@ export default defineConfig({
   build: {
     outDir: path.resolve(process.cwd(), "dist/public"),
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1500,
+    chunkSizeWarningLimit: 2500,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes("shared/mockData") || id.includes("shared\\mockData")) {
             return "data-foods-catalog";
+          }
+          if (
+            id.includes("shared/expandedFoodItems") ||
+            id.includes("shared\\expandedFoodItems") ||
+            id.includes("shared/largeScaleFoodCatalog") ||
+            id.includes("shared\\largeScaleFoodCatalog") ||
+            id.includes("shared/globalFoodDatabaseSeed") ||
+            id.includes("shared\\globalFoodDatabaseSeed") ||
+            id.includes("shared/additionalFoodItems") ||
+            id.includes("shared\\additionalFoodItems")
+          ) {
+            return "data-foods-extended";
           }
           if (id.includes("node_modules")) {
             if (id.includes("framer-motion")) {
