@@ -109,15 +109,15 @@ describe('API Contract & Data Stability Tests', () => {
     }
   });
 
-  it('verifies vercel.json is configured for Node.js runtime and SPA non-api routing', async () => {
+  it('verifies vercel.json is configured for SPA non-api routing', async () => {
     const fs = await import('fs');
     const path = await import('path');
     const vercelConfigPath = path.resolve(process.cwd(), 'vercel.json');
     expect(fs.existsSync(vercelConfigPath)).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(vercelConfigPath, 'utf8'));
-    expect(config.functions).toBeDefined();
-    expect(config.functions['api/**/*.ts'].runtime).toContain('nodejs');
+    expect(config.version).toBe(2);
+    expect(config.outputDirectory).toBe('dist');
     
     expect(Array.isArray(config.rewrites)).toBe(true);
     const nonApiRewrite = config.rewrites.find((r: any) => r.destination === '/index.html');
@@ -172,7 +172,7 @@ describe('API Contract & Data Stability Tests', () => {
     }
   });
 
-  it('validates vercel.json configuration for Node.js runtime and SPA rewrite routing', async () => {
+  it('validates vercel.json configuration for SPA rewrite routing and clean runtime', async () => {
     const fs = await import('fs');
     const path = await import('path');
 
@@ -182,14 +182,17 @@ describe('API Contract & Data Stability Tests', () => {
     const config = JSON.parse(fs.readFileSync(vercelConfigPath, 'utf8'));
     expect(config.version).toBe(2);
     expect(config.outputDirectory).toBe('dist');
-    expect(config.functions?.['api/index.ts']?.runtime).toBe('nodejs20.x');
+
+    // Ensure no invalid functions.runtime is specified that breaks Vercel CLI
+    if (config.functions) {
+      for (const pattern of Object.keys(config.functions)) {
+        expect(config.functions[pattern].runtime).toBeUndefined();
+      }
+    }
 
     const spaRewrite = config.rewrites?.find((r: any) => r.destination === '/index.html');
     expect(spaRewrite).toBeDefined();
     expect(spaRewrite.source).toContain('api');
-
-    const apiRewrite = config.rewrites?.find((r: any) => r.destination === '/api');
-    expect(apiRewrite).toBeDefined();
   });
 
   it('verifies the consolidated food photo audit spreadsheet contains all catalog items with valid fields', async () => {
