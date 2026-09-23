@@ -69,11 +69,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPublicPath = path.resolve(process.cwd(), "dist", "public");
-  const distRootPath = path.resolve(process.cwd(), "dist");
-  const distPath = fs.existsSync(distPublicPath) && fs.existsSync(path.resolve(distPublicPath, "index.html"))
-    ? distPublicPath
-    : distRootPath;
+  const distPath = path.resolve(process.cwd(), "dist");
 
   if (!fs.existsSync(distPath) || !fs.existsSync(path.resolve(distPath, "index.html"))) {
     throw new Error(

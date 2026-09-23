@@ -1,11 +1,11 @@
 /**
- * Script to process fruit data from the attached text file and generate food items
- * using the Claude API integration.
+ * Script to process vegetable data from the attached text file and generate food items
+ * using the Google Gemini API integration (@google/genai SDK).
  */
 
 import fs from 'fs';
 import path from 'path';
-import { generateCompleteFoodItem, generateMultipleFoodItem } from '../server/utils/anthropicHelper';
+import { generateCompleteFoodItem, generateMultipleFoodItem } from '../server/utils/geminiHelper';
 import { FoodItemClient } from '../shared/schema';
 
 // Define language codes to generate content for 100+ languages

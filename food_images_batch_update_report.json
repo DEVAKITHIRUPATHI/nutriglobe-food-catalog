@@ -7,7 +7,7 @@
   "successRate": "100.0%",
   "isDatabaseConnected": false,
   "dryRun": true,
-  "durationMs": 762,
+  "durationMs": 562,
   "summaryByCategory": {
     "fruits": {
       "total": 528,

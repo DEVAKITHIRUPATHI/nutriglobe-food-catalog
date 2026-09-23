@@ -4,8 +4,7 @@ import fs from "fs";
 import path from "path";
 import { storage } from "./storage";
 import type { Language, FoodItemClient, ImageStatus } from "../shared/schema";
-import { generateCompleteFoodItem } from "./utils/anthropicHelper";
-import { askGeminiNutritionAssistant, generateGeminiFoodItem } from "./utils/geminiHelper";
+import { generateCompleteFoodItem, askGeminiNutritionAssistant, generateGeminiFoodItem } from "./utils/geminiHelper";
 import { auditFoodImage, generateFoodImageEngineMetadata } from "./imageAuditService";
 import { generateFoodStudioImage, editFoodStudioImage } from "./foodImageStudioService";
 import { generateAITopic, generateAIArticle } from "./utils/editorialEngine";
@@ -1244,7 +1243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Generate food item with multilingual content using Gemini or Claude
+  // Generate food item with multilingual content using Google Gemini
   app.post(`${API_PREFIX}/foods/generate`, asyncHandler(async (req: Request, res: Response) => {
     const { foodName, description, categories, imagePath, languages } = req.body;
     

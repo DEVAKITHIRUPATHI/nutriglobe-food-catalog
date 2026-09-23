@@ -945,25 +945,7 @@ export function translateFoodName(
   language: Language | string = 'en'
 ): string {
   if (!food) return '';
-  
-  // 1. Check if direct translation exists on food object
-  const directName = translateContent(food.name as TranslatedContent, language);
-  if (directName && directName !== food.name?.en) {
-    return directName;
-  }
-
-  // 2. Check vocabulary dictionary for common matches
-  const enName = (food.name?.en || '').toLowerCase().trim();
-  for (const [key, translations] of Object.entries(COMMON_FOOD_VOCABULARY)) {
-    if (enName.includes(key)) {
-      const vocabVal = translations[language as Language];
-      if (vocabVal) {
-        return directName.includes('(') ? directName : `${directName} (${vocabVal})`;
-      }
-    }
-  }
-
-  return directName || food.name?.en || '';
+  return translateContent(food.name as TranslatedContent, language);
 }
 
 /**

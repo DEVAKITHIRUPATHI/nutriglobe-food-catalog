@@ -1,6 +1,6 @@
 # Food Data Generation Scripts
 
-This directory contains scripts for generating comprehensive food data using the Claude API. These scripts will parse the provided food lists and generate multilingual food items with nutritional information.
+This directory contains scripts for generating comprehensive food data using the Google Gemini API (@google/genai SDK). These scripts parse food lists and generate multilingual food items with nutritional information.
 
 ## Available Scripts
 
@@ -29,7 +29,7 @@ npx tsx scripts/update-database.ts
 
 ## Generated Output
 
-Each script will generate a JSON file with the processed food items:
+Each script generates a JSON file with the processed food items:
 
 - `generated-vegetables.json` - Contains vegetable data
 - `generated-fruits.json` - Contains fruit data
@@ -37,8 +37,4 @@ Each script will generate a JSON file with the processed food items:
 
 ## Requirements
 
-These scripts require the `ANTHROPIC_API_KEY` environment variable to be set in order to use the Claude API for generating multilingual content and nutritional information.
-
-## Note
-
-For testing purposes, the scripts are currently configured to process only a small subset of items. To process all items, modify the `subset` variables in each script.
+These scripts use the `GEMINI_API_KEY` environment variable provided by Google AI Studio to generate multilingual content and clinical nutritional information.

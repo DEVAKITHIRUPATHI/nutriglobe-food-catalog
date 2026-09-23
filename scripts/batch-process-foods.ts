@@ -1,11 +1,11 @@
 /**
  * Script to process food data from multiple sources and generate a comprehensive
- * database of food items with multilingual content.
+ * database of food items with multilingual content using Google Gemini API.
  */
 
 import fs from 'fs';
 import path from 'path';
-import { generateCompleteFoodItem } from '../server/utils/anthropicHelper';
+import { generateCompleteFoodItem } from '../server/utils/geminiHelper';
 import { FoodItemClient } from '../shared/schema';
 
 // Supports 100+ Languages

@@ -15,11 +15,19 @@ export default async function handler(req: any, res: any) {
     }
     await serverPromise;
 
+    // Direct fast-path for API health / status check
+    const rawPath = (req.url || "").split("?")[0];
+    if (rawPath === "/api/status" || rawPath === "/status") {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).json({ status: "online" });
+    }
+
     // Normalize URL for Express routing if Vercel strips or rewrites /api
     let url = req.url || "/";
     const matchedPath = (req.headers?.["x-matched-path"] || req.headers?.["x-original-url"] || req.headers?.["x-forwarded-url"]) as string | undefined;
-    if (matchedPath && matchedPath.startsWith("/api") && matchedPath !== "/api/index" && matchedPath !== "/api/index/") {
-      url = matchedPath;
+    if (matchedPath && (matchedPath.startsWith("/api") || matchedPath.startsWith("/health"))) {
+      const qIndex = url.indexOf("?");
+      url = matchedPath + (qIndex !== -1 ? url.slice(qIndex) : "");
     }
     if (!url.startsWith("/api") && !url.startsWith("/health")) {
       url = "/api" + (url.startsWith("/") ? url : "/" + url);
@@ -37,4 +45,3 @@ export default async function handler(req: any, res: any) {
     }
   }
 }
-
