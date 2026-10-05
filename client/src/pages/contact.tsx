@@ -32,12 +32,12 @@ export default function ContactPage() {
         "name": "How can researchers or dietitians submit new food items to the catalog?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "You can select 'Google News Editorial & Corrections' in our contact form or email editor@nutriglobe.app with peer-reviewed lab analysis or USDA/ICMR dataset references."
+          "text": "You can select 'Google News Editorial & Corrections' in our contact form or email editor@nutrifacts.fun with peer-reviewed lab analysis or USDA/ICMR dataset references."
         }
       },
       {
         "@type": "Question",
-        "name": "Can I request advertising or brand partnerships with NutriGlobe?",
+        "name": "Can I request advertising or brand partnerships with NutriFacts?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Yes. Select 'AdSense & Brand Partnerships' in the inquiry topic dropdown. We partner with verified health, wellness, and organic food providers."
@@ -45,10 +45,10 @@ export default function ContactPage() {
       },
       {
         "@type": "Question",
-        "name": "What is NutriGlobe's official media contact and press ID?",
+        "name": "What is NutriFacts's official media contact and press ID?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "NutriGlobe is registered under Google News Publication ID NG-NEWS-789042 with direct press communication managed at editor@nutriglobe.app."
+          "text": "NutriFacts is registered under Google News Publication ID NF-NEWS-789042 with direct press communication managed at editor@nutrifacts.fun."
         }
       }
     ]
@@ -166,7 +166,7 @@ export default function ContactPage() {
           <Card className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-600" />
-              NutriGlobe Editorial Headquarters
+              NutriFacts Editorial Headquarters
             </h3>
 
             <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400">
@@ -174,7 +174,7 @@ export default function ContactPage() {
                 <Globe className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <strong>Official Domain:</strong><br />
-                  <span className="text-slate-900 dark:text-slate-200 font-mono">https://nutriglobe.app</span>
+                  <span className="text-slate-900 dark:text-slate-200 font-mono">https://www.nutrifacts.fun</span>
                 </div>
               </div>
 
@@ -182,7 +182,7 @@ export default function ContactPage() {
                 <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <strong>Editorial Email:</strong><br />
-                  <a href="mailto:editor@nutriglobe.app" className="text-emerald-600 underline font-medium">editor@nutriglobe.app</a>
+                  <a href="mailto:editor@nutrifacts.fun" className="text-emerald-600 underline font-medium">editor@nutrifacts.fun</a>
                 </div>
               </div>
 
@@ -190,7 +190,7 @@ export default function ContactPage() {
                 <Newspaper className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <strong>Google News Publication ID:</strong><br />
-                  <span className="text-slate-900 dark:text-slate-200 font-mono">NG-NEWS-789042</span>
+                  <span className="text-slate-900 dark:text-slate-200 font-mono">NF-NEWS-789042</span>
                 </div>
               </div>
             </div>

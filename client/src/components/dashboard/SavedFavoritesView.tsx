@@ -9,6 +9,7 @@ import {
   ExternalLink, Sparkles, Filter, Apple, CheckCircle2 
 } from 'lucide-react';
 import type { FoodItemClient } from '@shared/schema';
+import { toCanonicalSlug } from '@shared/canonicalSlug';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface SavedFavoritesViewProps {
@@ -237,7 +238,7 @@ export function SavedFavoritesView({
                   {/* Title and Category */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">
-                      <Link href={`/food/${food.id}`}>
+                      <Link href={`/food/${toCanonicalSlug(food.id)}`}>
                         <h4 className="font-bold text-xs text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors truncate">
                           {getFoodName(food)}
                         </h4>
@@ -286,7 +287,7 @@ export function SavedFavoritesView({
                   <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                     {food.price ? `₹${food.price}` : 'Priceless'}
                   </span>
-                  <Link href={`/food/${food.id}`}>
+                  <Link href={`/food/${toCanonicalSlug(food.id)}`}>
                     <span className="text-[11px] font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1 cursor-pointer">
                       Food Details
                       <ExternalLink className="w-3 h-3" />

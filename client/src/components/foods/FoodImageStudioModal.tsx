@@ -39,8 +39,8 @@ export const FoodImageStudioModal: React.FC<FoodImageStudioModalProps> = ({
   );
   
   // Branding overlay options
-  const [brandingText, setBrandingText] = useState('NutriGlobe Clinical & Educational Database');
-  const [webUrl, setWebUrl] = useState('www.nutriglobe.org');
+  const [brandingText, setBrandingText] = useState('NutriFacts Clinical & Educational Database');
+  const [webUrl, setWebUrl] = useState('www.nutrifacts.fun');
   const [showWebUrlOverlay, setShowWebUrlOverlay] = useState(true);
   const [showEducationalBadge, setShowEducationalBadge] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '4:3' | '16:9' | '3:4'>('1:1');

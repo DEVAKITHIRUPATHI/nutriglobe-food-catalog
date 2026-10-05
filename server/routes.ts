@@ -9,7 +9,8 @@ import { auditFoodImage, generateFoodImageEngineMetadata } from "./imageAuditSer
 import { generateFoodStudioImage, editFoodStudioImage } from "./foodImageStudioService";
 import { generateAITopic, generateAIArticle } from "./utils/editorialEngine";
 import { analyticsEngine } from "./analyticsEngine";
-import { generateMainSitemapXml, generateNewsSitemapXml, getSitemapStats, reindexSitemap } from "./sitemapEngine";
+import { generateMainSitemapXml, generateNewsSitemapXml, getSitemapStats, reindexSitemap, auditSitemapConsistency } from "./sitemapEngine";
+import { toCanonicalSlug, resolveCanonicalFoodId, PRODUCTION_DOMAIN } from "../shared/canonicalSlug";
 import { 
   auditAndFixFoodItemImage, 
   autoCheckFoodAccuracy, 
@@ -18,9 +19,13 @@ import {
   getFoodImageMetadata, 
   resolveAccurateFoodImage 
 } from "../shared/foodImageResolver";
+import { generateFoodKnowledgeProfile } from "../shared/foodKnowledgeEngine";
+import { getOrTranslateKnowledgeProfile } from "../shared/foodKnowledgeTranslationService";
 import { ImageValidationWorker } from "./imageValidationWorker";
 import { generateFoodImageStudioPrompt, generateSearchQueries, runValidationPipeline } from "./foodImageValidationEngine";
 import { runBatchValidation } from "../scripts/batch-validate-food-images";
+import { getAdSenseConfig } from "../shared/adsenseConfig";
+import { auditCatalogContentQuality } from "./contentQualityEngine";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -40,9 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get([API_PREFIX, `${API_PREFIX}/`, `${API_PREFIX}/index`], (_req: Request, res: Response) => {
     res.json({
       status: "online",
-      name: "NutriGlobe Nutrition Engine API",
+      name: "NutriFacts Nutrition Engine API",
       version: "1.0.0",
-      totalCatalogFoods: 1376,
+      totalCatalogFoods: 1379,
       photoAccuracy: "100.0% Curated",
       endpoints: {
         health: "/api/health",
@@ -126,6 +131,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${API_PREFIX}/analytics/summary`, asyncHandler(async (_req: Request, res: Response) => {
     const summary = analyticsEngine.getAnalyticsSummary();
     res.json(summary);
+  }));
+
+  app.post(`${API_PREFIX}/analytics/search`, asyncHandler(async (req: Request, res: Response) => {
+    const { query, language, resultCount, selectedFoodId } = req.body || {};
+    if (query) {
+      analyticsEngine.logSearchQuery(query, language || 'en', resultCount || 0, selectedFoodId);
+    }
+    res.json({ success: true });
+  }));
+
+  app.get(`${API_PREFIX}/admin/food-search-audit`, asyncHandler(async (_req: Request, res: Response) => {
+    const allFoods = await storage.getAllFoodItems();
+    const analytics = analyticsEngine.getSearchAnalytics();
+    
+    const missingRegionalNames = allFoods.filter(f => !f.name.hi || !f.name.ta).map(f => ({ id: f.id, name: f.name.en }));
+    const missingImages = allFoods.filter(f => !f.imageUrl || f.imageUrl.includes('placeholder')).map(f => ({ id: f.id, name: f.name.en }));
+    
+    res.json({
+      status: 'success',
+      totalCatalogFoods: allFoods.length,
+      searchAnalytics: analytics,
+      dataQuality: {
+        missingRegionalNamesCount: missingRegionalNames.length,
+        missingImagesCount: missingImages.length,
+        potentialDuplicates: [],
+        timestamp: new Date().toISOString()
+      }
+    });
+  }));
+
+  // --- Phase 2: Scientific Food Data & Completeness Dashboard Endpoints ---
+  app.get(`${API_PREFIX}/admin/completeness/report`, asyncHandler(async (_req: Request, res: Response) => {
+    const reportPath = path.resolve(process.cwd(), 'food_catalog_completeness_report.json');
+    let report: any;
+    if (fs.existsSync(reportPath)) {
+      try {
+        report = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
+      } catch (e) {
+        // Fall back to running audit
+      }
+    }
+    if (!report) {
+      const { runFullCatalogAudit } = await import('../scripts/audit-full-catalog');
+      report = runFullCatalogAudit();
+    }
+    res.json(report);
+  }));
+
+  app.post(`${API_PREFIX}/admin/completeness/re-audit`, asyncHandler(async (_req: Request, res: Response) => {
+    const { runFullCatalogAudit } = await import('../scripts/audit-full-catalog');
+    const freshReport = runFullCatalogAudit();
+    res.json({
+      success: true,
+      message: `Successfully re-audited all ${freshReport.totalFoods} food records.`,
+      report: freshReport
+    });
+  }));
+
+  app.get(`${API_PREFIX}/admin/completeness/export/json`, asyncHandler(async (_req: Request, res: Response) => {
+    const reportPath = path.resolve(process.cwd(), 'food_catalog_completeness_report.json');
+    if (!fs.existsSync(reportPath)) {
+      const { runFullCatalogAudit } = await import('../scripts/audit-full-catalog');
+      runFullCatalogAudit();
+    }
+    res.download(reportPath, 'food_catalog_completeness_report.json');
+  }));
+
+  app.get(`${API_PREFIX}/admin/completeness/export/csv`, asyncHandler(async (_req: Request, res: Response) => {
+    const allFoods = await storage.getAllFoodItems();
+    const { findAuthoritativeProfile } = await import('../shared/authoritativeNutritionDatabase');
+    
+    const headers = [
+      'Food_ID',
+      'Canonical_Name',
+      'Category',
+      'Scientific_Name',
+      'Macronutrients_Status',
+      'Micronutrients_Provenance',
+      'Bioactives_Provenance',
+      'Plant_Agriculture_Status',
+      'Clinical_Interactions_Count',
+      'Completeness_Score',
+      'Authoritative_Source'
+    ];
+
+    const rows = allFoods.map(food => {
+      const engName = typeof food.name === 'string' ? food.name : (food.name?.en || food.id);
+      const cat = (food.category || []).join(' ');
+      const isAnimal = /meat|poultry|dairy|fish|seafood|egg/i.test(cat);
+      const auth = findAuthoritativeProfile(food.id, engName);
+      const profile = generateFoodKnowledgeProfile(food);
+
+      const microStatus = auth ? 'SOURCE_REPORTED' : (food.nutrition?.minerals ? 'SOURCE_REPORTED' : 'DERIVED');
+      const bioStatus = auth ? 'SOURCE_REPORTED' : (food.nutrition?.antioxidants ? 'SOURCE_REPORTED' : 'DERIVED');
+      const agriStatus = isAnimal ? 'NOT_APPLICABLE' : (auth ? 'VERIFIED' : 'DERIVED');
+      const drugCount = profile.safety?.medicationInteractions?.length || 0;
+      const authSource = auth ? auth.standardReferenceId : 'Category Standard Reference';
+
+      return [
+        `"${food.id}"`,
+        `"${engName.replace(/"/g, '""')}"`,
+        `"${(food.category[0] || '').replace(/"/g, '""')}"`,
+        `"${profile.identity.scientificName.replace(/"/g, '""')}"`,
+        '"SOURCE_REPORTED"',
+        `"${microStatus}"`,
+        `"${bioStatus}"`,
+        `"${agriStatus}"`,
+        drugCount,
+        `${profile.completeness.overallScore}%`,
+        `"${authSource.replace(/"/g, '""')}"`
+      ];
+    });
+
+    res.header('Content-Type', 'text/csv; charset=utf-8');
+    res.attachment(`nutrifacts_completeness_matrix_${allFoods.length}_foods.csv`);
+    res.send([headers.join(','), ...rows.map(r => r.join(','))].join('\n'));
   }));
 
   // --- Admin Food CRUD Endpoints ---
@@ -244,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `"${f.origin.replace(/"/g, '""')}"`
     ]);
     res.header('Content-Type', 'text/csv');
-    res.attachment(`nutriglobe_complete_food_catalog_${foodItems.length}_items.csv`);
+    res.attachment(`nutrifacts_complete_food_catalog_${foodItems.length}_items.csv`);
     res.send([headers.join(','), ...rows.map(e => e.join(','))].join('\n'));
   }));
 
@@ -282,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
     res.header('Content-Type', 'application/json');
-    res.attachment(`nutriglobe_imagen_prompts_${foodItems.length}_items.json`);
+    res.attachment(`nutrifacts_imagen_prompts_${foodItems.length}_items.json`);
     res.send(JSON.stringify(promptList, null, 2));
   }));
 
@@ -329,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
     res.header('Content-Type', 'text/csv; charset=utf-8');
-    res.attachment(`nutriglobe_master_google_images_links_${foodItems.length}_items.csv`);
+    res.attachment(`nutrifacts_master_google_images_links_${foodItems.length}_items.csv`);
     res.send([headers.join(','), ...rows.map(e => e.join(','))].join('\n'));
   }));
 
@@ -374,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
     res.header('Content-Type', 'text/csv; charset=utf-8');
-    res.attachment(`nutriglobe_consolidated_food_photo_audit_${foodItems.length}_items.csv`);
+    res.attachment(`nutrifacts_consolidated_food_photo_audit_${foodItems.length}_items.csv`);
     res.send([headers.join(','), ...rows.map(e => e.join(','))].join('\n'));
   }));
 
@@ -732,6 +853,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.json(foodItem);
+  }));
+
+  // Get enriched scientific food knowledge profile (45 languages, organ support, cultivation, safety)
+  app.get(`${API_PREFIX}/foods/:id/knowledge`, asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const lang = ((req.query.lang as string) || 'en').toLowerCase() as Language;
+    const foodItem = await storage.getFoodItemById(id);
+    if (!foodItem) {
+      return res.status(404).json({ message: 'Food item not found' });
+    }
+    const profile = generateFoodKnowledgeProfile(foodItem);
+    const localizedProfile = await getOrTranslateKnowledgeProfile(profile, lang);
+    res.json(localizedProfile);
   }));
 
   // Get live database statistics
@@ -1423,89 +1557,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(analytics);
   }));
 
-  // --- SEO & GOOGLE NEWS PUBLISHING ENDPOINTS ---
+  // --- SEO, CANONICAL URLS & SITEMAP ENDPOINTS ---
+
+  // 301 Permanent Redirect: Legacy plural route /foods/:id -> /food/:canonicalSlug
+  app.get('/foods/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const rawId = req.params.id;
+    if (!rawId || rawId.includes('.') || rawId.startsWith('api')) return next();
+    const food = await storage.getFoodItemById(rawId);
+    if (food) {
+      const canonicalSlug = toCanonicalSlug(food.id);
+      return res.redirect(301, `/food/${canonicalSlug}`);
+    }
+    next();
+  }));
+
+  // Canonical Food Route Handler: /food/:slug
+  // Verifies existence and ensures HTTP 404 for nonexistent foods, or HTTP 301 for non-canonical slugs
+  app.get('/food/:slug', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { slug } = req.params;
+    if (!slug || slug.includes('.') || slug.startsWith('api')) return next();
+    
+    const food = await storage.getFoodItemById(slug);
+    if (!food) {
+      res.status(404);
+      return res.type('html').send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Item Not Found (404) | NutriFacts</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b1120; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 40px; max-width: 480px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+    h1 { font-size: 1.75rem; margin: 0 0 12px; color: #34d399; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin: 0 0 24px; }
+    a { display: inline-block; background: #059669; color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: background 0.2s; }
+    a:hover { background: #10b981; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 48px; margin-bottom: 16px;">🌱</div>
+    <h1>Food Item Not Found</h1>
+    <p>The requested food cultivar or item <strong>${slug.replace(/[<>&'"]/g, '')}</strong> was not found in the NutriFacts clinical database.</p>
+    <a href="/foods">Browse All Foods</a>
+  </div>
+</body>
+</html>`);
+    }
+
+    // If accessed with non-canonical slug (e.g. alias, uppercase, or underscores), 301 redirect directly to canonical slug
+    const canonicalSlug = toCanonicalSlug(food.id);
+    if (slug !== canonicalSlug) {
+      return res.redirect(301, `/food/${canonicalSlug}`);
+    }
+
+    next();
+  }));
 
   // Dynamic XML Sitemap for Google Search Console & Web Indexing
-  app.get('/sitemap.xml', asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const xml = await generateMainSitemapXml(baseUrl);
+  app.get('/sitemap.xml', asyncHandler(async (_req: Request, res: Response) => {
+    const xml = await generateMainSitemapXml(PRODUCTION_DOMAIN);
     res.header('Content-Type', 'application/xml; charset=utf-8');
     res.header('Cache-Control', 'public, max-age=3600, s-maxage=86400');
     res.send(xml);
   }));
 
-  // API endpoint for sitemap stats and on-demand generation
-  app.get(`${API_PREFIX}/sitemap/stats`, asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const stats = await getSitemapStats(baseUrl);
-    res.json(stats);
-  }));
-
-  app.get(`${API_PREFIX}/seo/sitemap-stats`, asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const stats = await getSitemapStats(baseUrl);
-    res.json(stats);
-  }));
-
-  app.post(`${API_PREFIX}/sitemap/generate`, asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const result = await reindexSitemap(baseUrl);
-    res.json({
-      success: true,
-      message: 'Sitemap regenerated and indexed successfully',
-      stats: result.stats,
-      reindexedAt: result.reindexedAt
-    });
-  }));
-
-  app.post(`${API_PREFIX}/seo/reindex-sitemap`, asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const result = await reindexSitemap(baseUrl);
-    res.json({
-      success: true,
-      message: 'Sitemap reindexed and generated successfully',
-      stats: result.stats,
-      reindexedAt: result.reindexedAt
-    });
-  }));
-
   // Google News XML Sitemap Feed
-  app.get('/news-sitemap.xml', asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
-    const articles = await storage.getArticles('published');
-
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n`;
-
-    articles.forEach((art) => {
-      xml += `  <url>\n`;
-      xml += `    <loc>${baseUrl}/article/${art.slug}</loc>\n`;
-      xml += `    <news:news>\n`;
-      xml += `      <news:publication>\n`;
-      xml += `        <news:name>NutriGlobe Health & Clinical Research</news:name>\n`;
-      xml += `        <news:language>${(art as any).language || 'en'}</news:language>\n`;
-      xml += `      </news:publication>\n`;
-      xml += `      <news:publication_date>${new Date(art.publishedAt || Date.now()).toISOString()}</news:publication_date>\n`;
-      xml += `      <news:title><![CDATA[${art.title}]]></news:title>\n`;
-      xml += `    </news:news>\n`;
-      xml += `  </url>\n`;
-    });
-
-    xml += `</urlset>`;
-
-    res.header('Content-Type', 'application/xml');
+  app.get('/news-sitemap.xml', asyncHandler(async (_req: Request, res: Response) => {
+    const xml = await generateNewsSitemapXml(PRODUCTION_DOMAIN);
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.header('Cache-Control', 'public, max-age=3600, s-maxage=86400');
     res.send(xml);
+  }));
+
+  // SEO & Sitemap Indexing Stats Endpoint
+  app.get([`${API_PREFIX}/sitemap/stats`, `${API_PREFIX}/seo/sitemap-stats`], asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getSitemapStats(PRODUCTION_DOMAIN);
+    res.json(stats);
+  }));
+
+  // Automated Sitemap Consistency & Coverage Audit Endpoint
+  app.get(`${API_PREFIX}/seo/sitemap-audit`, asyncHandler(async (_req: Request, res: Response) => {
+    const audit = await auditSitemapConsistency(PRODUCTION_DOMAIN);
+    res.json(audit);
+  }));
+
+  // Trigger Manual Sitemap Re-index Endpoint
+  app.post([`${API_PREFIX}/sitemap/generate`, `${API_PREFIX}/seo/reindex-sitemap`, `${API_PREFIX}/seo/reindex`], asyncHandler(async (req: Request, res: Response) => {
+    const host = req.get('host') || 'www.nutrifacts.fun';
+    const baseUrl = host.includes('nutrifacts.fun') ? PRODUCTION_DOMAIN : `${req.protocol}://${host}`;
+    const result = await reindexSitemap(baseUrl);
+    res.json({
+      success: true,
+      message: 'Dynamic sitemap.xml & news-sitemap.xml successfully rebuilt for all food records and site content.',
+      reindexedAt: result.reindexedAt,
+      stats: result.stats
+    });
   }));
 
   // RSS Feed for Google News Publisher Center
   app.get('/rss.xml', asyncHandler(async (req: Request, res: Response) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
+    const host = req.get('host') || 'www.nutrifacts.fun';
+    const baseUrl = host.includes('nutrifacts.fun') ? PRODUCTION_DOMAIN : `${req.protocol}://${host}`;
     const articles = await storage.getArticles('published');
 
     let xml = `<?xml version="1.0" encoding="UTF-8" ?>\n`;
     xml += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
     xml += `<channel>\n`;
-    xml += `  <title>NutriGlobe Clinical Health & Nutrition Feed</title>\n`;
+    xml += `  <title>NutriFacts Clinical Health &amp; Nutrition Feed</title>\n`;
     xml += `  <link>${baseUrl}</link>\n`;
     xml += `  <description>Evidence-based clinical nutrition, WHO RDA standards, and food research articles.</description>\n`;
     xml += `  <language>en-us</language>\n`;
@@ -1524,7 +1686,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     xml += `</channel>\n`;
     xml += `</rss>`;
 
-    res.header('Content-Type', 'application/xml');
+    res.header('Content-Type', 'application/xml; charset=utf-8');
     res.send(xml);
   }));
 
@@ -1578,66 +1740,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Robots.txt for Web Crawlers and Googlebot
-  app.get('/robots.txt', (req, res) => {
-    const baseUrl = `${req.protocol}://${req.get('host') || 'nutriglobe.app'}`;
+  app.get('/robots.txt', (_req, res) => {
     let robots = `User-agent: *\n`;
     robots += `Allow: /\n`;
     robots += `Disallow: /api/admin/\n`;
-    robots += `Disallow: /admin\n\n`;
-    robots += `Sitemap: ${baseUrl}/sitemap.xml\n`;
-    robots += `Sitemap: ${baseUrl}/news-sitemap.xml\n`;
+    robots += `Disallow: /admin\n`;
+    robots += `Disallow: /dashboard\n\n`;
+    robots += `Sitemap: ${PRODUCTION_DOMAIN}/sitemap.xml\n`;
+    robots += `Sitemap: ${PRODUCTION_DOMAIN}/news-sitemap.xml\n`;
 
-    res.header('Content-Type', 'text/plain');
+    res.header('Content-Type', 'text/plain; charset=utf-8');
     res.send(robots);
   });
 
-  // Dynamic XML Sitemap Generator for Google Search Console Indexing
-  app.get('/sitemap.xml', asyncHandler(async (req: Request, res: Response) => {
-    const protocol = req.protocol || 'https';
-    const host = req.get('host') || 'nutriglobe.app';
-    const baseUrl = `${protocol}://${host}`;
-    const xml = await generateMainSitemapXml(baseUrl);
-    res.header('Content-Type', 'application/xml; charset=utf-8');
-    res.send(xml);
-  }));
+  // Google AdSense Status Endpoint
+  app.get(`${API_PREFIX}/adsense/status`, (_req: Request, res: Response) => {
+    const config = getAdSenseConfig();
+    res.json(config);
+  });
 
-  // Dynamic Google News XML Sitemap
-  app.get('/news-sitemap.xml', asyncHandler(async (req: Request, res: Response) => {
-    const protocol = req.protocol || 'https';
-    const host = req.get('host') || 'nutriglobe.app';
-    const baseUrl = `${protocol}://${host}`;
-    const xml = await generateNewsSitemapXml(baseUrl);
-    res.header('Content-Type', 'application/xml; charset=utf-8');
-    res.send(xml);
-  }));
-
-  // SEO & Sitemap Indexing Stats Endpoint for Admin & Diagnostics
-  app.get('/api/seo/sitemap-stats', asyncHandler(async (req: Request, res: Response) => {
-    const protocol = req.protocol || 'https';
-    const host = req.get('host') || 'nutriglobe.app';
-    const baseUrl = `${protocol}://${host}`;
-    const stats = await getSitemapStats(baseUrl);
-    res.json(stats);
-  }));
-
-  // Trigger Manual Sitemap Re-index Endpoint
-  app.post('/api/seo/reindex', asyncHandler(async (req: Request, res: Response) => {
-    const protocol = req.protocol || 'https';
-    const host = req.get('host') || 'nutriglobe.app';
-    const baseUrl = `${protocol}://${host}`;
-    const result = await reindexSitemap(baseUrl);
-    res.json({
-      success: true,
-      message: 'Dynamic sitemap.xml & news-sitemap.xml successfully rebuilt for all food records and site content.',
-      reindexedAt: result.reindexedAt,
-      stats: result.stats
-    });
+  // Content Quality Audit Dashboard Endpoint (0-100 Internal Quality Scoring)
+  app.get([`${API_PREFIX}/admin/content-quality`, `${API_PREFIX}/seo/content-quality`], asyncHandler(async (_req: Request, res: Response) => {
+    const audit = await auditCatalogContentQuality();
+    res.json(audit);
   }));
 
   // Ads.txt for Google AdSense Crawler Verification
-  app.get('/ads.txt', (_req, res) => {
-    res.header('Content-Type', 'text/plain');
-    res.send('google.com, pub-4353689996620152, DIRECT, f08c47fec0942fa0\n');
+  app.get('/ads.txt', (_req: Request, res: Response) => {
+    const config = getAdSenseConfig();
+    res.header('Content-Type', 'text/plain; charset=utf-8');
+    res.send(`${config.adsTxtAuthorizedSellerLine}\n`);
   });
 
   // 404 handler for all unmatched API endpoints to ensure JSON is returned rather than falling back to index.html

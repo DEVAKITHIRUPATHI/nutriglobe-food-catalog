@@ -13,16 +13,23 @@ import { matchesCategory } from '@/lib/categoryUtils';
 
 interface SearchFilterProps {
   onSearch: (filters: SearchFilters) => void;
+  initialQuery?: string;
 }
 
-export function SearchFilter({ onSearch }: SearchFilterProps) {
+export function SearchFilter({ onSearch, initialQuery = '' }: SearchFilterProps) {
   const { getLocalizedText } = useTranslation();
   const { foods: contextFoods } = useContext(AppContext);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<FilterCategory>('all');
   const [activeTab, setActiveTab] = useState('food-types');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAiSearching, setIsAiSearching] = useState(false);
+
+  useEffect(() => {
+    if (initialQuery !== undefined) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
 
   const activeCatalog = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
 

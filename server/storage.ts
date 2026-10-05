@@ -1,6 +1,7 @@
 import { users, foodItems, cartItems, type User, type InsertUser, type FoodItem, type InsertFoodItem, type CartItem, type InsertCartItem, type FoodItemClient } from "@shared/schema";
 import { foodItems as mockFoodItems } from "@shared/mockData";
 import { auditAndFixFoodItemImage, getGoogleImageSearchUrl, getExcelHyperlinkFormula } from "@shared/foodImageResolver";
+import { resolveCanonicalFoodId, toCanonicalSlug } from "@shared/canonicalSlug";
 import { db, sql } from "./db";
 import { eq, and, like, inArray } from "drizzle-orm";
 
@@ -124,6 +125,14 @@ export class DatabaseStorage implements IStorage {
   async getFoodItemById(id: string): Promise<FoodItemClient | undefined> {
     if (!id) return undefined;
     const cleanId = decodeURIComponent(id).trim();
+
+    // 0. Canonical slug alias lookup (e.g. apple -> fuji_apple, coconut -> coconut_mature, nungu -> nungu_ice_apple)
+    const canonicalTargetId = resolveCanonicalFoodId(cleanId);
+    if (canonicalTargetId && canonicalTargetId !== cleanId) {
+      const [itemAlias] = await db.select().from(foodItems).where(eq(foodItems.itemId, canonicalTargetId));
+      if (itemAlias) return this.mapToFoodItemClient(itemAlias);
+    }
+
     // 1. Direct ID match
     const [item] = await db.select().from(foodItems).where(eq(foodItems.itemId, cleanId));
     if (item) return this.mapToFoodItemClient(item);
@@ -139,10 +148,12 @@ export class DatabaseStorage implements IStorage {
     const found = all.find((it: any) => {
       const itId = (it.itemId || '').toLowerCase();
       const itNameSlug = (it.nameEn || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const itCanonicalSlug = toCanonicalSlug(it.itemId || '');
       return (
         itId === target ||
         itId.replace(/_/g, '-') === target ||
         itId.replace(/-/g, '_') === target ||
+        itCanonicalSlug === target ||
         itNameSlug === target ||
         (it.nameEn || '').toLowerCase() === target.replace(/-/g, ' ')
       );
@@ -698,6 +709,13 @@ export class MemStorage implements IStorage {
   async getFoodItemById(id: string): Promise<FoodItemClient | undefined> {
     if (!id) return undefined;
     const cleanId = decodeURIComponent(id).trim();
+
+    // 0. Canonical slug alias lookup (e.g. apple -> fuji_apple, coconut -> coconut_mature, nungu -> nungu_ice_apple)
+    const canonicalTargetId = resolveCanonicalFoodId(cleanId);
+    if (canonicalTargetId && this.foodItemsMap.has(canonicalTargetId)) {
+      return this.foodItemsMap.get(canonicalTargetId);
+    }
+
     // 1. Direct ID match
     if (this.foodItemsMap.has(cleanId)) {
       return this.foodItemsMap.get(cleanId);
@@ -714,10 +732,12 @@ export class MemStorage implements IStorage {
       const item = allItems[i];
       const itId = (item.id || '').toLowerCase();
       const itNameSlug = (item.name?.en || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const itCanonicalSlug = toCanonicalSlug(item.id || '');
       if (
         itId === target ||
         itId.replace(/_/g, '-') === target ||
         itId.replace(/-/g, '_') === target ||
+        itCanonicalSlug === target ||
         itNameSlug === target ||
         (item.name?.en || '').toLowerCase() === target.replace(/-/g, ' ')
       ) {

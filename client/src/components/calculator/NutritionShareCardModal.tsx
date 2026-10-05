@@ -111,7 +111,7 @@ export const NutritionShareCardModal: React.FC<NutritionShareCardModalProps> = (
   };
 
   const handleCopySummary = () => {
-    const text = `💬 "${userGreeting}" — ${userName || 'A NutriGlobe User'}\n\n🥗 My Daily NutriGlobe Nutrition Targets:\n🔥 Target Calories: ${calculations.targetCalories} kcal\n💪 Protein: ${calculations.proteinGrams}g (${calculations.proteinCal} kcal)\n🌾 Carbs: ${calculations.carbGrams}g (${calculations.carbCal} kcal)\n🥑 Fats: ${calculations.fatGrams}g (${Math.round(calculations.fatCal)} kcal)\n💧 Hydration Target: ${calculations.waterLiters}L/day\n📊 BMI Status: ${calculations.bmiCategory} (${calculations.bmi})\n\nCalculated via ${appBrandingName}: https://nutriglobe.app/calculator`;
+    const text = `💬 "${userGreeting}" — ${userName || 'A NutriFacts User'}\n\n🥗 My Daily NutriFacts Nutrition Targets:\n🔥 Target Calories: ${calculations.targetCalories} kcal\n💪 Protein: ${calculations.proteinGrams}g (${calculations.proteinCal} kcal)\n🌾 Carbs: ${calculations.carbGrams}g (${calculations.carbCal} kcal)\n🥑 Fats: ${calculations.fatGrams}g (${Math.round(calculations.fatCal)} kcal)\n💧 Hydration Target: ${calculations.waterLiters}L/day\n📊 BMI Status: ${calculations.bmiCategory} (${calculations.bmi})\n\nCalculated via ${appBrandingName}: https://www.nutrifacts.fun/calculator`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -397,7 +397,7 @@ export const NutritionShareCardModal: React.FC<NutritionShareCardModalProps> = (
                 <span>{appBrandingName}</span> • Verified by WHO Guidelines
               </span>
               <span className="font-mono text-emerald-300/90 font-black tracking-wider">
-                🌿 nutriglobe.app
+                🌿 nutrifacts.fun
               </span>
             </div>
           </div>

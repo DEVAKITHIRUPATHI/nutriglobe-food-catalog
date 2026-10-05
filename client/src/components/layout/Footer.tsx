@@ -73,14 +73,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  45+ Global Languages
-                </a>
+                <Link href="/foods" className="text-gray-400 hover:text-white transition">
+                  45+ Global Languages Catalog
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  Offline PWA & WHO Standards
-                </a>
+                <Link href="/about" className="text-gray-400 hover:text-white transition">
+                  Offline PWA &amp; WHO Standards
+                </Link>
               </li>
             </ul>
           </div>
@@ -113,12 +113,12 @@ export function Footer() {
             <p>
               © 2026 NutriFacts™. All rights reserved.
               <span className="inline-block mx-2 text-gray-600">|</span>
-              <span className="text-emerald-400 font-semibold">Designed & Developed by SDSV Trade Tech</span>
+              <span className="text-emerald-400 font-semibold">Designed &amp; Developed by SDSV Trade Tech</span>
             </p>
             <p className="text-[11px] text-gray-400 leading-relaxed max-w-3xl pt-1">
               <strong>Affiliate Disclosure:</strong> NutriFacts is a participant in the Amazon Services LLC Associates Program and Flipkart Affiliate Program. As an Amazon Associate I earn from qualifying purchases. Outbound partner links are clearly designated as sponsored/paid links and do not influence our independent nutritional data or WHO reference calculations.
             </p>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-slate-400 pt-1">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-slate-400 pt-1 text-xs">
               <Link href="/about" className="hover:text-emerald-400 font-medium transition">About NutriFacts</Link>
               <span>•</span>
               <Link href="/privacy" className="hover:text-emerald-400 underline transition">Privacy Policy</Link>
@@ -127,24 +127,19 @@ export function Footer() {
               <span>•</span>
               <Link href="/editorial-policy" className="hover:text-emerald-400 underline transition">Editorial Policy</Link>
               <span>•</span>
-              <Link href="/contact" className="hover:text-emerald-400 underline transition">Contact & News Desk</Link>
+              <Link href="/disclaimer" className="hover:text-emerald-400 underline transition">Medical Disclaimer</Link>
               <span>•</span>
-              <a href="/sitemap.xml" target="_blank" className="hover:text-emerald-400 underline transition">Sitemap XML</a>
+              <Link href="/affiliate-disclosure" className="hover:text-emerald-400 underline transition">Affiliate Disclosure</Link>
+              <span>•</span>
+              <Link href="/cookie-policy" className="hover:text-emerald-400 underline transition">Cookie Policy</Link>
+              <span>•</span>
+              <Link href="/contact" className="hover:text-emerald-400 underline transition">Contact &amp; News Desk</Link>
+              <span>•</span>
+              <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 underline transition">Sitemap XML</a>
             </div>
           </div>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-gray-400 hover:text-white transition">
-              <Facebook size={20} />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition">
-              <Instagram size={20} />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition">
-              <Linkedin size={20} />
-            </a>
+          <div className="flex items-center space-x-3 mt-4 md:mt-0 text-xs text-slate-400">
+            <span className="text-emerald-400 font-mono font-bold">www.nutrifacts.fun</span>
           </div>
         </div>
       </div>

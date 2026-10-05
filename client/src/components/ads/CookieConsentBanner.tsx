@@ -6,21 +6,21 @@ export const CookieConsentBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('nutriglobe_cookie_consent');
+    const consent = localStorage.getItem('nutrifacts_cookie_consent') || localStorage.getItem('nutriglobe_cookie_consent');
     if (!consent) {
-      // Delay showing banner slightly for smooth page entrance
-      const timer = setTimeout(() => setIsVisible(true), 1200);
+      // Delay showing banner slightly for smooth page entrance without layout shifting
+      const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('nutriglobe_cookie_consent', 'accepted');
+    localStorage.setItem('nutrifacts_cookie_consent', 'accepted');
     setIsVisible(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem('nutriglobe_cookie_consent', 'necessary_only');
+    localStorage.setItem('nutrifacts_cookie_consent', 'essential_only');
     setIsVisible(false);
   };
 
@@ -64,12 +64,21 @@ export const CookieConsentBanner: React.FC = () => {
           >
             Essential Only
           </Button>
-          <a 
-            href="/privacy" 
-            className="text-[11px] text-emerald-400 underline hover:text-emerald-300 ml-1 whitespace-nowrap"
-          >
-            Privacy Policy
-          </a>
+          <div className="flex items-center gap-2 ml-1 text-[11px]">
+            <a 
+              href="/cookie-policy" 
+              className="text-emerald-400 underline hover:text-emerald-300 whitespace-nowrap"
+            >
+              Cookie Policy
+            </a>
+            <span className="text-slate-600">•</span>
+            <a 
+              href="/privacy" 
+              className="text-emerald-400 underline hover:text-emerald-300 whitespace-nowrap"
+            >
+              Privacy
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -430,6 +430,45 @@ class AnalyticsEngine {
       adPerformanceHistory: adHistory
     };
   }
+  private searchQueriesMap: Map<string, { query: string; language: string; count: number; zeroResults: boolean; lastSeen: string; selectedFoods: string[] }> = new Map();
+  private totalSearchCount = 0;
+  private zeroResultSearchCount = 0;
+
+  public logSearchQuery(query: string, language: string = 'en', resultCount: number = 0, selectedFoodId?: string) {
+    const cleanQ = query.trim().toLowerCase();
+    if (!cleanQ) return;
+
+    this.totalSearchCount += 1;
+    if (resultCount === 0) {
+      this.zeroResultSearchCount += 1;
+    }
+
+    const existing = this.searchQueriesMap.get(cleanQ) || {
+      query: cleanQ,
+      language,
+      count: 0,
+      zeroResults: resultCount === 0,
+      lastSeen: new Date().toISOString(),
+      selectedFoods: []
+    };
+
+    existing.count += 1;
+    existing.lastSeen = new Date().toISOString();
+    if (selectedFoodId && !existing.selectedFoods.includes(selectedFoodId)) {
+      existing.selectedFoods.push(selectedFoodId);
+    }
+    this.searchQueriesMap.set(cleanQ, existing);
+  }
+
+  public getSearchAnalytics() {
+    return {
+      totalSearches: this.totalSearchCount,
+      zeroResultSearches: this.zeroResultSearchCount,
+      topQueries: Array.from(this.searchQueriesMap.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 50)
+    };
+  }
 }
 
 export const analyticsEngine = new AnalyticsEngine();

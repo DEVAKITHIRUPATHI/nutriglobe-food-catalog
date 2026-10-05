@@ -41,7 +41,7 @@ const getGeminiClient = () => {
  * Generate a new high-quality food photograph using Gemini 3.1 Flash Image.
  */
 export async function generateFoodStudioImage(params: GenerateFoodImageParams): Promise<ImageStudioResponse> {
-  const { foodName, prompt, aspectRatio = "1:1", brandingText = "NutriGlobe Educational Database", webUrl = "www.nutriglobe.org", educationalMode = true } = params;
+  const { foodName, prompt, aspectRatio = "1:1", brandingText = "NutriFacts Clinical Database", webUrl = "www.nutrifacts.fun", educationalMode = true } = params;
 
   const defaultPrompt = prompt && prompt.trim().length > 0 
     ? prompt 
@@ -108,7 +108,7 @@ export async function generateFoodStudioImage(params: GenerateFoodImageParams): 
  * Edit an existing food image using text prompt instructions with Gemini 3.1 Flash Image.
  */
 export async function editFoodStudioImage(params: EditFoodImageParams): Promise<ImageStudioResponse> {
-  const { foodName, base64Image, imageUrl, editPrompt, aspectRatio = "1:1", brandingText = "NutriGlobe Educational Database", webUrl = "www.nutriglobe.org" } = params;
+  const { foodName, base64Image, imageUrl, editPrompt, aspectRatio = "1:1", brandingText = "NutriFacts Clinical Database", webUrl = "www.nutrifacts.fun" } = params;
 
   const fullPrompt = `Edit the food photograph of ${foodName}. Instruction: ${editPrompt}. Maintain natural lighting, clean aesthetic, realistic textures suitable for an educational nutrition database.`;
 

@@ -85,7 +85,7 @@ export default function PrivacyPage() {
             4. Privacy Inquiries & Data Protection Officer
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            For privacy inquiries, cookie consent resets, or data requests, please contact our privacy compliance desk at <a href="mailto:privacy@nutriglobe.app" className="text-emerald-600 underline font-semibold">privacy@nutriglobe.app</a> or submit a message via our <a href="/contact" className="text-emerald-600 underline font-semibold">Contact Page</a>.
+            For privacy inquiries, cookie consent resets, or data requests, please contact our privacy compliance desk at <a href="mailto:privacy@nutrifacts.fun" className="text-emerald-600 underline font-semibold">privacy@nutrifacts.fun</a> or submit a message via our <a href="/contact" className="text-emerald-600 underline font-semibold">Contact Page</a>.
           </p>
         </Card>
       </div>

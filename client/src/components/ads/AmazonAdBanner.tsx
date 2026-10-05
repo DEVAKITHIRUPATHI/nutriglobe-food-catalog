@@ -30,7 +30,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=400&q=80',
     asin: 'B0113GAN44',
-    amazonUrl: 'https://www.amazon.com/dp/B0113GAN44?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/B0113GAN44?tag=nutrifacts20-20',
     highlightBadge: 'Top Pick for Macro Tracking'
   },
   {
@@ -44,7 +44,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=400&q=80',
     asin: 'B007TUOE28',
-    amazonUrl: 'https://www.amazon.com/dp/B007TUOE28?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/B007TUOE28?tag=nutrifacts20-20',
     highlightBadge: 'Best Smoothie Maker'
   },
   {
@@ -58,7 +58,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=400&q=80',
     asin: 'B000QSNYGI',
-    amazonUrl: 'https://www.amazon.com/dp/B000QSNYGI?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/B000QSNYGI?tag=nutrifacts20-20',
     highlightBadge: '#1 Best Seller in Sports Nutrition'
   },
   {
@@ -72,7 +72,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=400&q=80',
     asin: 'B07954MDTX',
-    amazonUrl: 'https://www.amazon.com/dp/B07954MDTX?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/B07954MDTX?tag=nutrifacts20-20',
     highlightBadge: 'Eco-Friendly Meal Prep'
   },
   {
@@ -86,7 +86,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
     asin: '1250066115',
-    amazonUrl: 'https://www.amazon.com/dp/1250066115?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/1250066115?tag=nutrifacts20-20',
     highlightBadge: 'New York Times Bestseller'
   },
   {
@@ -100,7 +100,7 @@ const AMAZON_DEALS: AmazonProduct[] = [
     prime: true,
     imageUrl: 'https://images.unsplash.com/photo-1576243345690-4e4b79b63288?auto=format&fit=crop&w=400&q=80',
     asin: 'B01N1UX8RW',
-    amazonUrl: 'https://www.amazon.com/dp/B01N1UX8RW?tag=nutriglobe20-20',
+    amazonUrl: 'https://www.amazon.com/dp/B01N1UX8RW?tag=nutrifacts20-20',
     highlightBadge: 'Syncs with Apple Health & Fitbit'
   }
 ];
@@ -117,7 +117,7 @@ interface AmazonAdBannerProps {
 export const AmazonAdBanner: React.FC<AmazonAdBannerProps> = ({
   category = 'all',
   format = 'banner',
-  trackingId = 'nutriglobe20-20',
+  trackingId = 'nutrifacts20-20',
   className = '',
   maxItems = 2,
   title = 'Featured Amazon Kitchen & Wellness Deals'

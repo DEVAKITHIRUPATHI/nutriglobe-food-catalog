@@ -1,5 +1,7 @@
 import { useContext } from 'react';
+import { Link } from 'wouter';
 import { FoodItemClient } from '@shared/schema';
+import { toCanonicalSlug } from '@shared/canonicalSlug';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -75,7 +77,7 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
 
         <LazyImage 
           src={imageUrl} 
-          alt={t(item.name)} 
+          alt={`Fresh ${t(item.name)}`} 
           onError={handleFoodImageError}
           containerClassName="w-full h-full"
           className="transition-transform duration-700 ease-out group-hover:scale-110 object-cover"
@@ -138,7 +140,18 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
         <div className="flex items-center justify-between gap-1">
           <div>
             <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-              {t(item.name)}
+              <Link 
+                href={`/food/${toCanonicalSlug(item.id)}`}
+                onClick={(e) => {
+                  if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                    e.preventDefault();
+                    onViewDetails(item);
+                  }
+                }}
+                className="hover:underline"
+              >
+                {t(item.name)}
+              </Link>
             </h3>
             <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400/90">{item.origin || 'Global'}</p>
           </div>
@@ -206,28 +219,6 @@ export function FoodCard({ item, onViewDetails, onCompare, showPopularBadge = tr
             </span>
           </div>
         )}
-        
-        {/* Ad Space Ribbon in Card */}
-        <div 
-          onClick={(e) => {
-            e.stopPropagation();
-            window.open('https://www.amazon.com/dp/B0113GAN44?tag=nutriglobe20-20', '_blank', 'noopener,noreferrer');
-          }}
-          className="mt-2.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 transition-all flex items-center justify-between cursor-pointer group/ad"
-          title="Sponsored Kitchen Tool: Digital Food Scale & Macro Tracker on Amazon"
-        >
-          <div className="flex items-center gap-1.5">
-            <span className="bg-amber-500 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded uppercase tracking-wider">
-              Ad Deal
-            </span>
-            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 truncate max-w-[130px]">
-              0.1g Digital Scale $13.99
-            </span>
-          </div>
-          <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 group-hover/ad:underline flex items-center gap-0.5">
-            View <span className="text-xs">↗</span>
-          </span>
-        </div>
 
         {/* Action Buttons */}
         <div className="mt-3.5 pt-2 flex gap-1.5 mt-auto border-t border-slate-100 dark:border-slate-800/80">

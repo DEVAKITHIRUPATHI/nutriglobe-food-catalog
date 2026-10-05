@@ -36,6 +36,14 @@ export default function BlogPage() {
 
   const featured = articles[0];
 
+  const cleanAuthorName = (name?: string) => {
+    if (!name) return 'NutriFacts Editorial Team';
+    if (/^dr\./i.test(name) || /arulmani/i.test(name) || /priya/i.test(name)) {
+      return 'NutriFacts Editorial Team';
+    }
+    return name.replace(/^Dr\.\s*/i, '');
+  };
+
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-12">
       {/* Blog Header */}
@@ -61,12 +69,10 @@ export default function BlogPage() {
                 <span className="bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-400/30">
                   Featured Article
                 </span>
-                <Link href={`/blog/${featured.slug}`}>
-                  <a className="block group-hover:text-emerald-400 transition-colors">
-                    <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight">
-                      {featured.title}
-                    </h2>
-                  </a>
+                <Link href={`/blog/${featured.slug}`} className="block group-hover:text-emerald-400 transition-colors">
+                  <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight">
+                    {featured.title}
+                  </h2>
                 </Link>
                 <p className="text-gray-300 text-sm sm:text-base line-clamp-3">
                   {featured.summary}
@@ -77,7 +83,7 @@ export default function BlogPage() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
                     <User className="w-3.5 h-3.5 text-emerald-400" />
-                    {featured.author.name}
+                    {cleanAuthorName(featured.author.name)}
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
@@ -86,11 +92,9 @@ export default function BlogPage() {
                   </span>
                 </div>
 
-                <Link href={`/blog/${featured.slug}`}>
-                  <a className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg text-xs">
-                    <span>Read Article</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
+                <Link href={`/blog/${featured.slug}`} className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg text-xs">
+                  <span>Read Article</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
@@ -168,12 +172,10 @@ export default function BlogPage() {
                     <span>{art.readingTimeMinutes} min</span>
                   </div>
 
-                  <Link href={`/blog/${art.slug}`}>
-                    <a className="block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug">
-                        {art.title}
-                      </h3>
-                    </a>
+                  <Link href={`/blog/${art.slug}`} className="block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug">
+                      {art.title}
+                    </h3>
                   </Link>
 
                   <p className="text-gray-600 dark:text-gray-300 text-xs line-clamp-3">
@@ -184,13 +186,11 @@ export default function BlogPage() {
 
               <div className="p-6 pt-0 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-between text-xs mt-4">
                 <span className="text-gray-500 font-medium truncate max-w-[150px]">
-                  {art.author.name}
+                  {cleanAuthorName(art.author.name)}
                 </span>
-                <Link href={`/blog/${art.slug}`}>
-                  <a className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1">
-                    <span>Read</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
+                <Link href={`/blog/${art.slug}`} className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1">
+                  <span>Read</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

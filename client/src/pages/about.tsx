@@ -331,8 +331,8 @@ export default function About() {
             </p>
             <div className="flex justify-center">
               <a 
-                href="mailto:contact@nutriglobe.org" 
-                className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition-colors"
+                href="mailto:editor@nutrifacts.fun" 
+                className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition-colors font-bold"
               >
                 Contact Us
               </a>

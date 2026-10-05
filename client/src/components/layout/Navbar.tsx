@@ -2,14 +2,14 @@ import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import LanguageSelector from '@/components/ui/language-selector';
 import { MultiLanguageInstantTester } from '@/components/ui/MultiLanguageInstantTester';
-import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
+import { HeaderSearchBar } from '@/components/layout/HeaderSearchBar';
 import { AppContext } from '@/contexts/AppContext';
 import { CartContext } from '@/contexts/CartContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { NutriFactsLogo } from '@/components/layout/NutriFactsLogo';
 import { 
   Leaf, Heart, Menu, X, Wifi, WifiOff, Home, Apple, Info, 
-  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck, LayoutDashboard, Languages
+  ScrollText, Globe, ChevronRight, Calculator, ShieldCheck, Languages, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -21,31 +21,36 @@ export function Navbar() {
   const { getLocalizedText } = useTranslation();
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const isMobile = useIsMobile();
   
   // Close mobile menu when navigating to a new page
   useEffect(() => {
     setIsOpen(false);
+    setShowMobileSearch(false);
   }, [location]);
 
   // Close mobile menu when switching to desktop view
   useEffect(() => {
     if (!isMobile) {
       setIsOpen(false);
+      setShowMobileSearch(false);
     }
   }, [isMobile]);
 
   return (
     <nav className="bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/40 backdrop-blur-md">
-      <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-2.5">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group shrink-0 py-0.5">
           <NutriFactsLogo variant="horizontal" size="md" />
-          <span className="hidden xl:inline-block bg-amber-400/90 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider shrink-0">
-            100k+ Foods
-          </span>
         </Link>
         
+        {/* Desktop Quick Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-xs lg:max-w-sm xl:max-w-md items-center mx-1 lg:mx-3">
+          <HeaderSearchBar className="w-full" />
+        </div>
+
         {/* Desktop Navigation - Single Clean Horizontal Row */}
         <div className="hidden lg:flex items-center shrink-0">
           <nav className="flex items-center gap-1.5 bg-emerald-950/80 p-1.5 rounded-xl border border-emerald-700/50 backdrop-blur-md">
@@ -109,18 +114,6 @@ export function Navbar() {
                 <span>RDA & Calorie Calculator</span>
               </span>
             </Link>
-
-            {/* User Dashboard - Emerald / Teal */}
-            <Link href="/dashboard">
-              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
-                location === '/dashboard' 
-                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-900/40' 
-                  : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20 hover:bg-emerald-500/30 hover:text-white'
-              }`}>
-                <LayoutDashboard className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                <span>User Dashboard</span>
-              </span>
-            </Link>
           </nav>
         </div>
         
@@ -161,11 +154,6 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Data Synchronization Status Indicator - Desktop */}
-          <div className="hidden xl:flex items-center">
-            <DataSyncStatusIndicator variant="compact" />
-          </div>
-
           {/* Toggle offline - Desktop */}
           <Button 
             onClick={toggleOfflineMode} 
@@ -186,6 +174,16 @@ export function Navbar() {
             )}
           </Button>
           
+          {/* Mobile Quick Search Button */}
+          <button 
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="md:hidden p-2 text-emerald-100 hover:text-white bg-emerald-950/40 hover:bg-emerald-800/60 rounded-xl border border-emerald-700/40 transition-all"
+            aria-label="Search database"
+            title="Search foods"
+          >
+            <Search className="h-5 w-5 text-emerald-300" />
+          </button>
+
           {/* Mobile menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -215,6 +213,11 @@ export function Navbar() {
                   </div>
                 </SheetHeader>
                 
+                {/* Search Bar in Mobile Menu */}
+                <div className="p-3 border-b bg-emerald-950/20 dark:bg-emerald-950/40">
+                  <HeaderSearchBar isMobileDrawer={true} onItemSelect={() => setIsOpen(false)} />
+                </div>
+
                 <div className="overflow-y-auto flex-1 py-2">
                   {/* Navigation Links */}
                   <div className="px-4 py-2">
@@ -264,13 +267,6 @@ export function Navbar() {
                           <ChevronRight className="h-4 w-4 ml-auto" />
                         </div>
                       </Link>
-                      <Link href="/dashboard">
-                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/dashboard' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
-                          <LayoutDashboard className="h-5 w-5 mr-3 text-emerald-600" />
-                          User Dashboard & Insights
-                          <ChevronRight className="h-4 w-4 ml-auto" />
-                        </div>
-                      </Link>
                       <Link href="/about">
                         <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/about' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
                           <Info className="h-5 w-5 mr-3" />
@@ -311,11 +307,6 @@ export function Navbar() {
                   
                   {/* Mobile Only Actions */}
                   <div className="px-4 py-2 mt-4 space-y-3">
-                    {/* Mobile Data Synchronization Status Indicator */}
-                    <div className="mb-2">
-                      <DataSyncStatusIndicator variant="card" />
-                    </div>
-
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                       {getLocalizedText('actions.title')}
                     </h3>
@@ -369,6 +360,13 @@ export function Navbar() {
           </Sheet>
         </div>
       </div>
+
+      {/* Mobile Expanding Search Bar */}
+      {showMobileSearch && (
+        <div className="md:hidden px-4 pb-2.5 pt-1 border-t border-emerald-800/50 bg-emerald-950/95 animate-in fade-in slide-in-from-top-1 duration-150">
+          <HeaderSearchBar isMobileDrawer={false} onItemSelect={() => setShowMobileSearch(false)} />
+        </div>
+      )}
     </nav>
   );
 }

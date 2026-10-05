@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, Fragment } from 'react';
+import { useLocation } from 'wouter';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
@@ -7,7 +8,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { AppContext } from '@/contexts/AppContext';
 import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
-import { Search, Scale, ArrowLeftRight, Wand2, Sparkles, Download, ShieldCheck, CheckCircle2, Loader2, FileSpreadsheet, ExternalLink, Copy } from 'lucide-react';
+import { Search, Scale, ArrowLeftRight, Wand2, Sparkles, Download, ShieldCheck, CheckCircle2, Loader2, FileSpreadsheet, ExternalLink, Copy, SlidersHorizontal, Dumbbell, Flame } from 'lucide-react';
+import { 
+  sortFoodsByMacronutrient, 
+  filterFoodsByMacronutrients, 
+  type MacroSortOption,
+  searchAndRankFoods 
+} from '@shared/foodSearchEngine';
 import { getFoodItems, searchFoodItems, addSearchHistory } from '@/lib/idb';
 import { matchesCategory, sortFoodsAToZ } from '@/lib/categoryUtils';
 import { getGoogleImageSearchUrl, getExcelHyperlinkFormula } from '@/lib/foodImageResolver';
@@ -17,7 +24,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { InGridAdCard } from '@/components/ads/InGridAdCard';
 import { AdContainer } from '@/components/ads/AdContainer';
-import { DataSyncStatusIndicator } from '@/components/layout/DataSyncStatusIndicator';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { FlipkartAdBanner } from '@/components/ads/FlipkartAdBanner';
 import { AmazonAdBanner } from '@/components/ads/AmazonAdBanner';
@@ -27,7 +33,7 @@ import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 export default function Foods() {
   usePageViewCounter('/foods', 'Foods Database Catalog');
   const { getLocalizedText } = useTranslation();
-  const { offlineStatus, isLoading: appLoading, foods: contextFoods } = useContext(AppContext);
+  const { offlineStatus, isLoading: appLoading, foods: contextFoods, language } = useContext(AppContext);
   const [foods, setFoods] = useState<FoodItemClient[]>([]);
   const [selectedFood, setSelectedFood] = useState<FoodItemClient | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -47,20 +53,85 @@ export default function Foods() {
   const [compareItemB, setCompareItemB] = useState<FoodItemClient | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [initialSearchQuery, setInitialSearchQuery] = useState('');
+  const [macroSort, setMacroSort] = useState<MacroSortOption>('default');
+  const [macroFilter, setMacroFilter] = useState<'all' | 'high-protein' | 'low-cal' | 'high-fiber' | 'low-carb' | 'low-fat'>('all');
+  const [currentFilters, setCurrentFilters] = useState<SearchFilters>({ query: '', category: 'all' });
+  const [location] = useLocation();
   const PAGE_SIZE = 100;
 
   const catalogTopRef = useRef<HTMLDivElement>(null);
 
+  // Helper to reapply search, category, macro filter, and sorting
+  const applyAllTransforms = (
+    baseData: FoodItemClient[],
+    searchCriteria: SearchFilters,
+    filterOption: typeof macroFilter,
+    sortOption: MacroSortOption
+  ): FoodItemClient[] => {
+    let result = [...baseData];
+
+    // 1. Text Search Filter via Universal Multi-Language Search Engine
+    if (searchCriteria.query && searchCriteria.query.trim()) {
+      const searchRes = searchAndRankFoods(result, searchCriteria.query, language, 3000);
+      result = searchRes.results.map(r => r.item);
+    }
+
+    // 2. Category Filter
+    if (searchCriteria.category && searchCriteria.category !== 'all') {
+      result = result.filter(item => matchesCategory(item, searchCriteria.category));
+    }
+
+    // 3. Macronutrient Content Filter
+    if (filterOption === 'high-protein') {
+      result = filterFoodsByMacronutrients(result, { minProtein: 15 });
+    } else if (filterOption === 'low-cal') {
+      result = filterFoodsByMacronutrients(result, { maxCalories: 60 });
+    } else if (filterOption === 'high-fiber') {
+      result = filterFoodsByMacronutrients(result, { minFiber: 5 });
+    } else if (filterOption === 'low-carb') {
+      result = filterFoodsByMacronutrients(result, { maxCarbs: 5 });
+    } else if (filterOption === 'low-fat') {
+      result = filterFoodsByMacronutrients(result, { maxFat: 3 });
+    }
+
+    // 4. Macronutrient / Alphabetical Sort
+    // If a custom macro sort is requested, apply it.
+    // If 'default' sort is active and a search query was specified, keep relevance ranking from searchAndRankFoods!
+    if (sortOption !== 'default' || !searchCriteria.query?.trim()) {
+      return sortFoodsByMacronutrient(result, sortOption);
+    }
+    return result;
+  };
+
   useEffect(() => {
     if (contextFoods && contextFoods.length > 0) {
-      const sorted = sortFoodsAToZ(contextFoods);
-      setFoods(sorted);
-
-      // Check URL query parameters (e.g. /foods?item=apple or /foods?id=apple)
+      // Check URL query parameters (e.g. /foods?item=apple, /foods?id=apple, /foods?search=mango, /foods?sort=high-protein)
       const params = new URLSearchParams(window.location.search);
       const targetId = params.get('item') || params.get('id');
+      const searchQuery = params.get('search') || params.get('q') || '';
+      const sortParam = (params.get('sort') || 'default') as MacroSortOption;
+      const macroParam = (params.get('macro') || 'all') as typeof macroFilter;
+
+      const activeSort: MacroSortOption = ['default', 'protein-desc', 'calories-asc', 'calories-desc', 'fiber-desc', 'carbs-asc', 'fat-asc'].includes(sortParam)
+        ? sortParam
+        : 'default';
+      const activeMacro = ['all', 'high-protein', 'low-cal', 'high-fiber', 'low-carb', 'low-fat'].includes(macroParam)
+        ? macroParam
+        : 'all';
+
+      setMacroSort(activeSort);
+      setMacroFilter(activeMacro);
+      setInitialSearchQuery(searchQuery);
+
+      const criteria: SearchFilters = { query: searchQuery, category: 'all' };
+      setCurrentFilters(criteria);
+
+      const processed = applyAllTransforms(contextFoods, criteria, activeMacro, activeSort);
+      setFoods(processed);
+
       if (targetId) {
-        const found = sorted.find(f => 
+        const found = contextFoods.find(f => 
           f.id.toLowerCase() === targetId.toLowerCase() || 
           f.name?.en?.toLowerCase().replace(/\s+/g, '-') === targetId.toLowerCase()
         );
@@ -70,50 +141,50 @@ export default function Foods() {
         }
       }
     }
-  }, [contextFoods]);
+  }, [contextFoods, location]);
 
   const handleSearch = async (filters: SearchFilters) => {
     try {
       setCurrentPage(1); // Reset to Page 1 on search / category filter
-      let results: FoodItemClient[];
-      
-      if (offlineStatus === 'offline') {
-        // Search in IndexedDB
-        results = await searchFoodItems(filters.query, filters.category);
-      } else {
-        // Source active database foods from context
-        const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
-        results = [...sourceData];
-        
-        if (filters.query) {
-          const query = filters.query.toLowerCase();
-          results = results.filter(item => 
-            Object.values(item.name || {}).some(val => val && val.toLowerCase().includes(query)) ||
-            Object.values(item.description || {}).some(val => val && val.toLowerCase().includes(query)) ||
-            (item.origin && item.origin.toLowerCase().includes(query))
-          );
-        }
-        
-        if (filters.category !== 'all') {
-          results = results.filter(item => matchesCategory(item, filters.category));
-        }
-      }
-      
-      // Always sort filtered category results in A-to-Z alphabetical order
-      const sortedResults = sortFoodsAToZ(results);
-      setFoods(sortedResults);
+      setCurrentFilters(filters);
 
-      // Log historical search data into the existing storage interface
+      const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
+      let baseResults = [...sourceData];
+
+      if (offlineStatus === 'offline') {
+        baseResults = await searchFoodItems(filters.query, filters.category);
+      }
+
+      const processed = applyAllTransforms(baseResults, filters, macroFilter, macroSort);
+      setFoods(processed);
+
+      // Log historical search data
       if (filters.query?.trim() || (filters.category && filters.category !== 'all')) {
         addSearchHistory({
           query: filters.query || '',
           category: filters.category || 'all',
-          resultCount: sortedResults.length
-        }).catch(err => console.warn('Failed to record search history in foods page:', err));
+          resultCount: processed.length
+        }).catch(err => console.warn('Failed to record search history:', err));
       }
     } catch (error) {
       console.error('Error searching foods:', error);
     }
+  };
+
+  const handleSortChange = (newSort: MacroSortOption) => {
+    setMacroSort(newSort);
+    setCurrentPage(1);
+    const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
+    const processed = applyAllTransforms(sourceData, currentFilters, macroFilter, newSort);
+    setFoods(processed);
+  };
+
+  const handleMacroFilterChange = (newFilter: typeof macroFilter) => {
+    setMacroFilter(newFilter);
+    setCurrentPage(1);
+    const sourceData = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
+    const processed = applyAllTransforms(sourceData, currentFilters, newFilter, macroSort);
+    setFoods(processed);
   };
 
   const handlePageChange = (page: number) => {
@@ -159,7 +230,7 @@ export default function Foods() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `nutriglobe_complete_food_catalog_${exportItems.length}_items.csv`);
+    link.setAttribute('download', `nutrifacts_complete_food_catalog_${exportItems.length}_items.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -320,7 +391,6 @@ export default function Foods() {
             <Scale className="w-4 h-4 text-emerald-400" />
             <span>Compare Foods (VS)</span>
           </Button>
-          <DataSyncStatusIndicator variant="compact" />
           <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-3.5 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 hidden md:inline-block">
             Page {currentPage} of {totalPages} ({foods.length.toLocaleString()} Total)
           </span>
@@ -331,7 +401,80 @@ export default function Foods() {
       {/* Top Google AdSense Responsive Banner across all 1,376 foods */}
       <AdBanner slot="1002003001" format="auto" className="my-3" />
 
-      <SearchFilter onSearch={handleSearch} />
+      <SearchFilter onSearch={handleSearch} initialQuery={initialSearchQuery} />
+
+      {/* Macronutrient Content & Discovery Filter Bar */}
+      <div className="bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 rounded-2xl p-3 sm:p-4 mb-6 shadow-xl space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-500/40 flex items-center justify-center shrink-0">
+              <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2">
+                Macronutrient Content & Discovery Filter
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30 font-bold">
+                  {foods.length} Foods Found
+                </span>
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Sort and filter the entire food database by protein density, caloric content, or fiber.
+              </p>
+            </div>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-slate-400 font-semibold">Sort by:</span>
+            <select
+              value={macroSort}
+              onChange={(e) => handleSortChange(e.target.value as MacroSortOption)}
+              className="bg-slate-800 border border-slate-700 hover:border-emerald-500/50 text-white text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 cursor-pointer"
+            >
+              <option value="default">Alphabetical (A - Z)</option>
+              <option value="protein-desc">High Protein (Highest First)</option>
+              <option value="calories-asc">Low Calorie (Lowest Energy First)</option>
+              <option value="calories-desc">High Calorie (Energy-Dense First)</option>
+              <option value="fiber-desc">High Fiber (Highest First)</option>
+              <option value="carbs-asc">Low Carb (Keto Friendly)</option>
+              <option value="fat-asc">Low Fat (Lean First)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Quick Macro Filter Pills */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-800">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+            Macro Targets:
+          </span>
+          {[
+            { id: 'all', label: 'All Foods' },
+            { id: 'high-protein', label: 'High Protein (>15g)', icon: Dumbbell },
+            { id: 'low-cal', label: 'Low Calorie (<60 kcal)', icon: Flame },
+            { id: 'high-fiber', label: 'High Fiber (>5g)' },
+            { id: 'low-carb', label: 'Low Carb (<5g)' },
+            { id: 'low-fat', label: 'Low Fat (<3g)' },
+          ].map((tab) => {
+            const active = macroFilter === tab.id;
+            const Icon = (tab as any).icon;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleMacroFilterChange(tab.id as any)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  active 
+                    ? 'bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-900/40' 
+                    : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500/40'
+                }`}
+              >
+                {Icon && <Icon className="w-3 h-3 text-amber-300" />}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       
       {/* Top Pagination Bar */}
       {foods.length > 0 && (

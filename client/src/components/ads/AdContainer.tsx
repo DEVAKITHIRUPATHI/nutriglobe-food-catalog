@@ -44,7 +44,7 @@ export const NeutralAdPlaceholder: React.FC<{
   const amazonQuery = encodeURIComponent(
     foodName ? `${foodName} kitchen food scale prep` : (category || 'digital food scale nutrition')
   );
-  const sponsorUrl = `https://www.amazon.com/s?k=${amazonQuery}&tag=nutriglobe20-20`;
+  const sponsorUrl = `https://www.amazon.com/s?k=${amazonQuery}&tag=nutrifacts20-20`;
 
   return (
     <aside
@@ -293,12 +293,12 @@ export const AdContainer: React.FC<AdContainerProps> = ({
   const amazonQuery = encodeURIComponent(
     foodName ? `${foodName} kitchen scale prep` : (category || 'digital food scale nutrition')
   );
-  const amazonUrl = `https://www.amazon.com/s?k=${amazonQuery}&tag=nutriglobe20-20`;
+  const amazonUrl = `https://www.amazon.com/s?k=${amazonQuery}&tag=nutrifacts20-20`;
 
   const flipkartQuery = encodeURIComponent(
     foodName ? `${foodName} organic grocery` : (category || 'kitchen scale food')
   );
-  const flipkartUrl = `https://www.flipkart.com/search?q=${flipkartQuery}&affid=nutriglobe`;
+  const flipkartUrl = `https://www.flipkart.com/search?q=${flipkartQuery}&affid=nutrifacts`;
 
   // Graceful failure handling: either collapse height completely to null or show neutral placeholder
   if (resolvedType === 'adsense' && (isFailed || isAdBlockDetected)) {

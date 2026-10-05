@@ -6,11 +6,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useFoodSEO } from '@/hooks/useFoodSEO';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 import { FoodItemClient } from '@shared/schema';
+import { toCanonicalSlug, resolveCanonicalFoodId, CANONICAL_SLUG_ALIASES } from '@shared/canonicalSlug';
 import { getAccurateFoodImage, handleFoodImageError, getGoogleImageSearchUrl, getExcelHyperlinkFormula, autoCheckFoodAccuracy } from '@/lib/foodImageResolver';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
+import { FoodKnowledgeHub } from '@/components/foods/FoodKnowledgeHub';
 import { AdContainer } from '@/components/ads/AdContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,16 +52,26 @@ export default function FoodDetailPage() {
     }
 
     const cleanTarget = decodeURIComponent(foodId).toLowerCase().trim();
+    const targetCanonicalId = resolveCanonicalFoodId(cleanTarget);
     const all = (contextFoods && contextFoods.length > 0) ? contextFoods : [];
+
+    // Helper to sync canonical URL in browser history without reload
+    const syncCanonicalUrl = (item: FoodItemClient) => {
+      const canonicalSlug = toCanonicalSlug(item.id);
+      if (typeof window !== 'undefined' && (paramsFoods?.id || rawId !== canonicalSlug)) {
+        window.history.replaceState(null, '', `/food/${canonicalSlug}`);
+      }
+    };
 
     // 1. Try matching from in-memory contextFoods
     const matched = all.find(f => {
       const fId = (f.id || '').toLowerCase();
-      const fSlug = fId.replace(/_/g, '-');
+      const fSlug = toCanonicalSlug(f.id);
       const fUnder = fId.replace(/-/g, '_');
       const nameSlug = (f.name?.en || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       return (
         fId === cleanTarget ||
+        fId === targetCanonicalId ||
         fSlug === cleanTarget ||
         fUnder === cleanTarget ||
         nameSlug === cleanTarget ||
@@ -69,6 +81,7 @@ export default function FoodDetailPage() {
 
     if (matched) {
       setFood(matched);
+      syncCanonicalUrl(matched);
       const category = matched.category?.[0];
       const related = all
         .filter(f => f.id !== matched.id && f.category?.includes(category))
@@ -88,6 +101,7 @@ export default function FoodDetailPage() {
       .then((item: FoodItemClient) => {
         if (item && item.id) {
           setFood(item);
+          syncCanonicalUrl(item);
           if (all.length > 0) {
             const category = item.category?.[0];
             const related = all
@@ -95,18 +109,13 @@ export default function FoodDetailPage() {
               .slice(0, 4);
             setRelatedFoods(related);
           }
+        } else {
+          setFood(null);
         }
       })
       .catch(() => {
-        // Fallback: search query
-        fetch(`/api/foods?query=${encodeURIComponent(cleanTarget.replace(/-/g, ' '))}`)
-          .then(r => r.json())
-          .then((items: FoodItemClient[]) => {
-            if (Array.isArray(items) && items.length > 0) {
-              setFood(items[0]);
-            }
-          })
-          .catch(() => {});
+        // Explicitly set null on 404 - DO NOT fall back to arbitrary search results
+        setFood(null);
       })
       .finally(() => {
         setIsLoading(false);
@@ -223,6 +232,14 @@ export default function FoodDetailPage() {
         <Link href="/foods">
           <span className="hover:text-emerald-600 transition-colors cursor-pointer">Foods</span>
         </Link>
+        {food.category?.[0] && (
+          <>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+            <Link href={`/foods?category=${encodeURIComponent(food.category[0].toLowerCase())}`}>
+              <span className="hover:text-emerald-600 transition-colors cursor-pointer capitalize">{food.category[0]}</span>
+            </Link>
+          </>
+        )}
         <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
         <span className="text-gray-900 dark:text-white font-semibold capitalize truncate max-w-xs">
           {t(food.name)}
@@ -237,7 +254,7 @@ export default function FoodDetailPage() {
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner group">
               <img
                 src={getAccurateFoodImage(food)}
-                alt={`${t(food.name)} Clinical Photography`}
+                alt={`Fresh ${t(food.name)}`}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => handleFoodImageError(e, food.category)}
                 loading="eager"
@@ -354,169 +371,9 @@ export default function FoodDetailPage() {
         </div>
       </div>
 
-      {/* Main Tabs Section: Complete Nutritional Breakdown & Health Systems */}
+      {/* Main Tabs Section: Complete Multi-Dimensional Food Knowledge Profile */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-sm">
-        <Tabs defaultValue="nutrition" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl mb-6">
-            <TabsTrigger value="nutrition" className="rounded-xl font-bold text-xs py-2.5">
-              Nutrition Facts Label
-            </TabsTrigger>
-            <TabsTrigger value="organs" className="rounded-xl font-bold text-xs py-2.5">
-              Organ Targets
-            </TabsTrigger>
-            <TabsTrigger value="interactions" className="rounded-xl font-bold text-xs py-2.5">
-              Interactions & Cautions
-            </TabsTrigger>
-            <TabsTrigger value="benefits" className="rounded-xl font-bold text-xs py-2.5">
-              Health Benefits
-            </TabsTrigger>
-          </TabsList>
-
-          {/* 1. FDA/WHO Standard Nutrition Facts Tab */}
-          <TabsContent value="nutrition" className="space-y-6">
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              <div className="w-full lg:w-96 shrink-0">
-                <NutritionFactsLabel item={food} />
-              </div>
-              <div className="flex-1 space-y-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Clinical Nutrient Profile per 100g
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {food.digestibilityNotes || `Digestibility and metabolic bioavailability are optimal when ${t(food.name)} is integrated with a balanced daily caloric intake.`}
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Dietary Fiber</span>
-                    <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{food.nutrition?.fiber ?? 0} g</span>
-                    <p className="text-[11px] text-slate-500 mt-1">Aids digestion and healthy gut motility.</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Natural Sugars</span>
-                    <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{(food.nutrition as any)?.sugar ?? 0} g</span>
-                    <p className="text-[11px] text-slate-500 mt-1">Provides direct cellular glucose energy.</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Key Micronutrients</span>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {food.nutrition?.vitamins && Object.entries(food.nutrition.vitamins).map(([vit, val]) => (
-                        <span key={vit} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold rounded-md">
-                          {vit}: {val}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Essential Minerals</span>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {food.nutrition?.minerals && Object.entries(food.nutrition.minerals).map(([min, val]) => (
-                        <span key={min} className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[10px] font-bold rounded-md">
-                          {min}: {val}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* 2. Organ Benefits Tab */}
-          <TabsContent value="organs" className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Targeted Biological System Support
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {organBenefits.map((ob, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold uppercase px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded-lg">
-                      {ob.organ}
-                    </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">
-                      Evidence: {ob.evidenceLevel}
-                    </span>
-                  </div>
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{ob.benefit}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Key Driver: <strong className="text-emerald-600 dark:text-emerald-400">{ob.supportingNutrient}</strong>
-                  </p>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* 3. Interactions & Cautions Tab */}
-          <TabsContent value="interactions" className="space-y-6">
-            <div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                Food Combinations & Incompatible Pairings
-              </h3>
-              <div className="space-y-3">
-                {foodInteractions.map((item, idx) => (
-                  <div key={idx} className="p-4 bg-amber-50/50 dark:bg-amber-950/30 rounded-2xl border border-amber-200/60 dark:border-amber-800/40 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                        Avoid with: {item.itemOrCategory}
-                      </span>
-                      <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase">
-                        {item.evidenceLevel}
-                      </span>
-                    </div>
-                    <p className="text-xs text-amber-800/90 dark:text-amber-300/90">{item.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-rose-500" />
-                Clinical Health Conditions & Precautions
-              </h3>
-              <div className="space-y-3">
-                {cautionConditions.map((cond, idx) => (
-                  <div key={idx} className="p-4 bg-rose-50/50 dark:bg-rose-950/30 rounded-2xl border border-rose-200/60 dark:border-rose-800/40 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-rose-900 dark:text-rose-200">
-                        {cond.condition}
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 rounded">
-                        Severity: {cond.severity}
-                      </span>
-                    </div>
-                    <p className="text-xs text-rose-800/90 dark:text-rose-300/90">{cond.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* 4. Health Benefits Tab */}
-          <TabsContent value="benefits" className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Evidence-Based Nutritional Benefits
-            </h3>
-            <div className="space-y-3">
-              {food.healthBenefits && food.healthBenefits.length > 0 ? (
-                food.healthBenefits.map((benefit, idx) => (
-                  <div key={idx} className="p-4 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200/60 dark:border-emerald-800/40 flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium text-emerald-950 dark:text-emerald-200">
-                      {t(benefit)}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-sm text-slate-500">
-                  Rich source of essential macro and micronutrients conforming with WHO dietary reference values.
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+        <FoodKnowledgeHub item={food} />
       </div>
 
       {/* 3. RELATED CONTENT: Related Foods in Same Category */}
@@ -539,13 +396,26 @@ export default function FoodDetailPage() {
               <FoodCard
                 key={item.id}
                 item={item}
-                onViewDetails={(selected) => setLocation(`/food/${selected.id}`)}
+                onViewDetails={(selected) => setLocation(`/food/${toCanonicalSlug(selected.id)}`)}
                 onCompare={handleCompare}
               />
             ))}
           </div>
         </div>
       )}
+
+      {/* 3.5. MEDICAL & CLINICAL NUTRITION DISCLAIMER */}
+      <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-950 dark:text-amber-200 text-xs leading-relaxed flex items-start gap-3 my-6 shadow-xs">
+        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <div className="font-extrabold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">
+            Clinical Nutrition &amp; Health Information Notice
+          </div>
+          <p>
+            Nutritional metrics, micronutrient calculations, and functional dietary observations presented for <strong>{t(food.name)}</strong> are compiled from WHO, USDA, and ICMR-NIN public reference datasets for informational and educational purposes only. They do not constitute personalized medical diagnosis, prescription, or clinical treatment advice. Always consult a licensed healthcare physician or registered dietitian before modifying dietary management for medical conditions. <Link href="/disclaimer" className="text-amber-700 dark:text-amber-300 underline font-bold ml-1">Read Complete Medical Disclaimer →</Link>
+          </p>
+        </div>
+      </div>
 
       {/* 4. ADVERTISEMENT: Google AdSense Unit (Explicitly labeled) */}
       <AdContainer 

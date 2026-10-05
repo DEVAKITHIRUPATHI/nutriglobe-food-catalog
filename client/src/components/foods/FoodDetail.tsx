@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { Link } from 'wouter';
 import { FoodItemClient } from '@shared/schema';
+import { toCanonicalSlug } from '@shared/canonicalSlug';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ import { AdContainer } from '@/components/ads/AdContainer';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { NutritionFactsLabel } from '@/components/foods/NutritionFactsLabel';
 import { FoodImageStudioModal } from '@/components/foods/FoodImageStudioModal';
+import { FoodKnowledgeHub } from '@/components/foods/FoodKnowledgeHub';
 import { Wand2 } from 'lucide-react';
 import { usePageViewCounter } from '@/hooks/usePageViewCounter';
 import { useFoodSEO } from '@/hooks/useFoodSEO';
@@ -201,7 +203,7 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
               {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'Copied Link!' : 'Share'}
             </Button>
-            <Link href={`/food/${(item.id || '').toLowerCase().replace(/_/g, '-')}`}>
+            <Link href={`/food/${toCanonicalSlug(item.id)}`}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -396,237 +398,8 @@ export function FoodDetail({ item, isOpen, onClose, onCompare }: FoodDetailProps
             </div>
           </div>
 
-          {/* Expanded 5 Intelligence Tabs */}
-          <Tabs defaultValue="nutrition" className="w-full pt-2">
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
-              <TabsTrigger value="nutrition" className="text-xs py-2">
-                🥗 Nutrition & RDA%
-              </TabsTrigger>
-              <TabsTrigger value="digestion" className="text-xs py-2 flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" /> Digestion & Timing
-              </TabsTrigger>
-              <TabsTrigger value="interactions" className="text-xs py-2 flex items-center gap-1">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Interactions
-              </TabsTrigger>
-              <TabsTrigger value="medical" className="text-xs py-2 flex items-center gap-1">
-                <Stethoscope className="h-3.5 w-3.5 text-blue-500" /> Medical Suitability
-              </TabsTrigger>
-              <TabsTrigger value="organ" className="text-xs py-2 flex items-center gap-1">
-                <HeartPulse className="h-3.5 w-3.5 text-rose-500" /> Organ Benefits
-              </TabsTrigger>
-            </TabsList>
-
-            {/* TAB 1: NUTRITION & RDA% */}
-            <TabsContent value="nutrition" className="space-y-6 pt-4">
-              <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
-                  <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200">
-                    Clinical Micronutrient & RDA Profile (per 100g)
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                      Reference Standard: ICMR-NIN / FSSAI Guidelines
-                    </span>
-                  </div>
-                </div>
-
-                {/* Macro Progress Bars */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-center shadow-sm">
-                    <span className="text-xs text-gray-500">Calories</span>
-                    <div className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">{item.nutrition.calories} <span className="text-xs font-normal">kcal</span></div>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-center shadow-sm">
-                    <span className="text-xs text-gray-500">Protein</span>
-                    <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{item.nutrition.protein}g</div>
-                    <span className="text-[10px] text-emerald-600 font-semibold">{Math.round((item.nutrition.protein / 60) * 100)}% RDA</span>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-center shadow-sm">
-                    <span className="text-xs text-gray-500">Carbohydrates</span>
-                    <div className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">{item.nutrition.carbs}g</div>
-                    <span className="text-[10px] text-amber-600 font-semibold">{Math.round((item.nutrition.carbs / 130) * 100)}% RDA</span>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-center shadow-sm">
-                    <span className="text-xs text-gray-500">Dietary Fiber</span>
-                    <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-0.5">{item.nutrition.fiber}g</div>
-                    <span className="text-[10px] text-purple-600 font-semibold">{Math.round((item.nutrition.fiber / 30) * 100)}% RDA</span>
-                  </div>
-                </div>
-
-                {/* Vitamins & Minerals Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                  <div className="space-y-2">
-                    <h5 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Vitamins Breakdown</h5>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(item.nutrition.vitamins || {}).map(([v, val]) => (
-                        <div key={v} className="bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border text-xs flex items-center justify-between w-full sm:w-auto gap-3">
-                          <span className="font-semibold text-gray-800 dark:text-gray-200">Vit {v}</span>
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h5 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Minerals Breakdown</h5>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(item.nutrition.minerals || { Iron: '2.1mg', Calcium: '20mg', Potassium: '168mg' }).map(([m, val]) => (
-                        <div key={m} className="bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border text-xs flex items-center justify-between w-full sm:w-auto gap-3">
-                          <span className="font-semibold text-gray-800 dark:text-gray-200">{m}</span>
-                          <span className="text-blue-600 dark:text-blue-400 font-bold">{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Printable FDA Style Nutrition Facts Label Box */}
-              <div className="pt-2">
-                <NutritionFactsLabel item={item} onPrint={handleDownloadCard} showPrintButton={true} />
-              </div>
-            </TabsContent>
-
-            {/* TAB 2: DIGESTION & TIMING */}
-            <TabsContent value="digestion" className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl space-y-1">
-                  <div className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400">Avg Digestion Time</div>
-                  <div className="text-2xl font-black text-emerald-900 dark:text-emerald-200">{digestionTime}</div>
-                  <div className="text-[11px] text-emerald-700 dark:text-emerald-400">Gastric emptying duration</div>
-                </div>
-
-                <div className="p-4 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-xl space-y-1">
-                  <div className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400">Best Time to Consume</div>
-                  <div className="text-lg font-bold text-blue-900 dark:text-blue-200">{bestTime}</div>
-                  <div className="text-[11px] text-blue-700 dark:text-blue-400">Optimal metabolic absorption</div>
-                </div>
-
-                <div className="p-4 bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900 rounded-xl space-y-1">
-                  <div className="text-xs font-semibold uppercase text-purple-700 dark:text-purple-400">Gap Before Next Meal</div>
-                  <div className="text-2xl font-black text-purple-900 dark:text-purple-200">{idealGap} Hours</div>
-                  <div className="text-[11px] text-purple-700 dark:text-purple-400">Prevents digestive fermentation</div>
-                </div>
-              </div>
-
-              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border text-sm text-gray-700 dark:text-gray-300">
-                <strong className="text-gray-900 dark:text-white font-semibold">Digestibility Guidance: </strong>
-                {digestibilityNotes}
-              </div>
-            </TabsContent>
-
-            {/* TAB 3: FOOD COMBINING & CONTRAINDICATIONS */}
-            <TabsContent value="interactions" className="space-y-4 pt-4">
-              <div className="p-4 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-xl space-y-3">
-                <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200 text-sm">
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  Food Combining Cautions & Incompatible Pairings (Viruddha Ahara)
-                </div>
-
-                <div className="space-y-2">
-                  {foodInteractions.map((rule, idx) => (
-                    <div key={idx} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-amber-200/60 dark:border-amber-900/50 text-xs space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-800 dark:text-amber-300">Avoid pairing with: {rule.itemOrCategory}</span>
-                        <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded uppercase font-semibold">
-                          {rule.evidenceLevel.replace('_', ' ')}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-400">{rule.reason}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Caution Conditions */}
-              <div className="p-4 bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl space-y-2">
-                <h5 className="font-bold text-xs uppercase text-red-700 dark:text-red-400">Health Condition Precaution Notes</h5>
-                <div className="space-y-1.5">
-                  {cautionConditions.map((cond, i) => (
-                    <div key={i} className="text-xs text-red-900 dark:text-red-200 flex items-start gap-2">
-                      <span className="font-semibold">{cond.condition}:</span> {cond.reason}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* TAB 4: MEDICAL SUITABILITY */}
-            <TabsContent value="medical" className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl space-y-2">
-                  <h5 className="font-bold text-xs uppercase text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    Generally Suitable For
-                  </h5>
-                  <ul className="space-y-1 text-xs text-emerald-900 dark:text-emerald-200">
-                    {medicalSuitability.suitableFor.map((s, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full" />
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-xl space-y-2">
-                  <h5 className="font-bold text-xs uppercase text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    Caution / Avoid For
-                  </h5>
-                  <ul className="space-y-1 text-xs text-amber-900 dark:text-amber-200">
-                    {medicalSuitability.cautionFor.map((c, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 bg-amber-500 rounded-full" />
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Mandatory Medical Disclaimer Banner */}
-              <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl border text-[11px] text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                <Info className="h-4 w-4 text-gray-500 shrink-0 mt-0.5" />
-                <span>{medicalSuitability.disclaimer}</span>
-              </div>
-            </TabsContent>
-
-            {/* TAB 5: ORGAN BENEFITS & PLANT PROFILE */}
-            <TabsContent value="organ" className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {organBenefits.map((ob, idx) => (
-                  <div key={idx} className="p-4 border rounded-xl bg-white dark:bg-gray-800 space-y-1 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs uppercase text-rose-600 dark:text-rose-400 flex items-center gap-1">
-                        <HeartPulse className="h-4 w-4" /> Organ: {ob.organ}
-                      </span>
-                      <span className="bg-rose-50 text-rose-700 text-[10px] px-2 py-0.5 rounded font-semibold border border-rose-200">
-                        {ob.evidenceLevel}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-700 dark:text-gray-300">{ob.benefit}</p>
-                    <div className="text-[11px] text-gray-500">Active Compound: <strong className="text-gray-700 dark:text-gray-300">{ob.supportingNutrient}</strong></div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Plant Profile if applicable */}
-              {plantProfile && (
-                <div className="p-4 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl space-y-2">
-                  <h5 className="font-bold text-xs uppercase text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                    <Sprout className="h-4 w-4 text-emerald-600" /> Plant & Crop Profile
-                  </h5>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div><span className="text-gray-500">Type:</span> <br/><strong className="text-gray-800 dark:text-gray-200">{plantProfile.plantType}</strong></div>
-                    <div><span className="text-gray-500">Climate:</span> <br/><strong className="text-gray-800 dark:text-gray-200">{plantProfile.climateZone}</strong></div>
-                    <div><span className="text-gray-500">Ideal Soil:</span> <br/><strong className="text-gray-800 dark:text-gray-200">{plantProfile.idealSoilType}</strong></div>
-                    <div><span className="text-gray-500">Harvest:</span> <br/><strong className="text-gray-800 dark:text-gray-200">{plantProfile.harvestSeason}</strong></div>
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+          {/* Full Scientific Knowledge Hub (Nutrition, Organs, Benefits, Digestion, Growing, Storage, Culinary, Safety, Guide & FAQs) */}
+          <FoodKnowledgeHub item={item} className="pt-2" />
 
           {/* 4. ADVERTISEMENT: Google AdSense Responsive Unit */}
           <AdContainer 

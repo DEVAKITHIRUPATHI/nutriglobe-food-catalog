@@ -1,18 +1,18 @@
 {
-  "totalProcessed": 1376,
+  "totalProcessed": 1379,
   "updatedCount": 1180,
-  "alreadyAccurateCount": 196,
-  "curatedMatchCount": 1376,
+  "alreadyAccurateCount": 199,
+  "curatedMatchCount": 1379,
   "fallbackCount": 0,
   "successRate": "100.0%",
   "isDatabaseConnected": false,
   "dryRun": true,
-  "durationMs": 571,
+  "durationMs": 564,
   "summaryByCategory": {
     "fruits": {
-      "total": 528,
+      "total": 529,
       "updated": 460,
-      "curated": 528
+      "curated": 529
     },
     "spices": {
       "total": 114,
@@ -20,9 +20,9 @@
       "curated": 114
     },
     "grains": {
-      "total": 113,
+      "total": 114,
       "updated": 100,
-      "curated": 113
+      "curated": 114
     },
     "vegetables": {
       "total": 317,
@@ -43,6 +43,11 @@
       "total": 69,
       "updated": 60,
       "curated": 69
+    },
+    "beverages": {
+      "total": 1,
+      "updated": 0,
+      "curated": 1
     },
     "legumes": {
       "total": 79,

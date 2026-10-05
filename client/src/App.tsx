@@ -30,6 +30,9 @@ const PrivacyPage = lazy(() => import("@/pages/privacy"));
 const TermsPage = lazy(() => import("@/pages/terms"));
 const ContactPage = lazy(() => import("@/pages/contact"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const DisclaimerPage = lazy(() => import("@/pages/disclaimer"));
+const AffiliateDisclosurePage = lazy(() => import("@/pages/affiliate-disclosure"));
+const CookiePolicyPage = lazy(() => import("@/pages/cookie-policy"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -57,7 +60,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     // Main layout container with flexbox
-    <div id="nutriglobe-app-root" className="min-h-screen flex flex-col relative bg-slate-50/50 dark:bg-slate-950">
+    <div id="nutrifacts-app-root" className="min-h-screen flex flex-col relative bg-slate-50/50 dark:bg-slate-950">
       <GlobalLoadingIndicator />
       <OfflineBanner />
       <ReconnectionSyncIndicator />
@@ -157,6 +160,26 @@ function Router() {
       <Route path="/contact">
         <Layout>
           <ContactPage />
+        </Layout>
+      </Route>
+      <Route path="/disclaimer">
+        <Layout>
+          <DisclaimerPage />
+        </Layout>
+      </Route>
+      <Route path="/medical-disclaimer">
+        <Layout>
+          <DisclaimerPage />
+        </Layout>
+      </Route>
+      <Route path="/affiliate-disclosure">
+        <Layout>
+          <AffiliateDisclosurePage />
+        </Layout>
+      </Route>
+      <Route path="/cookie-policy">
+        <Layout>
+          <CookiePolicyPage />
         </Layout>
       </Route>
       <Route path="/nutrition">

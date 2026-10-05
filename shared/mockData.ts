@@ -375,6 +375,208 @@ const baseFoodList: FoodItemClient[] = [
     allergens: ['milk'],
     isPopular: true
   },
+  {
+    id: 'whole_wheat_grain',
+    name: {
+      en: 'Whole Wheat Grain',
+      hi: 'गेहूं का दाना',
+      ta: 'முழு கோதுமை'
+    },
+    description: {
+      en: 'Nutrient-dense foundational cereal grain rich in dietary fiber, manganese, and B-complex vitamins',
+      hi: 'आहार फाइबर, मैंगनीज और बी-विटामिन से भरपूर मुख्य अनाज',
+      ta: 'நார்ச்சத்து, மாங்கனீசு மற்றும் பி-வைட்டமின்கள் நிறைந்த முக்கிய தானியம்'
+    },
+    origin: 'Fertile Crescent (Middle East)',
+    price: 2.19,
+    image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80',
+    category: ['grains', 'staple', 'cereals'],
+    nutrition: {
+      calories: 340,
+      carbs: 72,
+      protein: 13.2,
+      fat: 2.5,
+      fiber: 10.7,
+      vitamins: { 'Thiamine (B1)': '35%', 'Niacin (B3)': '42%', 'Folate (B9)': '11%' },
+      minerals: { 'Manganese': '186%', 'Phosphorus': '36%', 'Magnesium': '34%', 'Iron': '21%' }
+    },
+    allergens: ['gluten', 'wheat'],
+    isPopular: true
+  },
+  {
+    id: 'banana',
+    name: {
+      en: 'Banana',
+      hi: 'केला',
+      ta: 'வாழைப்பழம்'
+    },
+    description: {
+      en: 'Potassium-rich tropical fruit providing readily accessible carbohydrate energy and prebiotic fructooligosaccharides',
+      hi: 'पोटेशियम से भरपूर उष्णकटिबंधीय फल जो तुरंत ऊर्जा और प्रीबायोटिक फाइबर प्रदान करता है',
+      ta: 'பொட்டாசியம் மற்றும் இயற்கை ஆற்றல் நிறைந்த வெப்பமண்டல பழம்'
+    },
+    origin: 'Southeast Asia',
+    price: 1.29,
+    image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80',
+    category: ['fruits', 'tropical', 'energy'],
+    nutrition: {
+      calories: 89,
+      carbs: 22.8,
+      protein: 1.1,
+      fat: 0.3,
+      fiber: 2.6,
+      potassium: 358,
+      vitamins: { 'Vitamin B6': '31%', 'Vitamin C': '14%', 'Folate': '5%' },
+      minerals: { 'Potassium': '358mg', 'Magnesium': '27mg', 'Manganese': '0.3mg' }
+    },
+    allergens: [],
+    isPopular: true
+  },
+  {
+    id: 'coconut_mature',
+    name: {
+      en: 'Coconut',
+      hi: 'नारियल',
+      ta: 'தேங்காய்'
+    },
+    description: {
+      en: 'Nutrient-dense tropical drupe featuring medium-chain triglycerides, lauric acid, and dietary fiber',
+      hi: 'मध्यम-श्रृंखला ट्राइग्लिसराइड्स और लौरिक एसिड से भरपूर उष्णकटिबंधीय फल',
+      ta: 'ஆரோக்கியமான கொழுப்பு அமிலங்கள் மற்றும் நார்ச்சத்து நிறைந்த வெப்பமண்டல தேங்காய்'
+    },
+    origin: 'Coastal Indo-Pacific',
+    price: 2.89,
+    image: 'https://images.unsplash.com/photo-1544378730-8b5104b18790?auto=format&fit=crop&q=80',
+    category: ['fruits', 'tropical', 'superfoods'],
+    nutrition: {
+      calories: 354,
+      carbs: 15.2,
+      protein: 3.3,
+      fat: 33.5,
+      fiber: 9.0,
+      potassium: 356,
+      vitamins: { 'Folate': '6%', 'Vitamin C': '5%', 'Thiamine': '5%' },
+      minerals: { 'Manganese': '75%', 'Copper': '48%', 'Selenium': '15%' }
+    },
+    allergens: ['tree nuts'],
+    isPopular: true
+  },
+  {
+    id: 'tender_coconut',
+    name: {
+      en: 'Tender Coconut',
+      hi: 'डाब / कच्चा नारियल पानी',
+      ta: 'இளநீர்'
+    },
+    description: {
+      en: 'Natural isotonic beverage packed with bioavailable electrolytes including potassium, sodium, and magnesium',
+      hi: 'पोटेशियम और मैग्नीशियम से भरपूर प्राकृतिक इलेक्ट्रोलाइट पेय',
+      ta: 'இயற்கையான எலக்ட்ரோலைட்டுகள் நிறைந்த புத்துணர்ச்சியூட்டும் இளநீர்'
+    },
+    origin: 'Tropical Coastal Asia',
+    price: 2.49,
+    image: 'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?auto=format&fit=crop&q=80',
+    category: ['beverages', 'fruits', 'hydration'],
+    nutrition: {
+      calories: 19,
+      carbs: 3.7,
+      protein: 0.7,
+      fat: 0.2,
+      fiber: 1.1,
+      potassium: 250,
+      vitamins: { 'Vitamin C': '4%', 'Riboflavin': '4%' },
+      minerals: { 'Potassium': '250mg', 'Sodium': '105mg', 'Magnesium': '25mg' }
+    },
+    allergens: [],
+    isPopular: true
+  },
+  {
+    id: 'jackfruit_ripe',
+    name: {
+      en: 'Jackfruit',
+      hi: 'कटहल',
+      ta: 'பலாப்பழம்'
+    },
+    description: {
+      en: 'Enormous tropical multiple fruit offering dietary fiber, prenylflavonoids, and balanced natural sweetness',
+      hi: 'आहार फाइबर और एंटीऑक्सीडेंट से भरपूर विशाल उष्णकटिबंधीय फल',
+      ta: 'சுவையும் நறுமணமும் நிறைந்த பாரம்பரிய முக்கனிகளில் ஒன்றான பலாப்பழம்'
+    },
+    origin: 'Western Ghats, India',
+    price: 3.99,
+    image: 'https://images.unsplash.com/photo-1596707328906-8d1844b2fa66?auto=format&fit=crop&q=80',
+    category: ['fruits', 'tropical', 'indian'],
+    nutrition: {
+      calories: 95,
+      carbs: 23.2,
+      protein: 1.7,
+      fat: 0.6,
+      fiber: 1.5,
+      potassium: 448,
+      vitamins: { 'Vitamin C': '18%', 'Vitamin B6': '16%', 'Vitamin A': '6%' },
+      minerals: { 'Potassium': '448mg', 'Magnesium': '29mg', 'Copper': '10%' }
+    },
+    allergens: [],
+    isPopular: true
+  },
+  {
+    id: 'dragon_fruit',
+    name: {
+      en: 'Dragon Fruit',
+      hi: 'ड्रैगन फ्रूट (कमलम)',
+      ta: 'டிராகன் பழம்'
+    },
+    description: {
+      en: 'Vibrant cactus berry rich in betacyanins, dietary fiber, and essential fatty acids in tiny edible seeds',
+      hi: 'एंटीऑक्सिडेंट और फाइबर से भरपूर आकर्षक कैक्टस फल',
+      ta: 'பீட்டாசயனின் மற்றும் வைட்டமின் சி நிறைந்த டிராகன் பழம்'
+    },
+    origin: 'Central America',
+    price: 4.49,
+    image: 'https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&q=80',
+    category: ['fruits', 'tropical', 'exotic'],
+    nutrition: {
+      calories: 60,
+      carbs: 13.0,
+      protein: 1.2,
+      fat: 0.5,
+      fiber: 2.9,
+      potassium: 220,
+      vitamins: { 'Vitamin C': '9%', 'Iron': '4%' },
+      minerals: { 'Magnesium': '40mg', 'Calcium': '18mg' }
+    },
+    allergens: [],
+    isPopular: true
+  },
+  {
+    id: 'nungu_ice_apple',
+    name: {
+      en: 'Nungu / Ice Apple',
+      hi: 'ताड़गोला / आइस एप्पल',
+      ta: 'நுங்கு (பனை நுங்கு)'
+    },
+    description: {
+      en: 'Translucent cooling gelatinous endosperm from the Palmyra palm, prized for natural hydration and mineral electrolytes',
+      hi: 'गर्मी में ठंडक देने वाला प्राकृतिक ताल फल जो इलेक्ट्रोलाइट्स से भरपूर होता है',
+      ta: 'உடல் சூட்டைத் தணிக்கும் இயற்கையான பனை நுங்கு மற்றும் தாது உப்புகள்'
+    },
+    origin: 'South Asia & Southeast Asia',
+    price: 2.99,
+    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80',
+    category: ['fruits', 'tropical', 'seasonal', 'cooling'],
+    nutrition: {
+      calories: 43,
+      carbs: 11.0,
+      protein: 0.8,
+      fat: 0.1,
+      fiber: 1.0,
+      potassium: 190,
+      vitamins: { 'Vitamin C': '12%', 'Vitamin A': '4%', 'Vitamin B-Complex': '6%' },
+      minerals: { 'Potassium': '190mg', 'Calcium': '27mg', 'Phosphorus': '30mg', 'Iron': '1mg' }
+    },
+    allergens: [],
+    isPopular: true
+  },
   // Add more food items (first batch of the 1000+ items)
   createFoodItem(
     'lentils_red',

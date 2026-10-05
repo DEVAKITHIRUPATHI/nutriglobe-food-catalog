@@ -31,7 +31,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 57,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=digital+kitchen+weighing+scale&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=digital+kitchen+weighing+scale&affid=nutrifacts',
     highlightBadge: 'Top Kitchen Scale'
   },
   {
@@ -45,7 +45,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 34,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=organic+foxtail+millet&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=organic+foxtail+millet&affid=nutrifacts',
     highlightBadge: 'Flipkart Supermart Choice'
   },
   {
@@ -59,7 +59,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 44,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=wonderchef+nutri+blend&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=wonderchef+nutri+blend&affid=nutrifacts',
     highlightBadge: '#1 Bestseller Smoothie Maker'
   },
   {
@@ -73,7 +73,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 30,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=cold+pressed+virgin+coconut+oil&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=cold+pressed+virgin+coconut+oil&affid=nutrifacts',
     highlightBadge: '100% Cold-Pressed'
   },
   {
@@ -87,7 +87,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 31,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=happilo+california+almonds&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=happilo+california+almonds&affid=nutrifacts',
     highlightBadge: 'Supermart Pantry Essential'
   },
   {
@@ -101,7 +101,7 @@ const FLIPKART_DEALS: FlipkartProduct[] = [
     discountPercent: 23,
     flipkartAssured: true,
     imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80',
-    flipkartUrl: 'https://www.flipkart.com/search?q=kapiva+shilajit+resin&affid=nutriglobe',
+    flipkartUrl: 'https://www.flipkart.com/search?q=kapiva+shilajit+resin&affid=nutrifacts',
     highlightBadge: 'Ayurvedic Wellness'
   }
 ];

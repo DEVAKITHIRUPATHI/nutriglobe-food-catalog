@@ -56,15 +56,29 @@ export default function ArticlePage() {
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Article Not Found</h2>
         <p className="text-gray-500 text-sm">The requested food article could not be located in our editorial catalog.</p>
-        <Link href="/blog">
-          <a className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-md">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog Hub
-          </a>
+        <Link href="/blog" className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-md">
+          <ArrowLeft className="w-4 h-4" />
+          Back to Blog Hub
         </Link>
       </div>
     );
   }
+
+  const cleanAuthorName = (name?: string) => {
+    if (!name) return 'NutriFacts Editorial Team';
+    if (/^dr\./i.test(name) || /arulmani/i.test(name) || /priya/i.test(name)) {
+      return 'NutriFacts Editorial Team';
+    }
+    return name.replace(/^Dr\.\s*/i, '');
+  };
+
+  const cleanAuthorRole = (role?: string) => {
+    if (!role) return 'Food Science & Botanical Research Desk';
+    if (/dr\./i.test(role) || /doctor/i.test(role) || /clinical\s+clinical/i.test(role)) {
+      return 'Food Science & Botanical Research Desk';
+    }
+    return role;
+  };
 
   // Construct structured data JSON-LD for Google News & Search Eligibility
   const jsonLdSchema = {
@@ -76,9 +90,9 @@ export default function ArticlePage() {
     "datePublished": article.publishedAt,
     "dateModified": article.updatedAt,
     "author": [{
-      "@type": "Person",
-      "name": article.author.name,
-      "jobTitle": article.author.role
+      "@type": "Organization",
+      "name": cleanAuthorName(article.author.name),
+      "jobTitle": cleanAuthorRole(article.author.role)
     }],
     "publisher": {
       "@type": "Organization",
@@ -119,11 +133,9 @@ export default function ArticlePage() {
 
       {/* Back Button */}
       <div className="flex items-center justify-between pt-2">
-        <Link href="/blog">
-          <a className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-emerald-600 transition">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to All Articles</span>
-          </a>
+        <Link href="/blog" className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-emerald-600 transition">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to All Articles</span>
         </Link>
 
         <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-800">
@@ -148,15 +160,15 @@ export default function ArticlePage() {
           <div className="flex items-center gap-3">
             <img
               src={article.author.avatar}
-              alt={article.author.name}
+              alt={cleanAuthorName(article.author.name)}
               className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500 shadow-sm"
             />
             <div>
               <div className="font-extrabold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                <span>{article.author.name}</span>
+                <span>{cleanAuthorName(article.author.name)}</span>
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{article.author.role}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{cleanAuthorRole(article.author.role)}</p>
             </div>
           </div>
 

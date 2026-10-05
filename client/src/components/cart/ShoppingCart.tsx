@@ -9,7 +9,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Heart as FavoriteIcon, Info, X, LayoutDashboard } from 'lucide-react';
+import { Heart as FavoriteIcon, Info, X, Apple } from 'lucide-react';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { FoodItemClient } from '@shared/schema';
 import { LazyImage } from '@/components/ui/LazyImage';
@@ -131,10 +131,10 @@ export function ShoppingCart() {
 
           {cartItems.length > 0 && (
             <div className="border-t border-gray-200 py-4 px-4 sm:px-6 dark:border-gray-700 space-y-2">
-              <Link href="/dashboard" onClick={closeCart}>
+              <Link href="/foods" onClick={closeCart}>
                 <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 text-xs font-bold py-2 shadow-sm">
-                  <LayoutDashboard className="w-4 h-4" />
-                  Open Full User Dashboard
+                  <Apple className="w-4 h-4" />
+                  Explore Foods Catalog
                 </Button>
               </Link>
               <div className="flex justify-center text-xs text-center text-gray-500">

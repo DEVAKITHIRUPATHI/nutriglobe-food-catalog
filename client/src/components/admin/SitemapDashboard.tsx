@@ -244,10 +244,10 @@ export function SitemapDashboard() {
             {/* Google Search Result Mock Snippet */}
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
               <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400 font-mono">
-                <span>https://nutriglobe.app/foods?item={searchPreviewQuery.toLowerCase().replace(/\s+/g, '_')}&lang=en</span>
+                <span>https://www.nutrifacts.fun/food/{searchPreviewQuery.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-')}</span>
               </div>
               <h3 className="text-base font-bold text-blue-700 dark:text-blue-400 hover:underline cursor-pointer">
-                {searchPreviewQuery} Nutrition Facts, Calories &amp; RDA Breakdown - NutriGlobe
+                {searchPreviewQuery} Nutrition Facts, Calories &amp; RDA Breakdown - NutriFacts
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Discover comprehensive clinical nutrition facts for {searchPreviewQuery}. Calorie count, macronutrients (protein, carbs, fats), glycemic index, and RDA percentage according to USDA &amp; IFCT guidelines.

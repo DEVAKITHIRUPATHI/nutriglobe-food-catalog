@@ -68,11 +68,11 @@ export function securityHeadersMiddleware(req: Request, res: Response, next: Nex
     "camera=(), microphone=(), geolocation=(self), payment=()"
   );
 
-  // Serve strict robots.txt for bot scraping protection
+  // Serve production robots.txt for search engines & web crawlers
   if (req.path === "/robots.txt") {
-    res.type("text/plain");
+    res.type("text/plain; charset=utf-8");
     return res.send(
-      `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nSitemap: ${req.protocol}://${req.get('host')}/sitemap.xml\n`
+      `User-agent: *\nAllow: /\nDisallow: /api/admin/\nDisallow: /admin\nDisallow: /dashboard\n\nSitemap: https://www.nutrifacts.fun/sitemap.xml\nSitemap: https://www.nutrifacts.fun/news-sitemap.xml\n`
     );
   }
 

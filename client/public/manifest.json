@@ -1,6 +1,6 @@
 {
-  "name": "NutriGlobe - Global Nutrition & Calorie Engine",
-  "short_name": "NutriGlobe",
+  "name": "NutriFacts - Global Nutrition & Calorie Engine",
+  "short_name": "NutriFacts",
   "description": "Multilingual WHO-standard clinical nutrition database and RDA calorie calculator.",
   "start_url": "/",
   "display": "standalone",

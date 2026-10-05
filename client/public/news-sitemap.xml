@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>https://www.nutrifacts.fun/article/5-traditional-summer-superfoods-from-tamil-nadu</loc>
+    <news:news>
+      <news:publication>
+        <news:name>NutriFacts Clinical Nutrition Journal</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-26T08:00:00.000Z</news:publication_date>
+      <news:title>5 Traditional Summer Superfoods from Tamil Nadu for Ultimate Hydration</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.nutrifacts.fun/article/5-high-iron-traditional-greens-to-boost-energy</loc>
+    <news:news>
+      <news:publication>
+        <news:name>NutriFacts Clinical Nutrition Journal</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-25T10:00:00.000Z</news:publication_date>
+      <news:title>5 High-Iron Traditional Greens to Naturally Boost Hemoglobin &amp; Energy</news:title>
+    </news:news>
+  </url>
+</urlset>

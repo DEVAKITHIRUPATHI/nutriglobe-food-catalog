@@ -18,6 +18,14 @@ export default function FeedPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const cleanAuthorName = (name?: string) => {
+    if (!name) return 'NutriFacts Editorial Team';
+    if (/^dr\./i.test(name) || /arulmani/i.test(name) || /priya/i.test(name)) {
+      return 'NutriFacts Editorial Team';
+    }
+    return name.replace(/^Dr\.\s*/i, '');
+  };
+
   const { data: articles = [], isLoading } = useQuery<EditorialArticle[]>({
     queryKey: ['/api/editorial/articles?status=published'],
     queryFn: async () => {
@@ -74,11 +82,9 @@ export default function FeedPage() {
               <Flame className="w-4 h-4 text-amber-400" />
               Daily 5-Food Features
             </span>
-            <Link href="/editorial-policy">
-              <a className="text-emerald-300 hover:underline flex items-center gap-1">
-                AI Editorial Policy
-                <ExternalLink className="w-3 h-3" />
-              </a>
+            <Link href="/editorial-policy" className="text-emerald-300 hover:underline flex items-center gap-1">
+              AI Editorial Policy
+              <ExternalLink className="w-3 h-3" />
             </Link>
           </div>
         </div>
@@ -159,15 +165,13 @@ export default function FeedPage() {
                         {new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                       <span>•</span>
-                      <span>By {article.author.name}</span>
+                      <span>By {cleanAuthorName(article.author.name)}</span>
                     </div>
 
-                    <Link href={`/blog/${article.slug}`}>
-                      <a className="block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                        <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white leading-snug">
-                          {article.title}
-                        </h2>
-                      </a>
+                    <Link href={`/blog/${article.slug}`} className="block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                      <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white leading-snug">
+                        {article.title}
+                      </h2>
                     </Link>
 
                     <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
@@ -206,11 +210,9 @@ export default function FeedPage() {
                       </span>
                     </div>
 
-                    <Link href={`/blog/${article.slug}`}>
-                      <a className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs">
-                        <span>Read Full Collection</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </a>
+                    <Link href={`/blog/${article.slug}`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs">
+                      <span>Read Full Collection</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </div>

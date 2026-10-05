@@ -199,9 +199,9 @@ export const initialArticles: EditorialArticle[] = [
     ],
 
     author: {
-      name: 'Dr. Arulmani Sundaram, PhD',
-      role: 'Chief Nutritionist & Food Heritage Scientist',
-      bio: 'Dr. Sundaram specializes in South Asian ethnobotany, food science, and micro-nutrient verification with over 15 years of agricultural research experience.',
+      name: 'NutriFacts Editorial Team',
+      role: 'Chief Nutrition Research & Food Heritage Desk',
+      bio: 'Our editorial desk evaluates botanical, regional, and nutritional database records to compile evidence-backed food knowledge articles.',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
     },
     publishedAt: '2026-07-26T08:00:00.000Z',
@@ -368,9 +368,9 @@ export const initialArticles: EditorialArticle[] = [
     ],
 
     author: {
-      name: 'Dr. Priya Ramachandran, MD',
-      role: 'Clinical Clinical Dietitian & Integrative Nutritionist',
-      bio: 'Dr. Priya Ramachandran holds a Doctorate in Clinical Nutrition and leads dietary research initiatives focused on botanical micro-nutrition.',
+      name: 'NutriFacts Editorial Team',
+      role: 'Dietary Science & Botanical Research Desk',
+      bio: 'Our editorial desk evaluates botanical, regional, and nutritional database records to compile evidence-backed food knowledge articles.',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
     },
     publishedAt: '2026-07-25T10:00:00.000Z',

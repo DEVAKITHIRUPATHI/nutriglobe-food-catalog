@@ -171,6 +171,8 @@ export type FoodItemClient = {
     fiber: number;
     vitamins: Record<string, string>;
     minerals?: Record<string, string>;
+    potassium?: number;
+    sodium?: number;
     omega3?: number;
     omega6?: number;
     omega9?: number;
@@ -277,7 +279,185 @@ export type FoodItemClient = {
   // Google Images search link & Excel spreadsheet export metadata
   googleSearchUrl?: string;
   excelFormula?: string;
+
+  // Extended Scientific Data & Provenance (Phase 2)
+  scientificProfile?: ExtendedScientificProfile;
 };
+
+// ============================================================================
+// PHASE 2 SCIENTIFIC DATA PROVENANCE & QUALITY SCHEMA
+// ============================================================================
+
+export type ProvenanceStatus = 
+  | 'VERIFIED'
+  | 'SOURCE_REPORTED'
+  | 'CALCULATED'
+  | 'DERIVED'
+  | 'ESTIMATED'
+  | 'MISSING'
+  | 'NOT_APPLICABLE'
+  | 'CONFLICTING'
+  | 'NEEDS_REVIEW';
+
+export type EvidenceLevel = 
+  | 'Strong'
+  | 'Moderate'
+  | 'Limited'
+  | 'Preliminary'
+  | 'Traditional use only';
+
+export type ClinicalEvidenceLevel = 
+  | 'STRONG_CLINICAL_EVIDENCE'
+  | 'MODERATE_CLINICAL_EVIDENCE'
+  | 'PRELIMINARY_EVIDENCE'
+  | 'THEORETICAL_MECHANISM'
+  | 'TRADITIONAL_USE_ONLY';
+
+export type InteractionSeverity = 
+  | 'CONTRAINDICATED'
+  | 'MAJOR'
+  | 'MODERATE'
+  | 'MINOR'
+  | 'INFORMATIONAL';
+
+export interface ClinicalMedicationInteraction {
+  id?: string;
+  drug_class: string;
+  interacting_substance: string;
+  severity: InteractionSeverity;
+  clinical_mechanism: string;
+  patient_action: string;
+  evidence_level: ClinicalEvidenceLevel;
+  authoritative_reference: string;
+  provenance_status: ProvenanceStatus;
+  confidence: number;
+}
+
+export interface BioactiveCompoundRecord {
+  compound: string;
+  value?: number;
+  unit: string;
+  basis: string;
+  provenance_status: ProvenanceStatus;
+  source: string;
+  confidence: number;
+  method?: string;
+  biologicalActivity?: string;
+}
+
+export interface PlantAgricultureProfile {
+  is_plant: boolean;
+  provenance_status: ProvenanceStatus;
+  plant_type?: 'Tree' | 'Shrub' | 'Herb' | 'Vine' | 'Grass' | 'Tuber' | 'Root' | 'Legume' | 'Palm';
+  lifecycle?: 'Annual' | 'Biennial' | 'Perennial';
+  climate_classification?: 'Tropical' | 'Subtropical' | 'Temperate' | 'Arid' | 'Alpine' | 'Mediterranean';
+  soil_type?: string;
+  soil_ph?: string;
+  water_requirements?: 'Low' | 'Moderate' | 'High' | 'Drought-Tolerant' | 'Aquatic / Flooded';
+  sunlight_requirements?: 'Full Sun' | 'Partial Shade' | 'Shade';
+  planting_season?: string;
+  germination_time_days?: string;
+  days_to_maturity?: string;
+  flowering_season?: string;
+  fruit_development_period?: string;
+  harvest_window?: string;
+  harvest_frequency?: string;
+  productive_lifespan_years?: string;
+  total_plant_lifespan_years?: string;
+  major_cultivation_regions?: string[];
+  edible_portion_yield_indicator?: string;
+}
+
+export interface AntinutrientRecord {
+  compound: 'Phytates' | 'Oxalates' | 'Lectins' | 'Tannins' | 'Goitrogens' | 'Trypsin Inhibitors' | 'None Documented';
+  prevalence: 'Trace' | 'Moderate' | 'Significant' | 'Negligible' | 'None Documented';
+  physiological_context: string;
+  reduction_methods: string[];
+  provenance_status: ProvenanceStatus;
+}
+
+export interface BioavailabilityRecord {
+  nutrient: string;
+  chemicalForm?: string;
+  absorption_rate_estimate: string;
+  enhancing_factors: string[];
+  inhibiting_factors: string[];
+  preparation_effects: string;
+  evidence_level: ClinicalEvidenceLevel;
+  provenance_status: ProvenanceStatus;
+}
+
+export interface NutrientProvenanceRecord<T = number | string> {
+  nutrient: string;
+  value: T;
+  unit: string;
+  basis: string; // e.g., "per 100 g edible portion"
+  provenance_status: ProvenanceStatus;
+  source: string; // e.g., "USDA FoodData Central" | "ICMR-NIN IFCT 2017"
+  source_organization?: string;
+  publication_database?: string;
+  year_version?: string;
+  method?: string; // e.g., "AOAC 984.27 ICP-OES", "HPLC", "Calculation"
+  confidence: number; // 0.0 to 1.0 (e.g. 0.98 for lab assay, 0.65 for derived)
+  last_verified: string;
+  standard_reference_id?: string; // e.g., "FDC ID 1102644", "IFCT D001"
+  notes?: string;
+}
+
+export interface DetailedDataQualityScore {
+  overallScore: number; // 0 - 100
+  identityScore: number; // 0 - 100
+  nutritionScore: number; // 0 - 100
+  micronutrientSourceScore: number; // 0 - 100 (high for source-reported, lower for derived)
+  bioactiveSourceScore: number; // 0 - 100
+  evidenceScore: number; // 0 - 100
+  safetyScore: number; // 0 - 100
+  agricultureScore: number; // 0 - 100
+  storageScore: number; // 0 - 100
+  articleScore: number; // 0 - 100
+  referenceScore: number; // 0 - 100
+  translationScore: number; // 0 - 100
+  imageScore: number; // 0 - 100
+  scoreExplanation: string;
+}
+
+export interface DataConflictRecord {
+  id: string;
+  foodId: string;
+  fieldName: string;
+  sourceA: {
+    sourceName: string;
+    value: any;
+    unit?: string;
+    status: ProvenanceStatus;
+  };
+  sourceB: {
+    sourceName: string;
+    value: any;
+    unit?: string;
+    status: ProvenanceStatus;
+  };
+  conflictType: 'different_forms' | 'different_cultivars' | 'discrepant_assay' | 'unit_mismatch';
+  resolutionStatus: 'RESOLVED' | 'NEEDS_REVIEW' | 'KEEP_BOTH_WITH_CONTEXT';
+  resolutionNotes: string;
+}
+
+export interface ExtendedScientificProfile {
+  foodId: string;
+  provenanceMap: Record<string, NutrientProvenanceRecord>;
+  bioactivesMap?: Record<string, BioactiveCompoundRecord>;
+  agricultureProfile?: PlantAgricultureProfile;
+  clinicalInteractions?: ClinicalMedicationInteraction[];
+  antinutrients?: AntinutrientRecord[];
+  bioavailability?: BioavailabilityRecord[];
+  qualityScore: DetailedDataQualityScore;
+  conflicts?: DataConflictRecord[];
+  isEnrichedFromAuthoritativeDatabase: boolean;
+  authoritativeSourceId?: string;
+  authoritativeSourceName?: string;
+  authoritativeDatabase?: string;
+  ediblePortionDescription?: string;
+}
 
 export type ImageStatus = 'VERIFIED' | 'NEEDS_REVIEW' | 'REJECTED' | 'MISSING' | 'DUPLICATE';
 export type ImageSourceType = 'usda' | 'open_food_facts' | 'wikimedia' | 'ai_generated';

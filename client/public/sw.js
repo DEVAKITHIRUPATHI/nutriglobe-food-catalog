@@ -1,8 +1,8 @@
-// NutriGlobe Service Worker - 1M DAU Offline-First Engine
+// NutriFacts Service Worker - Offline-First Engine
 // Stale-While-Revalidate Caching for Food API & Cache-First for Static Assets
 
-const CACHE_NAME = 'nutriglobe-v1-static';
-const API_CACHE_NAME = 'nutriglobe-v1-food-db';
+const CACHE_NAME = 'nutrifacts-v1-static';
+const API_CACHE_NAME = 'nutrifacts-v1-food-db';
 
 const PRECACHE_ASSETS = [
   '/',

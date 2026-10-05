@@ -17,7 +17,9 @@ import { FoodEditModal } from '@/components/admin/FoodEditModal';
 import { FoodEditor } from '@/components/admin/FoodEditor';
 import { DailyAIGenerator } from '@/components/admin/DailyAIGenerator';
 import { SitemapDashboard } from '@/components/admin/SitemapDashboard';
+import { FoodQualityDashboard } from '@/components/admin/FoodQualityDashboard';
 import { PerformanceDashboard } from '@/components/PerformanceDashboard';
+import { DatabaseSyncManagement } from '@/components/admin/DatabaseSyncManagement';
 import { LazyImage } from '@/components/ui/LazyImage';
 import type { FoodItemClient } from '@shared/schema';
 
@@ -78,11 +80,26 @@ export default function AdminPage() {
     setIsAuthenticated(false);
   };
 
-  // Keep local foods synced with contextFoods
+  // Keep local foods synced with contextFoods & enforce noindex for admin portal
   useEffect(() => {
+    document.title = 'Admin Control Portal | NutriFacts';
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement('meta');
+      robots.setAttribute('name', 'robots');
+      document.head.appendChild(robots);
+    }
+    robots.setAttribute('content', 'noindex, nofollow');
+
     if (contextFoods && contextFoods.length > 0) {
       setFoods(contextFoods);
     }
+
+    return () => {
+      if (robots) {
+        robots.setAttribute('content', 'index, follow, max-image-preview:large, max-snippet:-1');
+      }
+    };
   }, [contextFoods]);
 
   // Food CRUD modal state
@@ -415,8 +432,14 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="daily-ai" className="w-full">
+      <Tabs defaultValue="db-sync" className="w-full">
         <TabsList className="flex flex-wrap w-full mb-6 p-1 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="food-quality" className="flex-1 flex items-center gap-2 font-black text-teal-800 dark:text-teal-300">
+            <Sparkles className="h-4 w-4 text-teal-600" /> Food Completeness & Quality
+          </TabsTrigger>
+          <TabsTrigger value="db-sync" className="flex-1 flex items-center gap-2 font-black text-emerald-800 dark:text-emerald-300">
+            <Database className="h-4 w-4 text-emerald-600" /> Database & Sync
+          </TabsTrigger>
           <TabsTrigger value="image-diagnostics" className="flex-1 flex items-center gap-2 font-bold text-rose-800 dark:text-rose-300">
             <ShieldCheck className="h-4 w-4 text-rose-600" /> Image Diagnostics ({foods.length})
           </TabsTrigger>
@@ -451,6 +474,16 @@ export default function AdminPage() {
             <GitMerge className="h-4 w-4" /> Duplicates ({duplicates.length})
           </TabsTrigger>
         </TabsList>
+
+        {/* Tab: Food Quality & Completeness Dashboard (Master Specification Rule 39) */}
+        <TabsContent value="food-quality">
+          <FoodQualityDashboard foods={foods.length > 0 ? foods : (contextFoods || [])} />
+        </TabsContent>
+
+        {/* Tab: Database & Offline Sync Management */}
+        <TabsContent value="db-sync">
+          <DatabaseSyncManagement />
+        </TabsContent>
 
         {/* Tab: Image Diagnostics & ImageValidator */}
         <TabsContent value="image-diagnostics">

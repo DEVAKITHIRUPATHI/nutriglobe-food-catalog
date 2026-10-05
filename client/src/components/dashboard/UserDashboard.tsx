@@ -16,6 +16,7 @@ import { ClinicalRecommendationsView } from './ClinicalRecommendationsView';
 import { PersonalizationGoalsModal } from './PersonalizationGoalsModal';
 import { UserProfileView } from './UserProfileView';
 import { CommunityForumView } from './CommunityForumView';
+import { DailyMacroIntakeTrends } from './DailyMacroIntakeTrends';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   LayoutDashboard, Heart, History, Sparkles, Database, 
   Settings, Flame, Dumbbell, ShieldCheck, Download, RefreshCw, Zap,
-  User, MessageSquare, ArrowRight
+  User, MessageSquare, ArrowRight, TrendingUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -160,7 +161,7 @@ export function UserDashboard() {
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportObject, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute('href', dataStr);
-      downloadAnchor.setAttribute('download', `nutriglobe_dashboard_backup_${Date.now()}.json`);
+      downloadAnchor.setAttribute('download', `nutrifacts_dashboard_backup_${Date.now()}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -253,11 +254,20 @@ export function UserDashboard() {
         <div className="flex items-center gap-2 self-stretch md:self-auto">
           <Button
             size="sm"
+            onClick={() => setActiveTab('macro-trends')}
+            className="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs rounded-xl shadow-sm h-9 px-3 gap-1.5 flex-1 md:flex-initial"
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>7-Day Macro Trends</span>
+          </Button>
+
+          <Button
+            size="sm"
             onClick={() => setActiveTab('profile')}
             className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm h-9 px-3 gap-1.5 flex-1 md:flex-initial"
           >
             <User className="w-3.5 h-3.5" />
-            <span>Edit Profile &amp; Biometrics</span>
+            <span>Edit Profile</span>
           </Button>
 
           <Button
@@ -352,6 +362,14 @@ export function UserDashboard() {
             </TabsTrigger>
 
             <TabsTrigger 
+              value="macro-trends" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+              <span>7-Day Macro Trends</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
               value="favorites" 
               className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
             >
@@ -399,6 +417,15 @@ export function UserDashboard() {
             favoriteFoods={favoriteFoods}
             profile={profile}
             onOpenGoalModal={() => setIsGoalModalOpen(true)}
+          />
+        </TabsContent>
+
+        {/* Tab: 7-Day Daily Macronutrient Intake Trends (Recharts) */}
+        <TabsContent value="macro-trends" className="outline-none">
+          <DailyMacroIntakeTrends
+            profile={profile}
+            favoriteFoods={favoriteFoods}
+            onOpenProfileModal={() => setIsGoalModalOpen(true)}
           />
         </TabsContent>
 
