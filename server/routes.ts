@@ -26,6 +26,17 @@ import { generateFoodImageStudioPrompt, generateSearchQueries, runValidationPipe
 import { runBatchValidation } from "../scripts/batch-validate-food-images";
 import { getAdSenseConfig } from "../shared/adsenseConfig";
 import { auditCatalogContentQuality } from "./contentQualityEngine";
+import { 
+  evaluateFoodEmergencySuitability, 
+  calculateHouseholdEmergencyPlan, 
+  getFoodEmergencyProfileById 
+} from "./emergencyFoodIntelligenceEngine";
+import { EMERGENCY_EVIDENCE_REGISTRY } from "../shared/emergencyEvidenceRegistry";
+import type { 
+  HouseholdMemberRoster, 
+  HouseholdInfrastructureStatus, 
+  DisasterScenarioId 
+} from "../shared/emergencyFoodSchema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -497,6 +508,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.header('Content-Type', 'text/csv; charset=utf-8');
     res.attachment(`nutrifacts_consolidated_food_photo_audit_${foodItems.length}_items.csv`);
     res.send([headers.join(','), ...rows.map(e => e.join(','))].join('\n'));
+  }));
+
+  // Export Master 1,379 Food Catalog CSV with all 22 required columns & Excel UTF-8 BOM
+  app.get(`${API_PREFIX}/foods/export/catalog-1379-csv`, asyncHandler(async (_req: Request, res: Response) => {
+    const csvPath = path.resolve(process.cwd(), 'nutrifacts_food_catalog_1379.csv');
+    if (fs.existsSync(csvPath)) {
+      res.header('Content-Type', 'text/csv; charset=utf-8');
+      res.attachment('nutrifacts_food_catalog_1379.csv');
+      return res.sendFile(csvPath);
+    }
+    const { generateCatalogCsvString } = await import('../scripts/generate-catalog-csv');
+    const csvContent = generateCatalogCsvString();
+    res.header('Content-Type', 'text/csv; charset=utf-8');
+    res.attachment('nutrifacts_food_catalog_1379.csv');
+    res.send(csvContent);
+  }));
+
+  // Public & Admin Food Intelligence & Data Quality Audit API
+  app.get([`${API_PREFIX}/foods/quality-audit`, `${API_PREFIX}/admin/food-quality-audit`], asyncHandler(async (req: Request, res: Response) => {
+    const forceFresh = req.query.fresh === 'true';
+    const auditData = await auditCatalogContentQuality(forceFresh);
+    res.json(auditData);
   }));
 
   // Auto Audit & Verification for all food images with real photo checks
@@ -1763,6 +1796,414 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get([`${API_PREFIX}/admin/content-quality`, `${API_PREFIX}/seo/content-quality`], asyncHandler(async (_req: Request, res: Response) => {
     const audit = await auditCatalogContentQuality();
     res.json(audit);
+  }));
+
+  // ============================================================================
+  // --- Natural Disaster, Emergency Food Intelligence & Survival Rations Endpoints ---
+  // ============================================================================
+
+  // Full Catalog Emergency Audit Summary & Metrics across all 1,379 foods
+  app.get(`${API_PREFIX}/emergency-food/catalog-audit`, asyncHandler(async (_req: Request, res: Response) => {
+    const allFoods = await storage.getAllFoodItems();
+    
+    let readyToEatCount = 0;
+    let coldSoakableCount = 0;
+    let minimalBoilCount = 0;
+    let fullCookCount = 0;
+    let refrigerationDependentCount = 0;
+    let shelfStableLongTermCount = 0;
+    let perishableCount = 0;
+    let zeroFuelCount = 0;
+    let zeroWaterCount = 0;
+    let highCaloricDensityCount = 0;
+    let highProteinCount = 0;
+
+    const auditedFoods = allFoods.map(f => {
+      const audit = evaluateFoodEmergencySuitability(f);
+      switch (audit.primaryClassification) {
+        case 'READY_TO_EAT':
+        case 'READY_TO_EAT_AFTER_WASH':
+          readyToEatCount++;
+          break;
+        case 'COLD_SOAKABLE':
+          coldSoakableCount++;
+          break;
+        case 'MINIMAL_BOIL':
+          minimalBoilCount++;
+          break;
+        case 'FULL_COOK_REQUIRED':
+          fullCookCount++;
+          break;
+        case 'REFRIGERATION_DEPENDENT':
+          refrigerationDependentCount++;
+          break;
+        case 'PERISHABLE_PRODUCE':
+          perishableCount++;
+          break;
+        default:
+          shelfStableLongTermCount++;
+          break;
+      }
+
+      if (audit.fuelRequirement === 'NONE') zeroFuelCount++;
+      if (audit.waterRequirement === 'NONE') zeroWaterCount++;
+      if (audit.isCaloricDense) highCaloricDensityCount++;
+      if (audit.isHighProtein) highProteinCount++;
+
+      return audit;
+    });
+
+    const topImmediateDisasterStaples = auditedFoods
+      .filter(f => (f.primaryClassification === 'READY_TO_EAT' || f.primaryClassification === 'COLD_SOAKABLE') && !f.refrigerationRequired)
+      .sort((a, b) => b.caloriesPer100g - a.caloriesPer100g)
+      .slice(0, 24);
+
+    res.json({
+      status: 'success',
+      totalCatalogFoods: allFoods.length,
+      evaluatedAt: new Date().toISOString(),
+      standardsApplied: ['WHO Humanitarian Standards', 'FEMA P-477', 'CDC Food Safety', 'ICMR-NIN 2024', 'NDMA India'],
+      metrics: {
+        readyToEatCount,
+        coldSoakableCount,
+        minimalBoilCount,
+        fullCookCount,
+        refrigerationDependentCount,
+        shelfStableLongTermCount,
+        perishableCount,
+        zeroFuelRequiredCount: zeroFuelCount,
+        zeroWaterRequiredCount: zeroWaterCount,
+        highCaloricDensityCount,
+        highProteinCount
+      },
+      topImmediateDisasterStaples: topImmediateDisasterStaples.map(f => ({
+        foodId: f.foodId,
+        canonicalSlug: f.canonicalSlug,
+        foodNameEnglish: f.foodNameEnglish,
+        foodNameTamil: f.foodNameTamil,
+        scientificName: f.scientificName,
+        category: f.category,
+        primaryClassification: f.primaryClassification,
+        caloriesPer100g: f.caloriesPer100g,
+        proteinPer100g: f.proteinPer100g,
+        waterRequirement: f.waterRequirement,
+        shelfLifeMonths: f.storageProfile.unopenedShelfLifeMonths
+      }))
+    });
+  }));
+
+  // Single Food Item Emergency Suitability Record
+  app.get(`${API_PREFIX}/emergency-food/food/:id`, asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    let food = await storage.getFoodItemById(id);
+    if (!food) {
+      const allFoods = await storage.getAllFoodItems();
+      food = allFoods.find(f => toCanonicalSlug(f.id) === id.toLowerCase() || f.id.toLowerCase() === id.toLowerCase()) || undefined;
+    }
+    if (!food) {
+      return res.status(404).json({ error: 'Food item not found in catalog' });
+    }
+    const profile = evaluateFoodEmergencySuitability(food);
+    res.json(profile);
+  }));
+
+  // Calculate Custom Household Emergency Food & Water Plan
+  app.post(`${API_PREFIX}/emergency-food/plan`, asyncHandler(async (req: Request, res: Response) => {
+    const { 
+      household = { adults: 2, children: 1, infants: 0, elderly: 0, pregnantOrLactating: 0 },
+      infrastructure = { 
+        cookingFuelAvailable: false, 
+        cleanPotableWaterLiters: 15, 
+        electricityWorking: false, 
+        refrigeratorFunctional: false, 
+        hasAirtightStorageContainers: true 
+      },
+      durationDays = 7 
+    } = req.body || {};
+
+    const validDuration = [3, 7, 15, 30].includes(Number(durationDays)) ? (Number(durationDays) as 3 | 7 | 15 | 30) : 7;
+    const plan = calculateHouseholdEmergencyPlan(
+      household as HouseholdMemberRoster, 
+      infrastructure as HouseholdInfrastructureStatus, 
+      validDuration
+    );
+    res.json({ success: true, plan });
+  }));
+
+  // 18 Disaster Scenarios Metadata & Clinical Guidelines
+  app.get(`${API_PREFIX}/emergency-food/scenarios`, asyncHandler(async (_req: Request, res: Response) => {
+    const scenarios: Array<{
+      id: DisasterScenarioId;
+      nameEnglish: string;
+      nameTamil: string;
+      category: string;
+      primaryHazards: string[];
+      keyFoodStrategies: string[];
+      waterRule: string;
+      fuelRule: string;
+      authoritativeSource: string;
+    }> = [
+      {
+        id: 'floods_water_contamination',
+        nameEnglish: 'Floods & Water Contamination',
+        nameTamil: 'வெள்ளம் மற்றும் நீர் மாசுபாடு',
+        category: 'Hydrological',
+        primaryHazards: ['Tap water contamination', 'Pathogen ingress', 'Submerged kitchens', 'Damp packaging spoil'],
+        keyFoodStrategies: ['Zero tap water washing', 'Ready-to-eat pouches/cans only', 'Discard floodwater-touched screw top packaging'],
+        waterRule: 'Assume all municipal and well water is bio-contaminated; boil rolling for 1 min or drink sealed bottled water.',
+        fuelRule: 'Assume electrical stove and piped gas cuts. Rely on cold-soak aval, roasted gram, or camping butane.',
+        authoritativeSource: 'WHO Guidelines on Water Quality / CDC Disaster Safety'
+      },
+      {
+        id: 'cyclones_hurricanes',
+        nameEnglish: 'Cyclones & Severe Hurricanes',
+        nameTamil: 'புயல் மற்றும் சூறாவளி',
+        category: 'Meteorological',
+        primaryHazards: ['Extended power blackouts', 'High wind structural damage', 'Road blockades for 5-10 days'],
+        keyFoodStrategies: ['7-day airtight reserve', 'Consume perishable fridge items within 4 hours', 'Store high-calorie dry staples'],
+        waterRule: 'Store 4 liters/person/day in narrow-neck HDPE jugs elevated above ground floor level.',
+        fuelRule: 'Do not use open woodfires or charcoal inside enclosed rooms due to lethal carbon monoxide risks.',
+        authoritativeSource: 'NDMA India Cyclone SOP / FEMA P-477'
+      },
+      {
+        id: 'grid_blackout_power',
+        nameEnglish: 'Prolonged Grid Power Blackout',
+        nameTamil: 'நீண்ட மின் தடை',
+        category: 'Infrastructure',
+        primaryHazards: ['Refrigerator failure after 4 hours', 'Electric stove shutdown', 'Water pumping stoppage'],
+        keyFoodStrategies: ['Eat perishables first: dairy and meat within 4h', 'Switch to shelf-stable dry legumes, seeds, and biscuits'],
+        waterRule: 'Fill all household tubs and containers immediately before booster pumps lose pressure.',
+        fuelRule: 'Preserve matches, dry firewood, or portable LPG cylinders with ample ventilation.',
+        authoritativeSource: 'CDC Food Safety in Power Outage / USDA FSIS'
+      },
+      {
+        id: 'earthquakes_structural',
+        nameEnglish: 'Earthquakes & Structural Collapses',
+        nameTamil: 'நிலநடுக்கம் மற்றும் கட்டமைப்பு சேதம்',
+        category: 'Geophysical',
+        primaryHazards: ['Shattered glass food containers', 'Gas line rupture explosions', 'Immediate evacuation necessity'],
+        keyFoodStrategies: ['Bug-out survival bag with lightweight dates, roasted gram, and nut butter', 'No glass containers'],
+        waterRule: 'Carry collapsible water bladders or pre-sealed water sachets.',
+        fuelRule: 'NEVER ignite open flame or strike matches due to possible ruptured natural gas lines.',
+        authoritativeSource: 'FEMA Earthquakes Emergency Survival'
+      },
+      {
+        id: 'tsunamis_coastal',
+        nameEnglish: 'Tsunamis & Coastal Inundations',
+        nameTamil: 'ஆழிப்பேரலை (சுனாமி) மற்றும் கடலோர வெள்ளம்',
+        category: 'Oceanographic',
+        primaryHazards: ['Saline water intrusion into wells', 'Total loss of ground food storage', 'Immediate vertical evacuation'],
+        keyFoodStrategies: ['Ultra-dense pocket rations', 'Electrolyte hydration powders', 'Canned ready fish / beans'],
+        waterRule: 'Groundwater turns brackish/hyper-saline; do not drink seawater under any circumstances.',
+        fuelRule: 'Cooking impractical for 48 hours; rely entirely on ready-to-eat rations.',
+        authoritativeSource: 'NDMA Tsunami Guidelines / WHO'
+      },
+      {
+        id: 'drought_water_shortage',
+        nameEnglish: 'Drought & Extreme Water Scarcity',
+        nameTamil: 'வறட்சி மற்றும் கடுமையான தண்ணீர் பற்றாக்குறை',
+        category: 'Climatological',
+        primaryHazards: ['Zero water for cooking/washing', 'Dehydration and renal strain', 'Crop and staple failures'],
+        keyFoodStrategies: ['Low-sodium rations to minimize thirst', 'High-moisture fruits when safe', 'Millets (Ragi/Bajra) needing low water'],
+        waterRule: 'Strict water prioritization: drinking water first (3L/day), strictly zero water wasted on food boiling.',
+        fuelRule: 'Solar ovens or dry roasting methods without water loss.',
+        authoritativeSource: 'ICMR-NIN Hydration Guidelines & WHO Sphere Standards'
+      },
+      {
+        id: 'wildfires_evacuation',
+        nameEnglish: 'Wildfires & Rapid Evacuations',
+        nameTamil: 'காட்டுத்தீ மற்றும் உடனடி வெளியேற்றம்',
+        category: 'Thermal',
+        primaryHazards: ['Smoke particulate contamination of open foods', 'Rapid 15-minute evacuation window'],
+        keyFoodStrategies: ['Hermetically sealed individual energy bars, roasted nuts, dried fruits, trail mixes'],
+        waterRule: 'Hydrate continuously against heat exhaustion and smoke inhalation.',
+        fuelRule: 'No cooking; rapid movement to emergency evacuation zones.',
+        authoritativeSource: 'FEMA Wildfire Preparedness'
+      },
+      {
+        id: 'landslides_isolation',
+        nameEnglish: 'Landslides & Mountainous Road Cuts',
+        nameTamil: 'நிலச்சரிவு மற்றும் மலைப்பாதை துண்டிப்பு',
+        category: 'Geophysical',
+        primaryHazards: ['Complete physical isolation for 7-21 days', 'No grocery supply replenishment'],
+        keyFoodStrategies: ['High bulk staples: Millets, whole wheat flour, dried beans, mustard oil, rock salt'],
+        waterRule: 'Mountain springs usually available; filter particulate through clean cloth and boil.',
+        fuelRule: 'Local biomass/wood used outdoors; slow-cooking whole grains.',
+        authoritativeSource: 'NDMA Mountainous Disaster Management'
+      },
+      {
+        id: 'extreme_heatwave',
+        nameEnglish: 'Extreme Heatwave (Lu / வெயில் அலை)',
+        nameTamil: 'கடும் வெப்ப அலை மற்றும் நீர்ச்சத்து இழப்பு',
+        category: 'Climatological',
+        primaryHazards: ['Fatal heatstroke', 'Rapid food souring/spoilage at 42°C+', 'Severe electrolyte depletion'],
+        keyFoodStrategies: ['Oral Rehydration Salts (ORS)', 'Tender coconut water', 'Dilute salted buttermilk', 'Avoid heavy fat/meat feasts'],
+        waterRule: 'Increase fluid intake to 4.5 - 5.0 liters daily per adult; sip water every 20 minutes.',
+        fuelRule: 'Minimize daytime stove cooking to prevent overheating living quarters.',
+        authoritativeSource: 'NDMA Extreme Heat Action Plan / WHO'
+      },
+      {
+        id: 'severe_cold_storm',
+        nameEnglish: 'Severe Winter Storm & Cold Snap',
+        nameTamil: 'கடும் பனிப்புயல் மற்றும் குளிர்கால இடர்பாடு',
+        category: 'Meteorological',
+        primaryHazards: ['Hypothermia', 'Frozen municipal water pipes', 'High metabolic caloric requirements'],
+        keyFoodStrategies: ['High-calorie lipid-rich foods: Ghee, peanuts, sesame chikki, hot pulse stews'],
+        waterRule: 'Melt clean snow and bring to a rolling boil; never eat un-melted ice/snow directly (drops core temperature).',
+        fuelRule: 'Conserve fuel; insulate cooking pots with blankets after bringing to a boil ("wonderbag" cooking).',
+        authoritativeSource: 'CDC Winter Weather Preparedness'
+      },
+      {
+        id: 'monsoon_heavy_rainfall',
+        nameEnglish: 'Monsoon Flooding & High Humidity',
+        nameTamil: 'பருவமழை வெள்ளம் மற்றும் தீவிர ஈரப்பதம்',
+        category: 'Meteorological',
+        primaryHazards: ['Fungal mycotoxin and aflatoxin proliferation', 'Insect infestations', 'Leaking roofs'],
+        keyFoodStrategies: ['Double-bagged millets and pulses in HDPE containers', 'Flattened rice (Aval) + roasted gram (Pottukadalai)'],
+        waterRule: 'Monsoon well water frequently tests positive for E. coli; boil all drinking water.',
+        fuelRule: 'Keep dry firewood and kerosene in airtight poly-sheets away from moisture.',
+        authoritativeSource: 'ICMR-NIN & NDMA Flood Management'
+      },
+      {
+        id: 'drinking_water_cutoff',
+        nameEnglish: 'Drinking Water Utility Shutdown',
+        nameTamil: 'குடிநீர் விநியோக முடக்கம்',
+        category: 'Municipal Infrastructure',
+        primaryHazards: ['Acute dehydration within 48-72 hours', 'Waterborne disease outbreaks if unsafe sources used'],
+        keyFoodStrategies: ['Zero water cooking foods only', 'Avoid high-protein and high-salt meals that increase urine volume and water loss'],
+        waterRule: 'Strict minimum 3.0L per person daily for drinking. Sanitize greywater for toilet flush only.',
+        fuelRule: 'Fuel utilized strictly for boiling dubious water sources for 1 full minute.',
+        authoritativeSource: 'WHO Sphere Water Standards'
+      },
+      {
+        id: 'cooking_gas_fuel_shortage',
+        nameEnglish: 'LPG / Cooking Fuel Crisis',
+        nameTamil: 'சமையல் எரிவாயு மற்றும் எரிபொருள் பற்றாக்குறை',
+        category: 'Supply & Fuel',
+        primaryHazards: ['Inability to boil or cook raw legumes and grains', 'Dependence on raw or ready foods'],
+        keyFoodStrategies: ['Cold-soaking Aval (Poha) for 10 mins', 'Roasted gram, sattu drinks, sprouted green gram', 'Dry fruits, peanut chikki'],
+        waterRule: 'Cold potable water used directly for rehydrating cold-soak staples.',
+        fuelRule: 'Conserve residual gas solely for infant formulas or water sterilization.',
+        authoritativeSource: 'ICMR-NIN Practical Emergency Feeding'
+      },
+      {
+        id: 'supply_chain_disruption',
+        nameEnglish: 'Regional Logistics & Supply Chain Halt',
+        nameTamil: 'விநியோகச் சங்கிலி மற்றும் சரக்கு போக்குவரத்து முடக்கம்',
+        category: 'Logistical',
+        primaryHazards: ['Grocery shelves emptied within 48 hours', 'Perishable food shortage in urban centers'],
+        keyFoodStrategies: ['Rotation of 30-day household pantry buffer: Whole pulses, brown rice, mustard seeds, turmeric, jaggery'],
+        waterRule: 'Maintain 14 days of bottled or sealed municipal reserve.',
+        fuelRule: 'Standard home cooking of shelf-stable pantry inventory following First-In First-Out (FIFO).',
+        authoritativeSource: 'FEMA / FSSAI Food Security'
+      },
+      {
+        id: 'food_shortage_inflation',
+        nameEnglish: 'Acute Food Price Inflation & Shortage',
+        nameTamil: 'உணவுப் பற்றாக்குறை மற்றும் தீவிர விலை உயர்வு',
+        category: 'Economic & Food Security',
+        primaryHazards: ['Micronutrient deficiencies from skipping nutrient-dense foods', 'Calorie-protein malnutrition'],
+        keyFoodStrategies: ['Budget resilience foods: Traditional millets (Kodo, Ragi), eggs, split pulses, groundnuts', 'Complementary cereal-pulse pairings'],
+        waterRule: 'Standard potable drinking water.',
+        fuelRule: 'Pressure cooking reduces cooking gas usage by 50-70%.',
+        authoritativeSource: 'ICMR-NIN Cost-Effective Nutrition'
+      },
+      {
+        id: 'evacuation_displacement',
+        nameEnglish: 'Evacuation & Displacement Flight',
+        nameTamil: 'உடனடி வெளியேற்றம் மற்றும் இடப்பெயர்வு',
+        category: 'Humanitarian',
+        primaryHazards: ['Luggage weight limits (must carry rations on back)', 'Loss of home shelter and utilities'],
+        keyFoodStrategies: ['Calorie-dense pocket rations: Dates, roasted gram, sesame chikki, roasted peanuts', 'High calorie-to-weight ratio (>450 kcal/100g)'],
+        waterRule: 'Lightweight water canteen or bottle with personal filtration straw.',
+        fuelRule: 'Zero fuel equipment carried due to weight and hazard.',
+        authoritativeSource: 'UNHCR & WHO Field Rations'
+      },
+      {
+        id: 'emergency_shelter',
+        nameEnglish: 'Community Emergency Shelter Living',
+        nameTamil: 'அவசரகால நிவாரண முகாம் வாழ்க்கை',
+        category: 'Institutional',
+        primaryHazards: ['Crowded conditions and norovirus/cholera transmission', 'Shared kitchen hygiene risks'],
+        keyFoodStrategies: ['Individually wrapped foods', 'Thermal-treated centralized rations', 'Personal clean eating utensils'],
+        waterRule: 'Drink only verified chlorination-treated tank water or sealed packets.',
+        fuelRule: 'Centralized camp kitchen management complying with FSSAI disaster catering guidelines.',
+        authoritativeSource: 'FSSAI Disaster Relief SOP / WHO'
+      },
+      {
+        id: 'community_relief_camp',
+        nameEnglish: 'Mass Relief Camp & Communal Kitchen',
+        nameTamil: 'சமூக நிவாரண மையம் மற்றும் பொது சமையலறை',
+        category: 'Humanitarian Logistics',
+        primaryHazards: ['Food poisoning outbreaks affecting hundreds', 'Nutritional imbalances over prolonged displacement (> 3 weeks)'],
+        keyFoodStrategies: ['Khichdi / Pongal / Poha with lentils, turmeric, and iodized salt', 'Supplemental fruit (bananas) and roasted gram distribution'],
+        waterRule: 'Batch chlorination (minimum 0.5 mg/L free residual chlorine at point of delivery).',
+        fuelRule: 'Commercial LPG burner or clean biomass gasifier stoves with proper exhaust.',
+        authoritativeSource: 'WHO Emergency Kitchen Protocols / NDMA'
+      }
+    ];
+
+    res.json({
+      status: 'success',
+      totalScenarios: scenarios.length,
+      scenarios
+    });
+  }));
+
+  // Download Full Emergency Suitability Audit CSV across 1,379 foods
+  app.get(`${API_PREFIX}/emergency-food/export/csv`, asyncHandler(async (_req: Request, res: Response) => {
+    const allFoods = await storage.getAllFoodItems();
+    
+    const headers = [
+      'Food_ID',
+      'Canonical_Slug',
+      'English_Name',
+      'Tamil_Name',
+      'Scientific_Name',
+      'Category',
+      'Primary_Classification',
+      'Water_Requirement',
+      'Water_ml_per_100g',
+      'Fuel_Requirement',
+      'Cooking_Time_Minutes',
+      'Refrigeration_Required',
+      'Unopened_Shelf_Life_Months',
+      'Calories_kcal_per_100g',
+      'Protein_g_per_100g',
+      'First_72h_Ready',
+      'Floodwater_Safety_Rule',
+      'Authoritative_Evidence_Source'
+    ];
+
+    const rows = allFoods.map(f => {
+      const e = evaluateFoodEmergencySuitability(f);
+      const is72h = (e.primaryClassification === 'READY_TO_EAT' || e.primaryClassification === 'COLD_SOAKABLE') && !e.refrigerationRequired;
+      return [
+        `"${e.foodId}"`,
+        `"${e.canonicalSlug}"`,
+        `"${e.foodNameEnglish.replace(/"/g, '""')}"`,
+        `"${e.foodNameTamil.replace(/"/g, '""')}"`,
+        `"${e.scientificName.replace(/"/g, '""')}"`,
+        `"${e.category.replace(/"/g, '""')}"`,
+        `"${e.primaryClassification}"`,
+        `"${e.waterRequirement}"`,
+        e.waterMlPer100g,
+        `"${e.fuelRequirement}"`,
+        e.cookingTimeMinutes,
+        e.refrigerationRequired ? 'YES' : 'NO',
+        e.storageProfile.unopenedShelfLifeMonths,
+        e.caloriesPer100g,
+        e.proteinPer100g,
+        is72h ? 'YES' : 'NO',
+        `"${e.floodwaterContaminationRule.replace(/"/g, '""')}"`,
+        `"${e.evidence.organization.replace(/"/g, '""')}"`
+      ];
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    res.header('Content-Type', 'text/csv; charset=utf-8');
+    res.attachment('nutrifacts_emergency_food_catalog_audit_1379.csv');
+    res.send(csvContent);
   }));
 
   // Ads.txt for Google AdSense Crawler Verification

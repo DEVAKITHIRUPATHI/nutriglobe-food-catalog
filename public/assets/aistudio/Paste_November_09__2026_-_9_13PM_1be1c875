@@ -1,0 +1,893 @@
+For NutriFacts, I recommend implementing a new major feature called Natural Disaster & Emergency Food Management.
+
+The idea is to transform NutriFacts from a food nutrition encyclopedia into a practical food-survival and emergency-preparedness platform.
+
+For example, when floods, cyclones, earthquakes, droughts, tsunamis, severe storms or electricity failures occur, users should be able to understand:
+
+- Which foods are safe and suitable during an emergency?
+- What foods can be eaten without cooking?
+- What foods require clean water?
+- How can families manage food for 3, 7, 15 or 30 days?
+- How can food be stored without refrigerators?
+- How can available food be rationed without compromising nutrition?
+- How can food be preserved, rotated and protected from contamination?
+- What should people do when clean drinking water, cooking fuel or electricity is unavailable?
+
+My recommendation: Build this as a dedicated NutriFacts module, connected to the existing 1,379-food master catalog. Do not create a separate disconnected food database.
+
+## Proposed NutriFacts feature
+
+[Notnahrung für Blackout-Vorrat richtig wählen - Fluchtrucksack.de Blog - News und Tipps zur Krisenvorsorge und Notfallvorsorge  | Fluchtrucksack.de](https://images.openai.com/static-rsc-4/6aFr3aKqtlNc3PbHe-IeGaZQzEZGRWZuAu1pSbuW6ufBqCfg2C7U44t2HBSsynESlLc---uojrVIlwAeWtbNxtltvNYYMe52dohdLA4_DOMlFJ2_GGpfJ2T_tBPBhZqU9Z2x3dcTOZKKB3c9G3o8FQ24Nk4t6WOZq4quPWqGy1o?purpose=inline)
+
+NutriFacts Emergency Food Intelligence
+
+Proposed new module
+
+Natural disasters • Food security • Survival nutrition • Household preparedness
+
+Suggested navigation
+
+- `/emergency-food` — Emergency preparedness dashboard
+- `/emergency-food/scenarios` — Disaster-specific food guidance
+- `/emergency-food/planner` — Household food planner
+- `/emergency-food/storage` — Food preservation and storage
+- `/emergency-food/water` — Water and food preparation requirements
+- `/emergency-food/inventory` — Emergency food stock management
+- `/emergency-food/food/:slug` — Emergency suitability for an individual food
+
+The module should have two operating modes:
+
+1. Preparedness mode: Before a disaster, prepare food stocks, water, storage and emergency plans.
+2. Crisis mode: During a disaster, help users manage available food, water, fuel, hygiene and rationing safely.
+
+## 1. Ready-to-use implementation prompt
+
+The following prompt is designed for your NutriFacts development agent. It explicitly preserves your existing application and requires evidence-based implementation rather than automatically assigning survival classifications to every food.
+
+# NutriFacts — Natural Disaster, Emergency Food Intelligence & Household Food Survival Management
+
+**Project:** NutriFacts\
+**Production website:** [https://www.nutrifacts.fun/](https://www.nutrifacts.fun/)\
+**Developer:** SDSV Trade Tech LLP\
+**Existing master catalog:** 1,379 food records\
+**Primary objective:** Implement a comprehensive, evidence-based Natural Disaster & Emergency Food Management module integrated into the existing NutriFacts application.
+
+## 1. Project Objective
+
+Transform NutriFacts into a comprehensive food intelligence and emergency preparedness platform.
+
+The new module must help individuals, families, communities and relief volunteers understand how to select, store, preserve, prepare, distribute and manage food during natural disasters, humanitarian emergencies and disruptions to normal food supply.
+
+The system must work with the existing 1,379-food master catalog.
+
+Do not create duplicate food records or replace existing canonical food data.
+
+Build this as an additional feature that uses the existing food IDs, canonical slugs, nutrition information, Tamil names, English names, scientific names and food categories.
+
+The system must support Tamil and English, with an extensible multilingual architecture.
+
+## 2. Emergency Scenarios
+
+Implement scenario-specific food preparedness guidance for the following situations.
+
+### Natural disasters
+
+1. Floods and water contamination.
+2. Cyclones and hurricanes.
+3. Earthquakes.
+4. Tsunamis and coastal disasters.
+5. Drought and severe water shortages.
+6. Wildfires and evacuation.
+7. Landslides.
+8. Extreme heatwaves.
+9. Severe cold and winter storms.
+10. Prolonged heavy rainfall and infrastructure disruption.
+
+### Infrastructure and humanitarian emergencies
+
+11. Electricity and grid blackouts.
+12. Drinking-water supply interruption.
+13. Cooking gas and fuel shortages.
+14. Transportation and supply-chain disruption.
+15. Food shortages and price inflation.
+16. Temporary displacement and evacuation.
+17. Long-term emergency shelter conditions.
+18. Community food distribution and relief camps.
+
+Each scenario must explain:
+
+- What happens to food availability?
+- What happens to refrigeration?
+- Is clean water available?
+- Is cooking fuel available?
+- Which foods are practical?
+- Which foods require special handling?
+- Which foods should be avoided?
+- How should families prepare?
+- What should be done during the first 72 hours?
+- How should food be managed for 7, 15 and 30 days?
+
+Never assume every disaster has identical food requirements.
+
+## 3. Food Emergency Suitability Engine
+
+Create a new module named:
+
+`emergencyFoodIntelligenceEngine.ts`
+
+Connect it to the existing master food catalog.
+
+For each of the 1,379 foods, evaluate the following characteristics where reliable information is available.
+
+### A. Consumption and preparation
+
+- Ready-to-eat suitability.
+- Raw consumption suitability.
+- Cooking requirement.
+- Boiling requirement.
+- Cold-water rehydration suitability.
+- Hot-water rehydration suitability.
+- Preparation time.
+- Clean-water requirement.
+- Cooking fuel requirement.
+- Whether refrigeration is necessary.
+
+### B. Storage and preservation
+
+- Fresh food storage suitability.
+- Dry storage suitability.
+- Refrigerated storage requirement.
+- Frozen storage requirement.
+- Canned or commercially sealed storage suitability.
+- Dehydrated food suitability.
+- Pickled food suitability.
+- Fermented food suitability.
+- Packaging requirements.
+- Moisture sensitivity.
+- Heat sensitivity.
+- Light sensitivity.
+- Pest and rodent protection.
+- Opened-package handling.
+- Food rotation recommendations.
+
+### C. Nutrition during emergencies
+
+Use the existing nutrition catalog to provide:
+
+- Calories per 100 g.
+- Protein per 100 g.
+- Carbohydrates per 100 g.
+- Fat per 100 g.
+- Dietary fiber per 100 g.
+- Nutritional strengths.
+- Nutritional limitations.
+- Complementary food combinations.
+- Food variety recommendations.
+
+Explain that a single food cannot provide a complete balanced diet.
+
+Identify complementary combinations such as rice and pulses, grains and legumes, and other culturally appropriate combinations.
+
+Do not make medical claims or promise that individual foods prevent or cure diseases.
+
+### D. Emergency suitability classification
+
+Use these classifications:
+
+1. Ready-to-eat.
+2. Ready-to-eat after safe preparation.
+3. Cold-water rehydration.
+4. Hot-water rehydration.
+5. Boiling required.
+6. Full cooking required.
+7. Refrigeration dependent.
+8. Frozen storage dependent.
+9. Preservation-dependent.
+10. Unsuitable or restricted under specified emergency conditions.
+11. Data pending.
+
+A food may have multiple characteristics. Do not force every food into one exclusive classification.
+
+Do not infer that a food is safe simply because its nutrition record is complete.
+
+## 4. Household Emergency Food Planner
+
+Create a dedicated planner.
+
+Route:
+
+`/emergency-food/planner`
+
+Allow users to plan food requirements according to:
+
+- Number of adults.
+- Number of children.
+- Number of elderly people.
+- Number of days.
+- Available drinking water.
+- Cooking facilities.
+- Available fuel.
+- Refrigerator availability.
+- Dietary preferences.
+- Food allergies and restrictions.
+- Available food stock.
+- Approximate budget.
+
+Provide planning periods:
+
+- 72 hours.
+- 7 days.
+- 15 days.
+- 30 days.
+
+Calculate estimated household food requirements using transparent assumptions and appropriate authoritative guidance.
+
+Provide:
+
+- Daily meal suggestions.
+- Breakfast.
+- Lunch.
+- Dinner.
+- Emergency snacks.
+- Drinking-water planning.
+- Food preparation water.
+- Estimated cooking requirements.
+- Food quantity breakdown.
+- Shopping checklist.
+- Nutritional coverage overview.
+
+Clearly distinguish drinking water from water used for food preparation.
+
+Do not treat a water requirement as a universal constant. Display the source, assumptions and uncertainty for each estimate.
+
+Allow users to edit quantities.
+
+Provide a printable emergency food plan.
+
+## 5. Crisis Mode — Food Management During an Actual Disaster
+
+Create a dedicated feature:
+
+`/emergency-food/crisis-mode`
+
+The user should be able to select:
+
+- Disaster type.
+- Current food availability.
+- Drinking-water availability.
+- Electricity availability.
+- Cooking fuel availability.
+- Refrigerator condition.
+- Number of people.
+- Expected duration of disruption.
+
+Generate a practical food-management plan.
+
+The plan should prioritize:
+
+1. Safe drinking water.
+2. Food that is already safe and ready to eat.
+3. Foods requiring minimal preparation.
+4. Foods that can be safely prepared with available resources.
+5. Food stock protection.
+6. Safe meal distribution.
+7. Avoidance of food waste.
+8. Prevention of foodborne illness.
+
+Provide guidance for situations such as:
+
+- No electricity.
+- No refrigerator.
+- No gas.
+- No clean water.
+- Limited cooking facilities.
+- Floodwater entering the home.
+- Damaged packaging.
+- Food exposed to heat.
+- Food exposed to contaminated water.
+
+Include clear warnings when food cannot be verified as safe.
+
+Never recommend tasting questionable food to determine whether it is safe.
+
+Never recommend consuming floodwater-contaminated food or food with compromised packaging.
+
+## 6. Food Preservation and Long-Term Storage Guide
+
+Create:
+
+`/emergency-food/storage`
+
+Include educational guides for:
+
+- Sun drying.
+- Solar drying.
+- Mechanical dehydration.
+- Refrigeration.
+- Freezing.
+- Canning.
+- Pickling.
+- Fermentation.
+- Safe packaging.
+- Airtight containers.
+- Moisture control.
+- Pest prevention.
+- FIFO and FEFO stock rotation.
+
+For every method explain:
+
+- Suitable food types.
+- Preparation requirements.
+- Equipment.
+- Temperature considerations.
+- Moisture requirements.
+- Packaging requirements.
+- Storage conditions.
+- Safety limitations.
+- Signs of spoilage.
+- Appropriate authoritative references.
+
+Distinguish food quality, storage duration and microbiological safety.
+
+Never invent shelf-life figures.
+
+Do not suggest that ordinary home dehydration, vacuum sealing or oxygen absorbers automatically make food safe for long-term storage.
+
+Do not provide unsafe canning or preservation instructions. Use validated food-specific processes from recognized food-safety authorities.
+
+## 7. Drinking Water and Food Preparation Management
+
+Create:
+
+`/emergency-food/water`
+
+Cover:
+
+- Drinking-water requirements.
+- Water for food preparation.
+- Water for rehydration.
+- Water for cleaning utensils.
+- Safe water storage.
+- Emergency water treatment.
+- Contaminated water risks.
+- Food preparation without water.
+- Water conservation.
+
+Clearly distinguish:
+
+- Drinking water.
+- Cooking water.
+- Rehydration water.
+- Cleaning water.
+
+Explain that water contaminated by chemicals, fuel or other hazardous substances cannot necessarily be made safe by boiling or ordinary household disinfection.
+
+Never recommend using contaminated water to prepare food.
+
+Link to recognized public-health and emergency-water guidance.
+
+## 8. Emergency Food Inventory and Stock Management
+
+Create:
+
+`/emergency-food/inventory`
+
+Allow users to manage their household emergency food inventory.
+
+Features:
+
+- Add food from the existing 1,379-food catalog.
+- Enter quantity.
+- Enter unit of measurement.
+- Record purchase date.
+- Record expiry or best-before date.
+- Record storage location.
+- Record opened or unopened status.
+- Record packaging condition.
+- Record storage temperature where applicable.
+- Record available quantity.
+- Track consumption.
+- Track remaining stock.
+
+Implement:
+
+- FIFO: First In, First Out.
+- FEFO: First Expired, First Out.
+- Expiry notifications.
+- Low-stock notifications.
+- Emergency stock summary.
+- Food waste reduction.
+- Printable inventory report.
+
+Do not confuse best-before dates with guaranteed food-safety dates.
+
+Do not recommend using expired or damaged foods without appropriate safety guidance.
+
+## 9. Emergency Meal and Food Combination Intelligence
+
+Create a meal recommendation engine.
+
+Use existing nutrition information to suggest practical combinations.
+
+Examples:
+
+- Rice and pulses.
+- Millet and legumes.
+- Ready-to-eat foods with shelf-stable protein sources.
+- Dry fruits and nuts where appropriate.
+- Cereal and pulse combinations.
+- Locally available foods.
+
+Consider:
+
+- Available water.
+- Available fuel.
+- Preparation time.
+- Number of people.
+- Nutrition diversity.
+- Storage conditions.
+- Cultural food preferences.
+- Allergies and dietary restrictions.
+
+Display estimated nutritional information using the actual catalog values.
+
+Do not invent nutrient values for combinations.
+
+Where food composition data is unavailable, clearly identify the missing data.
+
+## 10. Community Relief and Food Distribution
+
+Create:
+
+`/emergency-food/community-relief`
+
+Provide educational tools for:
+
+- Emergency food collection.
+- Food inventory management.
+- Food distribution records.
+- Household food allocation.
+- Safe food transportation.
+- Relief-camp food hygiene.
+- Waste reduction.
+- Community food availability reporting.
+
+Provide a basic distribution calculator based on verified stock and transparent serving assumptions.
+
+Do not automatically allocate food in a way that discriminates against vulnerable groups.
+
+Include appropriate special considerations for infants, young children, older adults and people with dietary restrictions. Direct users to qualified public-health guidance for specialized nutritional needs.
+
+## 11. Food Detail Page Integration
+
+Integrate an additional section into every existing NutriFacts food detail page.
+
+Suggested section title:
+
+**Emergency & Disaster Preparedness**
+
+Tamil title:
+
+**அவசரகால உணவு மற்றும் பேரிடர் தயார்நிலை**
+
+Display:
+
+- Emergency suitability.
+- Consumption method.
+- Clean-water requirement.
+- Cooking requirement.
+- Fuel requirement.
+- Refrigeration requirement.
+- Storage considerations.
+- Packaging precautions.
+- Emergency nutritional contribution.
+- Applicable disaster scenarios.
+- Safety limitations.
+- Evidence source.
+- Confidence level.
+- Last reviewed date.
+
+Only show verified food-specific information.
+
+If information is not available, display:
+
+"Data Pending — This information has not yet been scientifically verified."
+
+Do not assign the same preparedness properties to every food automatically.
+
+Preserve existing food detail content, canonical URLs, metadata, nutritional values and structured data.
+
+## 12. Disaster Scenario Comparison
+
+Create an interactive comparison interface.
+
+Users should be able to compare food options based on:
+
+- No electricity.
+- No cooking fuel.
+- Limited clean water.
+- No refrigeration.
+- Evacuation portability.
+- Storage practicality.
+- Nutritional contribution.
+- Preparation complexity.
+
+Provide filters and comparison tables.
+
+Do not generate a universal survival score based on arbitrary weights.
+
+If a ranking system is implemented, expose the scoring criteria, evidence coverage and limitations.
+
+## 13. Authoritative Sources and Scientific Evidence
+
+Create an evidence-based content architecture.
+
+Prioritize:
+
+- WHO — World Health Organization.
+- FAO — Food and Agriculture Organization.
+- UNICEF — Child nutrition and humanitarian guidance.
+- IFRC — International Federation of Red Cross and Red Crescent Societies.
+- FEMA — Emergency preparedness guidance.
+- CDC — Food and water safety.
+- USDA — Food safety and storage.
+- ICMR-NIN — Indian food composition and nutrition guidance.
+- FSSAI — Indian food safety standards.
+- NDMA India — National Disaster Management Authority.
+
+Use the most relevant national and local emergency guidance where applicable.
+
+For each safety-critical recommendation store:
+
+- Source organization.
+- Document title.
+- Original URL.
+- Publication date, if available.
+- Access or review date.
+- Supported claim.
+- Applicable food or scenario.
+- Evidence confidence.
+- Reviewer status.
+
+Do not fabricate references or source URLs.
+
+Do not use AI-generated text as scientific evidence.
+
+Separate:
+
+- Verified fact.
+- Official recommendation.
+- Evidence-based estimate.
+- Editorial suggestion.
+- Data pending.
+
+## 14. AI-Powered Emergency Food Assistant
+
+Implement an AI assistant as an optional interface to the verified food intelligence data.
+
+Example questions:
+
+- What foods can my family consume without electricity?
+- How can I manage food for seven days during a flood?
+- Which foods require the least cooking fuel?
+- What should I do if my refrigerator stops working?
+- How do I protect rice and pulses from moisture?
+- How should I manage food when clean water is limited?
+- What food stocks should I prepare for a cyclone?
+- Which foods in my inventory should I consume first?
+
+The assistant must retrieve existing catalog and preparedness data before responding.
+
+It must not fabricate nutrition values, shelf-life figures, food safety classifications or emergency instructions.
+
+For uncertain or dangerous situations, prioritize public-health guidance and recommend contacting appropriate emergency authorities.
+
+## 15. Tamil Nadu and India-Specific Preparedness
+
+Include regional preparedness guidance relevant to India.
+
+Prioritize:
+
+- Cyclones along the Tamil Nadu coast.
+- Floods.
+- Northeast monsoon disruption.
+- Heatwaves.
+- Drought.
+- Tsunami and coastal evacuation.
+- Earthquakes.
+- Rural and urban electricity disruptions.
+
+Include familiar food examples:
+
+- அரிசி — Rice.
+- சிறுதானியங்கள் — Millets.
+- பருப்பு வகைகள் — Pulses.
+- கடலை — Chickpeas.
+- பாசிப்பயறு — Green gram.
+- உலர் பழங்கள் — Dried fruits.
+- நிலக்கடலை — Groundnuts.
+- எள் — Sesame.
+- உலர் உணவுகள் — Dried foods.
+
+These examples must not automatically be classified as safe for every emergency. Their preparation, packaging and storage conditions must be evaluated individually.
+
+Provide bilingual Tamil and English guidance.
+
+## 16. Technical Implementation Requirements
+
+Before modifying the codebase:
+
+1. Inspect the complete existing NutriFacts architecture.
+2. Locate the canonical 1,379-food catalog.
+3. Identify the existing food detail page components.
+4. Inspect the current nutrition and food classification models.
+5. Review the existing routing, SSR and SEO architecture.
+6. Review authentication and database access patterns.
+7. Identify existing tests and reusable components.
+8. Prepare an implementation plan.
+
+Suggested modules:
+
+- `emergencyFoodIntelligenceEngine.ts`
+- `disasterScenarioEngine.ts`
+- `householdFoodPlanner.ts`
+- `emergencyFoodInventory.ts`
+- `foodStorageGuidance.ts`
+- `waterSafetyGuidance.ts`
+- `emergencyMealPlanner.ts`
+- `foodEvidenceRegistry.ts`
+
+Adapt filenames and architecture to the existing repository rather than duplicating existing functionality.
+
+Requirements:
+
+- React and existing project architecture compatibility.
+- Responsive desktop and mobile UI.
+- Tamil and English support.
+- Server-side rendering compatibility.
+- Accessible controls.
+- Secure user inventory storage.
+- Authentication and authorization where required.
+- Input validation.
+- No exposed API secrets.
+- No unnecessary database duplication.
+- No regression in existing food pages.
+- Efficient rendering for all 1,379 records.
+
+Make emergency preparedness data extensible so new food records and future disaster scenarios can be supported without rewriting the engine.
+
+## 17. User Interface and Experience
+
+Use NutriFacts existing brand identity.
+
+Design direction:
+
+- Clean white and soft-neutral backgrounds.
+- Deep navy text.
+- Green accents for preparedness and safe guidance.
+- Amber for caution.
+- Red for serious safety warnings.
+- Clear icons and readable typography.
+- Mobile-first responsive design.
+- Simple navigation and accessible controls.
+
+Avoid excessive dashboards, confusing classifications and unnecessary animations.
+
+Clearly distinguish educational information from emergency instructions.
+
+Use clear warning labels and visual status indicators.
+
+## 18. SEO and Content Architecture
+
+Create indexable educational pages where meaningful.
+
+Suggested routes:
+
+- `/emergency-food`
+- `/emergency-food/scenarios`
+- `/emergency-food/planner`
+- `/emergency-food/storage`
+- `/emergency-food/water`
+- `/emergency-food/inventory`
+- `/emergency-food/crisis-mode`
+- `/emergency-food/scenario/cyclone`
+- `/emergency-food/scenario/flood`
+- `/emergency-food/scenario/drought`
+
+Food detail pages should integrate their preparedness information without changing existing canonical URLs.
+
+Implement appropriate:
+
+- Page titles.
+- Meta descriptions.
+- Canonical URLs.
+- Internal links.
+- Breadcrumbs.
+- Structured data where applicable.
+- XML sitemap integration.
+
+Avoid creating 1,379 thin or duplicate emergency pages with automatically generated content.
+
+Only index pages that provide useful, original and sufficiently verified information.
+
+## 19. Testing and Quality Assurance
+
+Build a comprehensive test suite.
+
+### Catalog integration
+
+- All 1,379 existing food IDs remain intact.
+- No duplicate food records.
+- No duplicate canonical slugs.
+- Existing nutrition values remain unchanged.
+- Tamil names remain intact.
+- Scientific names remain intact.
+- Emergency metadata references valid food IDs.
+
+### Preparedness engine
+
+- No unsupported automatic safety classifications.
+- No invented shelf-life values.
+- No unsupported water or fuel estimates.
+- Correct preparation-method classifications.
+- Correct storage and refrigeration warnings.
+- Evidence references are valid.
+- Data Pending is handled correctly.
+
+### Planner
+
+- Correct household-size calculations.
+- Correct day-based planning.
+- Correct unit conversions.
+- Water and fuel assumptions are visible.
+- Food quantities are editable.
+- Inventory deductions are accurate.
+
+### Crisis mode
+
+- Correct scenario-specific recommendations.
+- Clean-water limitations are respected.
+- No refrigeration assumptions when electricity is unavailable.
+- Food contamination warnings are displayed.
+- No unsafe recommendations.
+
+### Application
+
+- Mobile and desktop rendering.
+- SSR rendering.
+- No broken routes.
+- No console errors.
+- No existing feature regression.
+- No duplicate database records.
+- No SEO regressions.
+- Accessibility checks.
+
+## 20. Required Implementation Deliverables
+
+Generate:
+
+1. `NUTRIFACTS_EMERGENCY_FOOD_IMPLEMENTATION_PLAN.md`
+2. `NUTRIFACTS_EMERGENCY_FOOD_DATA_SCHEMA.md`
+3. `NUTRIFACTS_EMERGENCY_FOOD_EVIDENCE_REGISTER.json`
+4. `NUTRIFACTS_EMERGENCY_FOOD_CATALOG_AUDIT.csv`
+5. `NUTRIFACTS_DISASTER_SCENARIO_COVERAGE.csv`
+6. `NUTRIFACTS_HOUSEHOLD_FOOD_PLANNER_TEST_REPORT.md`
+7. `NUTRIFACTS_EMERGENCY_FOOD_SECURITY_AUDIT.md`
+8. `NUTRIFACTS_EMERGENCY_FOOD_RELEASE_REPORT.md`
+
+Report implementation status honestly.
+
+Distinguish:
+
+- Implemented.
+- Tested.
+- Scientifically verified.
+- Awaiting evidence.
+- Not implemented.
+
+## 21. Implementation Phases
+
+Implement in the following order.
+
+**Phase 1 — Foundation**
+
+- Inspect existing catalog.
+- Design emergency metadata schema.
+- Build evidence registry.
+- Build food suitability engine.
+
+**Phase 2 — Preparedness**
+
+- Disaster scenarios.
+- Emergency storage guidance.
+- Water safety.
+- Food detail integration.
+
+**Phase 3 — Household Management**
+
+- Household food planner.
+- Emergency inventory.
+- Stock rotation.
+- Meal planning.
+
+**Phase 4 — Crisis Management**
+
+- Crisis mode.
+- No-electricity planning.
+- Water shortage planning.
+- Fuel shortage planning.
+- Relief and distribution tools.
+
+**Phase 5 — AI and Localization**
+
+- Emergency food assistant.
+- Tamil and English content.
+- Regional disaster guidance.
+
+**Phase 6 — Production Qualification**
+
+- Regression tests.
+- Security audit.
+- Scientific evidence audit.
+- SEO verification.
+- Mobile and SSR verification.
+- Production deployment verification.
+
+## 22. Strict Development Rules
+
+1. Do not overwrite the existing NutriFacts master catalog.
+2. Do not change existing food IDs or canonical slugs.
+3. Do not fabricate scientific facts.
+4. Do not invent shelf-life or preservation guarantees.
+5. Do not treat every dry food as automatically safe.
+6. Do not assume all emergency foods are nutritionally complete.
+7. Do not recommend unsafe water treatment or food preparation.
+8. Do not provide medical treatment instructions.
+9. Do not automatically publish unverified AI-generated food safety advice.
+10. Do not claim that a feature is complete based only on compilation.
+11. Preserve existing production functionality.
+12. Implement incrementally with tests and evidence.
+
+**Final objective:** NutriFacts should become a reliable food intelligence and household emergency preparedness platform that helps people make safer, better-informed food decisions before, during and after natural disasters.
+
+Begin with a repository inspection and implementation plan. Then implement Phase 1, run its tests and report the actual results before proceeding to subsequent phases.
+
+## 2. Additional features I strongly recommend
+
+These three features could make NutriFacts particularly useful in real emergencies.
+
+[Emergency Pantry Planning](https://images.openai.com/static-rsc-4/nqPJaNzpxe2kdROApGYEj3zkOeT6W4NTV2nfdQXjqVuISGTCmcVIr_z5H1_vNWvGkptD69IALfwH43-uxRUXlncqDVriFAJvwE5qRRds6LRxtM7ke_TvUjPiUnVpKrtKWB5ZjyTvdhN8AHr2jeosljKhORTM8mKBlGkN3O3tfok?purpose=inline)
+
+A. 30-day household survival calculator
+
+Calculate approximate food quantities for a household, based on household size, duration, nutritional requirements and available cooking resources.
+
+[Fabriquer un séchoir solaire maison en 2026](https://images.openai.com/static-rsc-4/s-IjiBgbD_rtdaL_yKxvT2WkIUVsoFgnpN_YZIu00t4IXf7SkfBXII9o4DXfBEV0iWouJwLpXbXD_WPgf0H00Rf06kkaP9QavNKQI28slO8_V6tCGH-2RGXedydgP70Pxqh9Yxr3vYCFIO_-IkC8UAURbDtrki7Hnbo6R3mk7dE?purpose=inline)
+
+B. Natural food preservation knowledge
+
+Teach users safe drying, storage, pickling, fermentation and preservation methods, including their limitations.
+
+[Emergency food kit. Non-perishable instant food, homemade Survival food set](https://images.openai.com/static-rsc-4/OYuGeCnc0NoVVIUNVs96Ocqteds4n2LQxatwxfmKuZGSg0mL_5zqSWpjJs_El2vRU9OSjYeATNbBk4CT7epszyv-hadwevYzoOOCJTdm1Yz_-y54rSq9NxY1PwjaBTaWN5fo2HtrFcyjSEjqehU6i-sRNu6VKMqB5UGB4WXdH50hBWWNVkkQbzcNJ-wiAQIs?purpose=inline)
+
+C. Offline emergency handbook
+
+Let users prepare and save essential emergency food guidance, inventory and meal plans for situations where internet connectivity is unavailable.
+
+## 3. Important implementation strategy
+
+I recommend not asking your development agent to generate all emergency information for 1,379 foods in one operation.
+
+Use this sequence:
+
+| Phase | Target                                              |
+| ----- | --------------------------------------------------- |
+| 1     | Data schema and evidence registry                   |
+| 2     | Pilot with 50 foods                                 |
+| 3     | Validate food classifications and safety            |
+| 4     | Expand to all 1,379 foods                           |
+| 5     | Household planner and inventory                     |
+| 6     | Crisis mode and disaster scenarios                  |
+| 7     | Tamil content, offline support and production audit |
+
+My most important recommendation: Make NutriFacts useful not only when people are preparing for disasters, but also when they have already lost electricity, clean water, cooking fuel or access to markets. That is where the new module can provide particularly meaningful value.

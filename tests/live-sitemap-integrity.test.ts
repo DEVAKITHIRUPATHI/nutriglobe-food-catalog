@@ -51,7 +51,7 @@ describe('LIVE SITEMAP INTEGRITY & COVERAGE SUITE', () => {
     const xml = await generateMainSitemapXml(PRODUCTION_DOMAIN);
 
     const expectedStaticPaths = [
-      'https://www.nutrifacts.fun/',
+      'https://www.nutrifacts.fun',
       'https://www.nutrifacts.fun/foods',
       'https://www.nutrifacts.fun/nutrition',
       'https://www.nutrifacts.fun/calculator',

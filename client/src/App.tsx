@@ -33,6 +33,15 @@ const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const DisclaimerPage = lazy(() => import("@/pages/disclaimer"));
 const AffiliateDisclosurePage = lazy(() => import("@/pages/affiliate-disclosure"));
 const CookiePolicyPage = lazy(() => import("@/pages/cookie-policy"));
+const QualityPage = lazy(() => import("@/pages/quality"));
+const EmergencyFoodHub = lazy(() => import("@/pages/emergency-food/index"));
+const EmergencyScenariosPage = lazy(() => import("@/pages/emergency-food/scenarios"));
+const EmergencyPlannerPage = lazy(() => import("@/pages/emergency-food/planner"));
+const EmergencyCrisisPage = lazy(() => import("@/pages/emergency-food/crisis-mode"));
+const EmergencyStoragePage = lazy(() => import("@/pages/emergency-food/storage"));
+const EmergencyWaterPage = lazy(() => import("@/pages/emergency-food/water"));
+const EmergencyInventoryPage = lazy(() => import("@/pages/emergency-food/inventory"));
+const EmergencyCommunityReliefPage = lazy(() => import("@/pages/emergency-food/community-relief"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -205,6 +214,56 @@ function Router() {
       <Route path="/dashboard">
         <Layout>
           <DashboardPage />
+        </Layout>
+      </Route>
+      <Route path="/quality">
+        <Layout>
+          <QualityPage />
+        </Layout>
+      </Route>
+      <Route path="/food-quality">
+        <Layout>
+          <QualityPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food">
+        <Layout>
+          <EmergencyFoodHub />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/scenarios">
+        <Layout>
+          <EmergencyScenariosPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/planner">
+        <Layout>
+          <EmergencyPlannerPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/crisis-mode">
+        <Layout>
+          <EmergencyCrisisPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/storage">
+        <Layout>
+          <EmergencyStoragePage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/water">
+        <Layout>
+          <EmergencyWaterPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/inventory">
+        <Layout>
+          <EmergencyInventoryPage />
+        </Layout>
+      </Route>
+      <Route path="/emergency-food/community-relief">
+        <Layout>
+          <EmergencyCommunityReliefPage />
         </Layout>
       </Route>
       <Route>

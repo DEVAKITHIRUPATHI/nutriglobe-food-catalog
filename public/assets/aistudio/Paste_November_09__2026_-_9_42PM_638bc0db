@@ -1,0 +1,682 @@
+Your NutriFacts emergency-food module has reached a major product milestone. The next challenge is no longer simply adding features: it is turning NutriFacts into a high-discovery, high-retention food intelligence platform.
+
+I recommend treating your goal of 100,000 daily active users (DAU) as a measurable growth programme with three connected priorities:
+
+1. Google SEO + AI search visibility — make NutriFacts pages discoverable, trustworthy and useful in Google Search, AI Overviews and other answer engines.
+2. LLM discovery and recommendations — make your food data easy for AI systems to understand, cite and link to.
+3. Daily engagement and retention — give visitors a reason to return every day, not just visit once from Google.
+
+One important distinction: 100,000 daily active users is a growth target, not something SEO changes can guarantee. We should build the technical and content foundations, measure actual acquisition and retention, and scale what works.
+
+## What I would prioritise
+
+| Priority | Workstream          | Main outcome                                                                            |
+| -------- | ------------------- | --------------------------------------------------------------------------------------- |
+| 1        | Technical SEO       | Google can crawl, render, index and understand important pages                          |
+| 2        | AI search readiness | Clear, evidence-backed pages that can be cited by AI search systems                     |
+| 3        | Content growth      | Thousands of genuinely useful search-intent opportunities, without thin duplicate pages |
+| 4        | Daily engagement    | Daily food tools, personalised plans, reminders and repeat-use features                 |
+| 5        | Distribution        | Tamil Nadu and India-focused communities, social video, partnerships and referrals      |
+| 6        | Measurement         | DAU, new users, returning users, retention, search clicks and conversions               |
+
+Important Google AI point: Google’s published guidance says the normal SEO fundamentals also apply to AI Overviews and AI Mode. There is no special schema, AI text file or guaranteed submission mechanism that makes Google recommend a URL. Pages need to be crawlable, indexable, useful, reliable and eligible for normal Search snippets.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://developers.google.com\&sz=32)
+
+Google for Developers+2
+
+
+
+That means we should not spend the project budget on tricks such as automatically generating `llms.txt`, adding unsupported AI schema, or creating hundreds of near-identical pages. We should make the actual pages worth citing.
+
+## NutriFacts growth architecture
+
+## Target: 100,000 daily active users
+
+# 100,000 DAU
+
+Long-term target, not a forecast or guaranteed result
+
+Acquisition
+
+Google Search, AI search, Discover, social, referrals
+
+Activation
+
+Food search, nutrition lookup, emergency planner, calculators
+
+Retention
+
+Daily food discovery, saved foods, meal planning, learning streaks
+
+Trust
+
+Scientific references, review dates, Tamil and English accuracy
+
+A useful DAU model is:
+
+DAU = new active users today + returning active users today.
+
+So we need both strong discovery and repeat-use features. Search traffic alone is not a daily-engagement strategy.
+
+One additional precaution: because your new module gives emergency and food-safety instructions, I would make an independent safety review a release gate. In particular, verify the water quantities, household demographic calorie assumptions, power-outage discard rules, bleach instructions and storage thresholds against the exact current official sources and applicable Indian guidance. An average evidence-confidence score of 0.97 is not, by itself, proof that every individual recommendation is safe.
+
+## Copy-paste implementation prompt for your development agent
+
+Use this as the next NutriFacts development milestone. It tells the agent to inspect the existing application first, preserve your 1,379-food catalog and emergency module, then implement growth and discoverability improvements incrementally.
+
+# NutriFacts — 100,000 Daily Active Users Growth, SEO, LLM Discovery & Google AI Search Optimisation
+
+**Project:** NutriFacts\
+**Website:** [https://www.nutrifacts.fun/](https://www.nutrifacts.fun/)\
+**Developer:** SDSV Trade Tech LLP\
+**Target:** Build the technical, content, product and analytics foundations for 100,000 daily active users (DAU).
+
+## 1. Mission
+
+Transform NutriFacts into a leading Tamil-English food intelligence, nutrition education and emergency food preparedness platform for India and international users.
+
+Improve:
+
+1. Organic Google Search discovery.
+2. Google AI Overviews and AI Mode eligibility.
+3. Visibility in other answer engines and LLM-powered search experiences.
+4. Search speed and food discovery experience.
+5. Daily active usage and returning-user retention.
+6. User trust, content quality and conversion.
+7. Mobile performance, accessibility and PWA experience.
+
+Do not claim or guarantee Google rankings, AI citations, traffic volumes or 100,000 DAU. Build measurable capabilities and report actual results.
+
+## 2. Mandatory existing-project preservation
+
+Before modifying anything, inspect the complete repository and create a baseline report.
+
+Preserve:
+
+- The canonical 1,379-food master catalog.
+- Existing food IDs, canonical slugs and URLs.
+- All existing Tamil, English and scientific names.
+- Existing nutrition values and image references.
+- Existing CSV exports and download functionality.
+- All emergency-food routes and their functionality.
+- Existing emergency metadata, source registry and scenario mappings.
+- Existing sitemap URLs, robots.txt and canonical metadata.
+- Existing authentication, database and PWA architecture.
+- Existing passing tests and production build behaviour.
+
+Historical baseline reported by the project owner:
+
+- Master catalog: 1,379 foods, 22 columns.
+- CSV size: 750,947 bytes.
+- Emergency audit: 1,379 records.
+- Emergency scenarios: 18.
+- Existing test report: 178/178 passed.
+- TypeScript: 0 errors.
+- Sitemap: 1,395 URLs.
+
+Recheck these values against the actual repository. Do not treat historical results as proof of the current build.
+
+Never regenerate or replace the master catalog as part of this project.
+
+## 3. Phase 1 — Complete technical SEO audit
+
+Inspect and test:
+
+- robots.txt and sitemap.xml.
+- Sitemap index and sitemap URL counts.
+- Canonical URLs and redirect chains.
+- HTTP status codes.
+- Server-side rendering or prerendered HTML.
+- Googlebot access to meaningful page content.
+- JavaScript rendering and hydration.
+- Metadata and title uniqueness.
+- Meta descriptions.
+- H1/H2 structure.
+- Internal linking and crawl depth.
+- Image alt text, dimensions and loading.
+- Broken links and orphan pages.
+- Duplicate and thin pages.
+- Pagination and query parameter handling.
+- Mobile usability and Core Web Vitals.
+- 404 and 5xx responses.
+- HTTPS, security headers and caching.
+- International and Tamil-English language handling.
+
+Test representative URLs from:
+
+- Homepage.
+- Food directory.
+- Individual food detail pages.
+- Nutrition categories.
+- Emergency food hub.
+- Disaster scenario pages.
+- Household planner.
+- Food storage and water safety guides.
+- Inventory and community relief.
+- Educational articles.
+
+Deliver:\
+`NUTRIFACTS_TECHNICAL_SEO_AUDIT.md`
+
+Include severity, evidence, affected URLs, recommended fix, owner and retest result.
+
+## 4. Phase 2 — Food search engine improvement
+
+Build a fast, reliable food search experience across all 1,379 canonical foods.
+
+Search should understand:
+
+- Tamil food names.
+- English food names.
+- Scientific names.
+- Common alternative names.
+- Transliteration between Tamil and English.
+- Partial words and spelling variations.
+- Food categories and ingredients.
+- Nutrition-related search intent.
+- Emergency suitability filters.
+
+Examples:
+
+- "சிறுதானியங்கள்"
+- "millets"
+- "protein rich foods"
+- "iron rich vegetarian foods"
+- "zero cook emergency food"
+- "foods that need refrigeration"
+- Scientific name searches.
+
+Technical requirements:
+
+- Use a searchable index rather than repeatedly filtering and loading the entire catalog on every keystroke.
+- Use debouncing and request cancellation where appropriate.
+- Cache frequently requested search data.
+- Lazy-load nonessential content.
+- Avoid unnecessary network requests.
+- Use pagination or virtualisation for large result sets.
+- Rank exact canonical-name matches above partial matches.
+- Rank language and transliteration matches sensibly.
+- Make search keyboard accessible.
+- Show useful empty states and suggested searches.
+- Keep results usable on low-end mobile devices and slower networks.
+
+Evaluate a lightweight client-side search index versus server-side search based on the existing architecture. Do not introduce Elasticsearch, Algolia or another paid dependency without a documented performance and cost justification.
+
+Create automated search relevance tests using representative Tamil, English, scientific-name and partial-match queries.
+
+Deliver:\
+`NUTRIFACTS_SEARCH_ENGINE_AUDIT.md`\
+`NUTRIFACTS_SEARCH_RELEVANCE_TEST_REPORT.md`
+
+## 5. Phase 3 — Google SEO and AI search readiness
+
+Follow current official Google Search Central guidance.
+
+Make important pages eligible for normal Google Search indexing and snippets.
+
+Requirements:
+
+- Important content must be available in crawlable HTML.
+- Ensure canonical URLs are correct.
+- Provide descriptive page titles and useful meta descriptions.
+- Use descriptive headings and URLs.
+- Maintain relevant internal links.
+- Use structured data only when appropriate and accurate.
+- Ensure structured data matches visible page content.
+- Keep author, publisher, source and reviewed-date information accurate.
+- Maintain a valid XML sitemap.
+- Use accurate image alt text and descriptive image filenames.
+- Ensure important pages are not accidentally blocked by robots.txt or `noindex`.
+- Avoid duplicate, doorway, keyword-stuffed or automatically generated thin pages.
+- Do not publish thousands of low-value programmatic SEO pages.
+
+Implement appropriate schema types only where they represent actual visible content, such as:
+
+- Organization.
+- WebSite.
+- BreadcrumbList.
+- Article, where genuinely an article.
+- Recipe, only where a complete recipe and its required visible details exist.
+- FAQPage only where the content and current Google eligibility rules justify it.
+- Other supported types only after validation against current Google documentation.
+
+Do not add fabricated ratings, reviews, medical claims, author credentials or publication dates.
+
+### Google Search Console
+
+Prepare a verification and monitoring runbook:
+
+- Verify the production domain.
+- Submit the canonical sitemap.
+- Inspect representative important URLs.
+- Check indexing and crawl errors.
+- Review manual actions and security issues.
+- Monitor Search performance by page, query, country and device.
+- Monitor Discover performance when eligible.
+- Track impressions, clicks, CTR and average position.
+
+Do not claim a URL is indexed merely because it appears in the sitemap or returns HTTP 200.
+
+Deliver:\
+`NUTRIFACTS_GOOGLE_SEARCH_READINESS.md`
+
+## 6. Phase 4 — LLM and answer-engine discoverability
+
+Make NutriFacts content easy for answer engines to retrieve, understand and accurately cite.
+
+Build:
+
+- A clear site identity and organization information.
+- Descriptive, stable canonical URLs.
+- Consistent food entity names and identifiers.
+- Clear source attribution.
+- Visible update and review dates.
+- Short, factual summaries supported by detailed explanations.
+- Clearly structured tables and definitions.
+- Explicit units and serving-size assumptions.
+- Tamil and English equivalents.
+- Links between food entities, nutrition information and emergency guidance.
+- A public editorial and methodology page.
+- A transparent scientific-source policy.
+
+For important food pages, provide a clear structure:
+
+1. What is this food?
+2. Tamil, English and scientific names.
+3. Nutrition information and units.
+4. Nutritional strengths and limitations.
+5. Preparation and consumption information.
+6. Storage information where verified.
+7. Emergency suitability where verified.
+8. Relevant comparisons.
+9. Evidence sources.
+10. Last reviewed date.
+
+### Machine-readable discovery
+
+Evaluate the usefulness and maintenance cost of:
+
+- `/llms.txt`
+- A compact public food-catalog index.
+- A public API documentation page.
+- A documented read-only food data endpoint.
+- Stable entity identifiers.
+- Machine-readable source and evidence metadata.
+
+These are optional discovery aids, not Google ranking requirements. Do not claim that publishing them guarantees AI citations.
+
+Do not expose private APIs, database credentials, personal information, inventory records or internal administrative data.
+
+### AI answer quality
+
+If NutriFacts includes an AI assistant:
+
+- Retrieve from the canonical food catalog and evidence registry.
+- Cite the sources used in responses.
+- Distinguish verified information from estimates.
+- State when information is missing.
+- Never invent nutrition values or shelf-life information.
+- Do not make unsupported disease-treatment or medical claims.
+- Provide appropriate safety warnings for emergency guidance.
+
+Deliver:\
+`NUTRIFACTS_LLM_DISCOVERY_READINESS.md`
+
+## 7. Phase 5 — High-value content growth
+
+Build a search-intent-based content strategy.
+
+Prioritise useful original content in these clusters:
+
+### Food and nutrition
+
+- Indian food nutrition database.
+- Tamil food nutrition.
+- Protein-rich vegetarian foods.
+- Fiber-rich foods.
+- Iron-containing foods.
+- Calcium-containing foods.
+- Millet nutrition.
+- Pulses and legumes.
+- Fruits and vegetables.
+- Traditional Indian foods.
+- Food comparisons.
+
+### Food preparation and storage
+
+- Food storage methods.
+- Drying and dehydration.
+- Refrigeration and freezing.
+- Food spoilage and safe handling.
+- Food preservation.
+- Food waste reduction.
+
+### Emergency food preparedness
+
+- Cyclone food preparedness.
+- Flood-safe food management.
+- Power outage food safety.
+- Emergency food inventory.
+- No-cook emergency meals.
+- Drinking water preparedness.
+- Household emergency food planning.
+- Community relief food management.
+
+Create an editorial calendar with:
+
+- Search intent.
+- Primary topic.
+- Supporting questions.
+- Target audience.
+- Language.
+- Evidence sources.
+- Internal links.
+- Author/reviewer.
+- Review date.
+- Publication status.
+
+Every article must offer original value. Do not create mass-generated near-duplicate pages simply to target keywords.
+
+For safety-related articles, require qualified source review before publication.
+
+Deliver:\
+`NUTRIFACTS_CONTENT_GROWTH_STRATEGY.md`\
+`NUTRIFACTS_90_DAY_EDITORIAL_CALENDAR.csv`
+
+## 8. Phase 6 — Daily engagement and retention features
+
+Design features that provide genuine daily value.
+
+Prioritise:
+
+1. Food of the Day — Tamil and English food discovery.
+2. Daily Nutrition Learning — one short evidence-backed learning card.
+3. Food Comparison of the Day.
+4. Daily meal planning.
+5. Saved foods and personal collections.
+6. Search history and recently viewed foods.
+7. Personal food inventory.
+8. Weekly food discovery challenge.
+9. Nutrition knowledge quizzes.
+10. Emergency preparedness checklist and stock reminders.
+11. Shareable food information cards.
+12. Tamil and English daily learning content.
+
+Optional user accounts should improve continuity, not block public access to educational food pages.
+
+Implement notifications only with explicit consent and appropriate frequency controls.
+
+Do not use manipulative notification loops, fake scarcity, misleading health claims or forced registration.
+
+Provide privacy controls, data export and account deletion where applicable.
+
+### Sharing and referral
+
+Create shareable, accurate food cards with:
+
+- Food name.
+- Tamil and English names.
+- Selected nutrition facts.
+- Canonical NutriFacts URL.
+- Source attribution where relevant.
+- Proper social preview metadata.
+
+Track referral sources without collecting unnecessary personal data.
+
+Deliver:\
+`NUTRIFACTS_DAILY_ENGAGEMENT_PRODUCT_PLAN.md`
+
+## 9. Phase 7 — Analytics and 100,000 DAU measurement
+
+Define daily active users consistently.
+
+Recommended definition:
+
+A unique user or privacy-compliant anonymous visitor who performs at least one meaningful activity during the reporting day, such as searching, viewing a food detail, using a planner or completing a learning activity.
+
+Do not count automated bots, health checks, prefetches or background requests as active users.
+
+Track:
+
+### Acquisition
+
+- Organic search users.
+- Direct users.
+- Social referrals.
+- External referrals.
+- New visitors.
+- Landing pages.
+- Country and device categories.
+
+### Activation
+
+- First food search.
+- First food detail view.
+- First planner use.
+- First saved food.
+- First completed learning activity.
+
+### Engagement
+
+- DAU and WAU.
+- DAU/MAU.
+- Sessions per active user.
+- Meaningful actions per session.
+- Search usage.
+- Food-detail engagement.
+- Planner completion.
+
+### Retention
+
+- D1 retention.
+- D7 retention.
+- D30 retention.
+- Returning-user percentage.
+- Notification opt-in and opt-out rates.
+
+### SEO
+
+- Search impressions.
+- Organic clicks.
+- CTR.
+- Search query coverage.
+- Indexed important pages.
+- Search performance by language.
+- Discover performance when eligible.
+
+Create an analytics dashboard with date filters and channel breakdowns.
+
+Use consent-aware analytics and data minimisation. Do not store sensitive health information or expose private user-level activity in public reports.
+
+Deliver:\
+`NUTRIFACTS_GROWTH_ANALYTICS_SPEC.md`
+
+## 10. Phase 8 — Performance and infrastructure
+
+Audit:
+
+- Core Web Vitals.
+- Largest Contentful Paint.
+- Interaction to Next Paint.
+- Cumulative Layout Shift.
+- Server response time.
+- Search response time.
+- API latency.
+- Cache hit rate.
+- Database query efficiency.
+- Image optimisation.
+- JavaScript bundle size.
+- Mobile performance.
+- CDN and static asset delivery.
+
+Set measurable performance budgets based on the existing stack and production baseline.
+
+Test on representative low-end Android devices and slower mobile networks.
+
+Do not scale infrastructure prematurely. Use actual traffic, latency and resource data to decide when caching, database indexing, CDN changes or horizontal scaling are necessary.
+
+Deliver:\
+`NUTRIFACTS_PERFORMANCE_AND_SCALABILITY_REPORT.md`
+
+## 11. Phase 9 — Trust, scientific integrity and emergency safety
+
+The emergency module contains food safety and disaster guidance. Audit all public safety-critical claims before promoting them through SEO or AI systems.
+
+Independently verify:
+
+- Water planning quantities.
+- Demographic calorie assumptions.
+- Food spoilage and refrigeration rules.
+- Power outage guidance.
+- Bleach and water disinfection instructions.
+- Flood-damaged food disposal.
+- Food storage temperature and moisture claims.
+- Oxygen absorber and packaging recommendations.
+- Tanker and community water quality standards.
+- Infant, elderly and pregnancy-related food guidance.
+
+Use the relevant current official guidance for each jurisdiction. Distinguish Indian guidance from US or international guidance.
+
+Every safety recommendation must have:
+
+- Exact source.
+- Applicable jurisdiction.
+- Publication or update date.
+- Review date.
+- Supported claim.
+- Limitations.
+- Reviewer status.
+
+An aggregate confidence score must not substitute for claim-level verification.
+
+Do not describe NutriFacts as a government authority, medical service or emergency response service.
+
+Deliver:\
+`NUTRIFACTS_SCIENTIFIC_AND_EMERGENCY_SAFETY_REVIEW.md`
+
+## 12. Phase 10 — Testing and release gates
+
+Run:
+
+- Existing complete regression suite.
+- New search relevance tests.
+- SEO metadata tests.
+- Sitemap and canonical tests.
+- Structured data validation.
+- SSR and crawler rendering tests.
+- Performance tests.
+- Mobile responsive tests.
+- Accessibility tests.
+- Analytics event tests.
+- Privacy and security tests.
+- Emergency safety claim tests.
+
+Preserve the existing 178-test baseline and report new tests separately.
+
+Release only when:
+
+- No existing catalog records have changed unexpectedly.
+- No canonical URLs are broken.
+- Existing emergency routes still work.
+- No critical security or privacy issue remains.
+- No unsafe emergency instruction is published without review.
+- Production build succeeds.
+- TypeScript succeeds.
+- Tests pass.
+- Important routes return expected HTTP status codes.
+- Analytics does not count bots as users.
+- Sitemap and robots rules are verified.
+
+## 13. Implementation sequence
+
+Do not implement every feature in one uncontrolled change.
+
+Use these gates:
+
+**Gate 0:** Repository inspection and baseline preservation report.
+
+**Gate 1:** Technical SEO audit and critical fixes.
+
+**Gate 2:** Search engine performance and relevance improvements.
+
+**Gate 3:** Google Search and AI discovery readiness.
+
+**Gate 4:** Content strategy and editorial infrastructure.
+
+**Gate 5:** Daily engagement and retention features.
+
+**Gate 6:** Analytics dashboard and growth measurement.
+
+**Gate 7:** Performance, security and production qualification.
+
+Submit a report after every gate. Do not start the next major gate until the previous gate's critical tests pass.
+
+## 14. Required final deliverables
+
+1. `NUTRIFACTS_TECHNICAL_SEO_AUDIT.md`
+2. `NUTRIFACTS_SEARCH_ENGINE_AUDIT.md`
+3. `NUTRIFACTS_SEARCH_RELEVANCE_TEST_REPORT.md`
+4. `NUTRIFACTS_GOOGLE_SEARCH_READINESS.md`
+5. `NUTRIFACTS_LLM_DISCOVERY_READINESS.md`
+6. `NUTRIFACTS_CONTENT_GROWTH_STRATEGY.md`
+7. `NUTRIFACTS_90_DAY_EDITORIAL_CALENDAR.csv`
+8. `NUTRIFACTS_DAILY_ENGAGEMENT_PRODUCT_PLAN.md`
+9. `NUTRIFACTS_GROWTH_ANALYTICS_SPEC.md`
+10. `NUTRIFACTS_PERFORMANCE_AND_SCALABILITY_REPORT.md`
+11. `NUTRIFACTS_SCIENTIFIC_AND_EMERGENCY_SAFETY_REVIEW.md`
+12. `NUTRIFACTS_100K_DAU_GROWTH_RELEASE_REPORT.md`
+
+## 15. Final reporting requirements
+
+Report actual results, not estimates presented as achievements.
+
+Include:
+
+- Current production DAU, if analytics data is available.
+- Current WAU and MAU.
+- Organic search clicks and impressions.
+- Indexed URL counts.
+- Top landing pages.
+- Top search queries.
+- Tamil versus English traffic.
+- Returning-user percentage.
+- D1, D7 and D30 retention, when enough data exists.
+- Search latency and performance measurements.
+- Completed fixes and outstanding risks.
+- Actual deployment status.
+
+If analytics access is unavailable, state that DAU and retention cannot yet be verified. Do not fabricate traffic numbers.
+
+**Final objective:** Make NutriFacts fast to search, easy to discover, trustworthy to cite, valuable to use every day, and technically ready to scale toward 100,000 daily active users while preserving the existing canonical food catalog and emergency intelligence system.
+
+## Suggested growth milestones
+
+Use these as planning milestones, not predictions:
+
+| Stage   | DAU milestone | Main focus                                  |
+| ------- | ------------- | ------------------------------------------- |
+| Stage 1 | 1,000         | Technical foundation and analytics          |
+| Stage 2 | 5,000         | Search discovery and content quality        |
+| Stage 3 | 10,000        | Daily engagement and retention              |
+| Stage 4 | 25,000        | Distribution and partnerships               |
+| Stage 5 | 50,000        | Proven acquisition channels and scalability |
+| Stage 6 | 100,000       | Sustainable multi-channel growth            |
+
+## Official references for your developer
+
+- [Google: AI features and your website](https://developers.google.com/search/docs/appearance/ai-features?roistat_visit=2540962\&utm_source=chatgpt.com)
+- [Google: SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide?iframe=yes\&rd=1\&visit_id=639263618210017577-2213246445\&utm_source=chatgpt.com)
+- [Google Discover guidance](https://developers.google.com/search/docs/appearance/google-discover?utm_source=chatgpt.com)
+- [Google Search Console performance reports](https://support.google.com/webmasters/answer/10268906?hl=en\&utm_source=chatgpt.com)
+- [Google Search Essentials](https://developers.google.cn/search/docs/essentials?hl=en\&utm_source=chatgpt.com)
+
+## My recommended next step
+
+Do not ask the development agent to build all these features at once. Start with Gate 0 and Gate 1: get the actual production traffic baseline, inspect the existing routes, and identify the biggest SEO and search-performance bottlenecks first.
+
+I can also help turn the results into a weekly growth execution plan and review progress toward 100,000 DAU.
+
+Would you like me to prepare a weekly NutriFacts growth review that tracks search traffic, engagement and retention?&#x20;
+
+📈Weekly NutriFacts growth reviewTap to set up

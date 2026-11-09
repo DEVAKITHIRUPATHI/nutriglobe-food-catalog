@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, Fragment } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { FoodCard } from '@/components/foods/FoodCard';
 import { FoodDetail } from '@/components/foods/FoodDetail';
 import { FoodComparisonModal } from '@/components/foods/FoodComparisonModal';
@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { AppContext } from '@/contexts/AppContext';
 import { FoodItemClient } from '@shared/schema';
 import type { SearchFilters } from '@/types';
-import { Search, Scale, ArrowLeftRight, Wand2, Sparkles, Download, ShieldCheck, CheckCircle2, Loader2, FileSpreadsheet, ExternalLink, Copy, SlidersHorizontal, Dumbbell, Flame } from 'lucide-react';
+import { Search, Scale, ArrowLeftRight, Wand2, Sparkles, Download, ShieldCheck, CheckCircle2, Loader2, FileSpreadsheet, ExternalLink, Copy, SlidersHorizontal, Dumbbell, Flame, Database } from 'lucide-react';
 import { 
   sortFoodsByMacronutrient, 
   filterFoodsByMacronutrients, 
@@ -325,15 +325,33 @@ export default function Foods() {
           <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
             {getLocalizedText('nav.foods')}
             <span className="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-800 shadow-sm">
-              1,376 Master Catalog
+              1,379 Master Catalog
             </span>
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Explore 1,376 unique global, regional, and heritage cultivars with complete nutritional data
+            Explore 1,379 unique global, regional, and heritage cultivars with complete nutritional data
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <a href="/api/foods/export/catalog-1379-csv" download="nutrifacts_food_catalog_1379.csv">
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2 border border-emerald-400/40"
+              title="Download official Excel-compatible 1,379 food catalog with all 22 required columns"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-100" />
+              <span>Download 1,379 Catalog CSV</span>
+            </Button>
+          </a>
+          <Link href="/quality">
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2"
+              title="Open Food Intelligence & Data Completeness Quality Dashboard"
+            >
+              <Database className="w-3.5 h-3.5 text-indigo-200" />
+              <span>Data Quality Dashboard</span>
+            </Button>
+          </Link>
           <a href="/api/foods/export/audit-spreadsheet" download>
             <Button
               className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2 border border-emerald-600/50"
@@ -355,7 +373,7 @@ export default function Foods() {
           <a href="/api/foods/export/imagen-prompts" download>
             <Button
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md gap-1.5 px-3.5 py-2"
-              title="Download bulk Google AI Studio Imagen prompts for all 1,376 items"
+              title="Download bulk Google AI Studio Imagen prompts for all 1,379 items"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span>Imagen Prompts JSON</span>
@@ -364,10 +382,10 @@ export default function Foods() {
           <Button
             onClick={handleExportCSV}
             className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md gap-2 px-3.5 py-2"
-            title="Export full 1,376 food dataset as CSV"
+            title="Export full 1,379 food dataset as CSV"
           >
             <Download className="w-4 h-4 text-white" />
-            <span>Export Catalog CSV ({contextFoods.length || foods.length || 1376})</span>
+            <span>Export Catalog CSV ({contextFoods.length || foods.length || 1379})</span>
           </Button>
           <Button
             onClick={handleRunAutoAudit}
@@ -398,7 +416,7 @@ export default function Foods() {
       </div>
       
       <div ref={catalogTopRef} />
-      {/* Top Google AdSense Responsive Banner across all 1,376 foods */}
+      {/* Top Google AdSense Responsive Banner across all 1,379 foods */}
       <AdBanner slot="1002003001" format="auto" className="my-3" />
 
       <SearchFilter onSearch={handleSearch} initialQuery={initialSearchQuery} />
@@ -625,23 +643,23 @@ export default function Foods() {
         foodItem={selectedFood}
       />
 
-      {/* 1,376 Food Images Accuracy Auto-Audit Modal */}
+      {/* 1,379 Food Images Accuracy Auto-Audit Modal */}
       <Dialog open={isAuditOpen} onOpenChange={setIsAuditOpen}>
         <DialogContent className="max-w-2xl bg-slate-900 text-white border-slate-800 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
               <ShieldCheck className="w-6 h-6 text-emerald-400" />
-              1,376 Food Images Accuracy Auto-Audit Report
+              1,379 Food Images Accuracy Auto-Audit Report
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Automated image resolution audit verifying high-definition food photography across all 13 NutriGlobe categories.
+              Automated image resolution audit verifying high-definition food photography across all NutriFacts categories.
             </DialogDescription>
           </DialogHeader>
 
           {isAuditing ? (
             <div className="py-12 flex flex-col items-center justify-center space-y-3">
               <Loader2 className="w-10 h-10 text-emerald-400 animate-spin" />
-              <p className="text-sm font-semibold text-slate-300">Auditing 1,376 catalog items & image resolutions...</p>
+              <p className="text-sm font-semibold text-slate-300">Auditing 1,379 catalog items & image resolutions...</p>
             </div>
           ) : auditData ? (
             <div className="space-y-4 py-2">

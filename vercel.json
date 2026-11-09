@@ -3,7 +3,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/)(?!.*\\.(?:csv|xml|txt|ico|png|jpg|svg|json)$).*)",
       "destination": "/index.html"
     }
   ]

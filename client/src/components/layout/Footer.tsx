@@ -1,6 +1,6 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from 'wouter';
-import { Facebook, Twitter, Instagram, Linkedin, Info } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Info, Database, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { NutriFactsLogo } from '@/components/layout/NutriFactsLogo';
@@ -52,7 +52,18 @@ export function Footer() {
                   {getLocalizedText('nav.contact')}
                 </Link>
               </li>
-
+              <li>
+                <Link href="/quality" className="text-emerald-300 font-bold hover:text-white transition flex items-center gap-1.5">
+                  <Database className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Food Intelligence &amp; Quality</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/emergency-food" className="text-rose-400 font-bold hover:text-white transition flex items-center gap-1.5">
+                  <span>🚨</span>
+                  <span>Emergency &amp; Disaster Food Intelligence</span>
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -136,6 +147,12 @@ export function Footer() {
               <Link href="/contact" className="hover:text-emerald-400 underline transition">Contact &amp; News Desk</Link>
               <span>•</span>
               <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 underline transition">Sitemap XML</a>
+              <span>•</span>
+              <Link href="/quality" className="hover:text-emerald-400 underline transition">Data Quality Dashboard</Link>
+              <span>•</span>
+              <Link href="/emergency-food" className="hover:text-rose-400 underline transition font-bold text-rose-300">Emergency &amp; Disaster Hub</Link>
+              <span>•</span>
+              <a href="/api/foods/export/catalog-1379-csv" download="nutrifacts_food_catalog_1379.csv" className="hover:text-emerald-400 underline transition">Master 1,379 Catalog CSV</a>
             </div>
           </div>
           <div className="flex items-center space-x-3 mt-4 md:mt-0 text-xs text-slate-400">

@@ -17,6 +17,7 @@ import { PersonalizationGoalsModal } from './PersonalizationGoalsModal';
 import { UserProfileView } from './UserProfileView';
 import { CommunityForumView } from './CommunityForumView';
 import { DailyMacroIntakeTrends } from './DailyMacroIntakeTrends';
+import { FoodQualityDashboard } from './FoodQualityDashboard';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -251,7 +252,16 @@ export function UserDashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-stretch md:self-auto">
+        <div className="flex items-center gap-2 self-stretch md:self-auto flex-wrap">
+          <Button
+            size="sm"
+            onClick={() => setActiveTab('food-quality')}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl shadow-sm h-9 px-3 gap-1.5 flex-1 md:flex-initial"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Food Intelligence</span>
+          </Button>
+
           <Button
             size="sm"
             onClick={() => setActiveTab('macro-trends')}
@@ -370,6 +380,14 @@ export function UserDashboard() {
             </TabsTrigger>
 
             <TabsTrigger 
+              value="food-quality" 
+              className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
+            >
+              <Database className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Food Quality &amp; Intelligence</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
               value="favorites" 
               className="rounded-lg text-xs font-bold gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm px-3 py-2"
             >
@@ -427,6 +445,11 @@ export function UserDashboard() {
             favoriteFoods={favoriteFoods}
             onOpenProfileModal={() => setIsGoalModalOpen(true)}
           />
+        </TabsContent>
+
+        {/* Tab: Food Intelligence & Data Quality Dashboard */}
+        <TabsContent value="food-quality" className="outline-none">
+          <FoodQualityDashboard />
         </TabsContent>
 
         {/* Tab 2: Saved Favorite Foods */}

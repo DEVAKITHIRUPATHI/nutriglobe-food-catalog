@@ -78,7 +78,7 @@ export function SitemapDashboard() {
                   </Badge>
                 </div>
                 <CardDescription className="text-xs text-emerald-200/80 mt-1">
-                  Dynamic sitemap.xml generator indexing all 1,376+ food items, articles, and pages with hreflang tags
+                  Dynamic sitemap.xml generator indexing all 1,379+ food items, articles, and pages with hreflang tags
                 </CardDescription>
               </div>
             </div>
@@ -113,7 +113,7 @@ export function SitemapDashboard() {
                 Total Indexed Food Records
               </span>
               <div className="text-3xl font-black text-white">
-                {stats?.foodItemCount ? stats.foodItemCount.toLocaleString() : '1,376'}
+                {stats?.foodItemCount ? stats.foodItemCount.toLocaleString() : '1,379'}
               </div>
               <span className="text-xs text-emerald-200/80 font-medium block">
                 Direct Canonical URLs in sitemap.xml
@@ -227,7 +227,7 @@ export function SitemapDashboard() {
                   Google SERP Multi-Language Ranking Simulator
                 </h4>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Simulate how any of the 1,376 food records appear in Google search results across languages
+                  Simulate how any of the 1,379 food records appear in Google search results across languages
                 </p>
               </div>
 

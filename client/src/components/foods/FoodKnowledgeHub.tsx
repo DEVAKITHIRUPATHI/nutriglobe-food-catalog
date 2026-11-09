@@ -35,6 +35,22 @@ export function FoodKnowledgeHub({ item, className = '', defaultTab = 'nutrition
     return () => { isCurrent = false; };
   }, [item, language]);
 
+  const [emergencyProfile, setEmergencyProfile] = useState<any>(null);
+
+  // Fetch disaster and emergency suitability profile
+  useEffect(() => {
+    let isCurrent = true;
+    fetch(`/api/emergency-food/food/${item.id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (isCurrent && data) {
+          setEmergencyProfile(data);
+        }
+      })
+      .catch(() => {});
+    return () => { isCurrent = false; };
+  }, [item.id]);
+
   const toggleFaq = (index: number) => {
     setExpandedFaqIndex(expandedFaqIndex === index ? null : index);
   };
@@ -70,7 +86,7 @@ export function FoodKnowledgeHub({ item, className = '', defaultTab = 'nutrition
 
       {/* Main Multi-Dimensional Knowledge Tabs */}
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 w-full bg-gray-100 dark:bg-gray-800/90 p-1.5 rounded-2xl h-auto gap-1">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 w-full bg-gray-100 dark:bg-gray-800/90 p-1.5 rounded-2xl h-auto gap-1">
           <TabsTrigger value="nutrition" className="text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 shadow-xs">
             <span>🥗</span>
             <span className="hidden sm:inline">Nutrition</span>
@@ -106,6 +122,10 @@ export function FoodKnowledgeHub({ item, className = '', defaultTab = 'nutrition
           <TabsTrigger value="guide" className="text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 shadow-xs">
             <span>📖</span>
             <span className="hidden sm:inline">Guide & FAQs</span>
+          </TabsTrigger>
+          <TabsTrigger value="emergency" className="text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 data-[state=active]:bg-rose-600 data-[state=active]:text-white shadow-xs">
+            <span>🚨</span>
+            <span className="hidden sm:inline">Emergency</span>
           </TabsTrigger>
         </TabsList>
 
@@ -745,6 +765,132 @@ export function FoodKnowledgeHub({ item, className = '', defaultTab = 'nutrition
                 </a>
               ))}
             </div>
+          </div>
+        </TabsContent>
+
+        {/* TAB 10: NATURAL DISASTER & EMERGENCY PREPAREDNESS */}
+        <TabsContent value="emergency" className="space-y-6 pt-4">
+          <div className="bg-rose-50/70 dark:bg-rose-950/20 p-5 rounded-2xl border border-rose-200/70 dark:border-rose-900/50 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-200/60 dark:border-rose-900/60 pb-3">
+              <div>
+                <h4 className="font-extrabold text-sm text-rose-950 dark:text-rose-200 flex items-center gap-2">
+                  <span>🚨</span>
+                  Emergency Readiness &amp; Disaster Food Intelligence
+                </h4>
+                <p className="text-xs text-rose-800/80 dark:text-rose-300/80 font-serif">
+                  அவசரகால உணவு மற்றும் பேரிடர் தயார்நிலை மதிப்பீடு
+                </p>
+              </div>
+
+              <span className="text-[11px] font-mono font-bold text-rose-800 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/60 px-3 py-1 rounded-xl">
+                {emergencyProfile?.primaryClassification?.replace(/_/g, ' ') || 'CLINICALLY AUDITED'}
+              </span>
+            </div>
+
+            <p className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
+              Evaluating this food's logistical viability, cooking fuel dependencies, water requirements, floodwater contamination rules, and survival role under WHO, FEMA, CDC, and NDMA emergency standards.
+            </p>
+          </div>
+
+          {/* Quick Emergency Specs 4-Card Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xs space-y-1">
+              <span className="text-[10px] font-extrabold uppercase text-gray-500">Preparation Type</span>
+              <div className="text-sm font-black text-gray-900 dark:text-white">
+                {emergencyProfile?.primaryClassification?.replace(/_/g, ' ') || 'READY TO EAT'}
+              </div>
+              <span className="text-[10px] text-gray-400">
+                {emergencyProfile?.canEatRaw ? 'Edible raw without cooking' : 'Cooking required'}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xs space-y-1">
+              <span className="text-[10px] font-extrabold uppercase text-amber-600">Cooking Fuel Needed</span>
+              <div className="text-sm font-black text-amber-600 dark:text-amber-400">
+                {emergencyProfile?.fuelRequirement || 'NONE'}
+              </div>
+              <span className="text-[10px] text-gray-400">
+                {emergencyProfile?.cookingTimeMinutes ? `~${emergencyProfile.cookingTimeMinutes} mins on flame` : 'Zero fuel required'}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xs space-y-1">
+              <span className="text-[10px] font-extrabold uppercase text-blue-600">Water Requirement</span>
+              <div className="text-sm font-black text-blue-600 dark:text-blue-400">
+                {emergencyProfile?.waterRequirement || 'LOW'}
+              </div>
+              <span className="text-[10px] text-gray-400">
+                {emergencyProfile?.waterMlPer100g ? `${emergencyProfile.waterMlPer100g} ml per 100g` : 'Zero water prep'}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xs space-y-1">
+              <span className="text-[10px] font-extrabold uppercase text-emerald-600">Unopened Shelf Life</span>
+              <div className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                {emergencyProfile?.storageProfile?.unopenedShelfLifeMonths ? `${emergencyProfile.storageProfile.unopenedShelfLifeMonths} Months` : '12+ Months'}
+              </div>
+              <span className="text-[10px] text-gray-400">
+                {emergencyProfile?.refrigerationRequired ? 'Requires cold chain' : 'Ambient pantry stable'}
+              </span>
+            </div>
+          </div>
+
+          {/* Safety Warnings & Floodwater Ingress Directives */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 space-y-2.5">
+              <span className="font-extrabold text-xs uppercase text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-rose-500" />
+                Floodwater Contamination Rule
+              </span>
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                {emergencyProfile?.floodwaterContaminationRule || 'If packaged in cardboard or paper, discard immediately if touched by floodwaters. Metal hermetic cans can be sanitized in a chlorine solution.'}
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 space-y-2.5">
+              <span className="font-extrabold text-xs uppercase text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-blue-500" />
+                Authoritative Emergency Citation
+              </span>
+              <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                <div>Standard: <strong>{emergencyProfile?.evidence?.organization || 'WHO / FEMA Guidelines'}</strong></div>
+                <div className="text-[11px] text-gray-500">{emergencyProfile?.evidence?.documentTitle}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Complementary Survival Pairings */}
+          {emergencyProfile?.complementaryPairings && emergencyProfile.complementaryPairings.length > 0 && (
+            <div className="p-4 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-xs space-y-2">
+              <span className="font-extrabold uppercase text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+                Complementary Survival Pairings (Complete Amino Acids &amp; Minerals)
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {emergencyProfile.complementaryPairings.map((pairing: string, pIdx: number) => (
+                  <Badge key={pIdx} variant="outline" className="bg-white/80 dark:bg-gray-800 text-emerald-800 dark:text-emerald-300 border-emerald-300 text-xs py-1">
+                    + {pairing}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Link to Household Survival Planner */}
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-emerald-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h5 className="font-extrabold text-sm">Plan this food into your 7-Day Survival Rations</h5>
+              <p className="text-xs text-slate-300">
+                Calculate family rations, water needs, and printable emergency pantry checklist.
+              </p>
+            </div>
+            <a
+              href="/emergency-food/planner"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all shrink-0"
+            >
+              <span>Open Household Planner</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         </TabsContent>
       </Tabs>

@@ -114,6 +114,19 @@ export function Navbar() {
                 <span>RDA & Calorie Calculator</span>
               </span>
             </Link>
+
+            {/* Emergency Food & Disaster - Rose / Crimson */}
+            <Link href="/emergency-food">
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 border whitespace-nowrap ${
+                location.startsWith('/emergency-food') 
+                  ? 'bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-900/40' 
+                  : 'bg-rose-500/10 text-rose-200 border-rose-500/20 hover:bg-rose-500/30 hover:text-white'
+              }`}>
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                <span>Emergency Food</span>
+                <span className="bg-rose-500/80 text-[10px] px-1 py-0.5 rounded font-black text-white">பேரிடர்</span>
+              </span>
+            </Link>
           </nav>
         </div>
         
@@ -264,6 +277,13 @@ export function Navbar() {
                         <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location === '/calculator' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
                           <Calculator className="h-5 w-5 mr-3 text-indigo-600" />
                           RDA & Calorie Calculator
+                          <ChevronRight className="h-4 w-4 ml-auto" />
+                        </div>
+                      </Link>
+                      <Link href="/emergency-food">
+                        <div className={`flex items-center px-3 py-3 rounded-lg text-base font-medium ${location.startsWith('/emergency-food') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800'} cursor-pointer`}>
+                          <ShieldCheck className="h-5 w-5 mr-3 text-rose-500" />
+                          <span>Emergency Food (பேரிடர் தயார்நிலை)</span>
                           <ChevronRight className="h-4 w-4 ml-auto" />
                         </div>
                       </Link>

@@ -151,12 +151,12 @@ export default function FoodDetailPage() {
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Food Item Not Found</h2>
         <p className="text-gray-500 dark:text-gray-400 text-sm">
-          The requested cultivar or food item could not be found in our 1,376 master database.
+          The requested cultivar or food item could not be found in our 1,379 master database.
         </p>
         <Link href="/foods">
           <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md gap-2">
             <ArrowLeft className="w-4 h-4" />
-            <span>Browse All 1,376 Foods</span>
+            <span>Browse All 1,379 Foods</span>
           </Button>
         </Link>
       </div>
